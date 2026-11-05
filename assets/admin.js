@@ -497,14 +497,17 @@
   /* ---------- Hesab ---------- */
   var menim = { super: false, must_change: false };
   function menimHesab() {
-    return db.from('admins').select('email,super,must_change').then(function (r) {
+    return db.from('admins').select('email,super,must_change,active').then(function (r) {
       var list = r.data || [], me = (istifadeci && istifadeci.email || '').toLowerCase();
       menim = list.filter(function (a) { return a.email === me; })[0] || menim;
-      el('adminPanel').hidden = !menim.super;
+      el('adminPanel').hidden = !menim.super; el('yeniAdminQeyd').hidden = !!menim.super;
       el('mecburiSifre').hidden = !menim.must_change;
       el('adminSiyahi').innerHTML = list.map(function (a) {
-        return '<div class="qonaq-setir"><div><div class="ad">' + e(a.email) + '</div><div class="alt">' + (a.super ? 'baş admin' : 'admin') + (a.must_change ? ' · müvəqqəti şifrə ilə' : '') + '<span data-mfa="' + e(a.email) + '"></span></div></div>' +
-          (a.email === me ? '' : '<button class="duyme kicik" type="button" data-sifirla="' + e(a.email) + '">Yeni şifrə</button>') + '</div>';
+        var aktiv = a.active !== false;
+        return '<div class="qonaq-setir' + (aktiv ? '' : ' legv') + '"><div><div class="ad">' + e(a.email) + '</div><div class="alt">' + (a.super ? 'baş admin' : aktiv ? 'admin' : 'çıxarılıb') + (aktiv && a.must_change ? ' · müvəqqəti şifrə ilə' : '') + (aktiv ? '<span data-mfa="' + e(a.email) + '"></span>' : '') + '</div></div>' +
+          (a.email === me || a.super ? '' : '<div class="duymeler">' + (aktiv
+            ? '<button class="duyme kicik" type="button" data-sifirla="' + e(a.email) + '">Yeni şifrə</button><button class="duyme kicik tehlike" type="button" data-cixar="' + e(a.email) + '">Çıxar</button>'
+            : '<button class="duyme kicik" type="button" data-berpa="' + e(a.email) + '">Bərpa et</button>') + '</div>') + '</div>';
       }).join('');
       if (menim.super) db.rpc('admin_mfa_veziyyeti').then(function (m) {
         (Array.isArray(m.data) ? m.data : []).forEach(function (x) {
@@ -563,7 +566,33 @@
       });
     });
   });
+  function mvqGoster(kim, sifre) { el('smKime').textContent = kim; el('smSifre').textContent = sifre; el('sifreModal').hidden = false; menimHesab(); }
+  el('adminElave').addEventListener('click', function () {
+    var em = el('yeniAdmin').value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(em)) { bildir('Email-i düzgün yazın.'); return; }
+    tesdiq('Admin əlavə edilsin?', em + ' admin panelə girə biləcək. Müvəqqəti şifrə yaradılacaq, onu bu adama göndərəcəksiniz.', 'Əlavə et').then(function (ok) {
+      if (!ok) return;
+      db.rpc('admin_elave_et', { yeni_email: em }).then(function (r) {
+        if (r.error || !r.data) return bildir('Əlavə etmək alınmadı. Email-i yoxlayın.');
+        el('yeniAdmin').value = ''; mvqGoster(em, r.data);
+      });
+    });
+  });
   el('adminSiyahi').addEventListener('click', function (ev) {
+    var c = ev.target.closest('[data-cixar]'), br = ev.target.closest('[data-berpa]');
+    if (c) {
+      var kimc = c.getAttribute('data-cixar');
+      tesdiq('Admin çıxarılsın?', kimc + ' artıq panelə girə bilməyəcək. Açıq olan girişləri də dərhal bağlanacaq. İstəsəniz sonra bərpa edə bilərsiniz.', 'Çıxar').then(function (ok) {
+        if (!ok) return;
+        db.rpc('admin_cixar', { hedef: kimc }).then(function (r) { if (r.error) return bildir('Alınmadı.'); bildir('Admin çıxarıldı.'); menimHesab(); });
+      });
+      return;
+    }
+    if (br) {
+      var kimb = br.getAttribute('data-berpa');
+      db.rpc('admin_elave_et', { yeni_email: kimb }).then(function (r) { if (r.error || !r.data) return bildir('Alınmadı.'); mvqGoster(kimb, r.data); });
+      return;
+    }
     var b = ev.target.closest('[data-sifirla]'); if (!b) return;
     var kim = b.getAttribute('data-sifirla');
     tesdiq('Yeni şifrə yaradılsın?', kim + ' üçün müvəqqəti şifrə yaradılacaq. Köhnə şifrəsi dərhal işləməz olacaq.', 'Yarat').then(function (ok) {
