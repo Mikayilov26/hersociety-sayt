@@ -240,6 +240,6 @@ p{margin:0;text-wrap:pretty}
 .modal .qutu{background:var(--krem);max-width:440px;width:100%;padding:24px;display:flex;flex-direction:column;gap:14px;border:2px solid var(--bordo)}
 .modal .qutu h2{font-size:24px}
 .qr-qutu{display:flex;flex-wrap:wrap;gap:20px;align-items:center}
-.qr-qutu #qr{background:#fff;padding:12px;border:1px solid var(--xett)}
+.qr-qutu #qr{background:var(--krem);padding:6px;border:1px solid var(--xett)}
 .qr-qutu #qr img,.qr-qutu #qr canvas{display:block;width:160px;height:160px}
 .bildiris{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:70;background:var(--bordo);color:var(--krem);padding:12px 18px;font-size:17px;max-width:calc(100% - 32px);box-shadow:0 6px 20px rgba(40,8,6,.3)}

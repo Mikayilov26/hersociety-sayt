@@ -77,7 +77,6 @@
   document.querySelectorAll('[data-tab]').forEach(function (b) { b.addEventListener('click', function () { tab(b.getAttribute('data-tab')); }); });
 
   function basla() {
-    qrCiz();
     gorusleriYukle().then(function () {
       var t = 'gorusler'; try { t = sessionStorage.getItem('hs-tab') || 'gorusler'; } catch (x) {}
       tab(t);
@@ -192,18 +191,6 @@
       bildir(redakte ? 'Dəyişikliklər saxlandı. Saytda artıq görünür.' : 'Yeni görüş əlavə olundu. Saytda artıq görünür.');
       gorusleriYukle();
     });
-  });
-
-  /* ---------- QR ---------- */
-  function qrCiz() {
-    if (!window.QRCode) return;
-    el('qr').innerHTML = '';
-    new QRCode(el('qr'), { text: ALBOM_LINK, width: 640, height: 640, colorDark: '#661712', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
-  }
-  el('qrYukle').addEventListener('click', function () {
-    var c = el('qr').querySelector('canvas'); if (!c) return;
-    var a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'her-society-albom-qr.png';
-    document.body.appendChild(a); a.click(); a.remove();
   });
 
   /* ---------- Albom ---------- */
