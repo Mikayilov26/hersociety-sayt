@@ -169,11 +169,29 @@
     el('fVenueDetail').value = g ? (g.venue_detail || '') : '';
     el('fCardNote').value = g ? (g.card_note || '') : '';
     el('fMap').value = g ? (g.map_url || '') : '';
+    mapSon = el('fMap').value; el('fMapQeyd').hidden = true;
     el('fPublished').checked = g ? g.published : true;
     el('fXeta').hidden = true;
     el('gorusForm').hidden = false;
     el('gorusForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  // Google Maps linkindən ad və ünvanı doldur
+  var mapSon = '';
+  function mapOxu() {
+    var u = (el('fMap').value.match(/https:\/\/\S+/) || [''])[0];
+    var q = el('fMapQeyd');
+    if (!u || u === mapSon) return;
+    mapSon = u; q.hidden = false; q.textContent = 'Ünvan axtarılır…';
+    db.functions.invoke('xerite', { body: { url: u } }).then(function (r) {
+      var d = r.data || {};
+      if (r.error || d.error) { q.textContent = 'Ünvanı avtomatik tapa bilmədik. Link işləyəcək, ünvanı istəsəniz özünüz yazın.'; return; }
+      if (d.ad && !el('fVenue').value.trim()) el('fVenue').value = d.ad;
+      if (d.unvan) el('fVenueDetail').value = d.unvan;
+      q.textContent = d.unvan ? 'Ünvan linkdən götürüldü. Lazım olsa düzəldin.' : 'Link qəbul olundu. Ünvan tapılmadı — istəsəniz özünüz yazın.';
+    }).catch(function () { q.textContent = 'Ünvanı avtomatik tapa bilmədik. Link işləyəcək.'; });
+  }
+  el('fMap').addEventListener('change', mapOxu);
+  el('fMap').addEventListener('paste', function () { setTimeout(mapOxu, 50); });
   el('yeniGorus').addEventListener('click', function () { formAc(null); });
   el('formLegv').addEventListener('click', function () { el('gorusForm').hidden = true; });
   el('gorusForm').addEventListener('submit', function (ev) {
