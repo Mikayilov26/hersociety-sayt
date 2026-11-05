@@ -154,7 +154,7 @@
   }
   el('grQoy').addEventListener('click', function () {
     var kod = el('grKod').value.trim();
-    if (kod.length < 4) { bildir('Kod ən azı 4 simvol olmalıdır.'); return; }
+    if (kod.length < 6 || !/[a-zəğıöşüç]/i.test(kod) || !/\d/.test(kod)) { bildir('Kod ən azı 6 simvol olmalı, içində həm hərf, həm rəqəm olsun.'); return; }
     db.rpc('giris_kodu_qoy', { ev: cari.id, kod: kod }).then(function (r) {
       if (r.error) return xeta(r.error);
       cari.door_active = true; girisVeziyyeti(); el('grKod').value = '';

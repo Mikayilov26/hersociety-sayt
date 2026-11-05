@@ -2,6 +2,8 @@
 <html lang="az" class="admin">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://bxykddiqsxwnwfrgnutm.supabase.co; connect-src 'self' https://bxykddiqsxwnwfrgnutm.supabase.co wss://bxykddiqsxwnwfrgnutm.supabase.co https://cloudflareinsights.com https://static.cloudflareinsights.com; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Admin · HER Society</title>
@@ -11,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/stil.css?v=202611051810">
+<link rel="stylesheet" href="../assets/stil.css?v=202611051813">
 </head>
 <body>
 
@@ -122,7 +124,7 @@
           <summary class="duyme" id="girisBasliq">Giriş linki (işçilər)</summary>
         <div class="panel">
           <p id="grVeziyyet"></p>
-          <div class="sahe"><label for="grKod">Giriş kodu (özünüz seçin, ən azı 4 simvol)</label><input id="grKod" autocomplete="off" autocapitalize="off" placeholder="məs. lalo2111"></div>
+          <div class="sahe"><label for="grKod">Giriş kodu (ən azı 6 simvol, hərf və rəqəm)</label><input id="grKod" autocomplete="off" autocapitalize="off" placeholder="məs. lalo2111"></div>
           <div class="duymeler">
             <button class="duyme dolu kicik" id="grQoy" type="button">Kodu qoy və linki yarat</button>
             <button class="duyme kicik tehlike" id="grSondur" type="button">Girişi söndür</button>
@@ -243,11 +245,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="../assets/qrcode.js?v=202611051810"></script>
-<script src="../assets/config.js?v=202611051810"></script>
-<script src="../assets/ortaq.js?v=202611051810"></script>
-<script src="../assets/kart.js?v=202611051810"></script>
-<script src="../assets/admin.js?v=202611051810"></script>
-<script src="../assets/admin-devet.js?v=202611051810"></script>
+<script src="../assets/qrcode.js?v=202611051813"></script>
+<script src="../assets/config.js?v=202611051813"></script>
+<script src="../assets/ortaq.js?v=202611051813"></script>
+<script src="../assets/kart.js?v=202611051813"></script>
+<script src="../assets/admin.js?v=202611051813"></script>
+<script src="../assets/admin-devet.js?v=202611051813"></script>
 </body>
 </html>

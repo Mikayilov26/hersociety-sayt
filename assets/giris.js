@@ -46,11 +46,16 @@
   /* ---------- Məlumat ---------- */
   function siyahi() { return (S.data && S.data.list) || []; }
   function gelib(b) { return S.yerli[b.id] || b.in; }
-  function tap(acar) {
-    acar = String(acar || '').trim();
-    acar = acarTemizle(acar);
+  // Qonaq sirri telefonda saxlanmır, yalnız izi (SHA-256) — oğurlansa da istifadə oluna bilməz
+  function iz(s) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (b) {
+      return Array.from(new Uint8Array(b), function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+    });
+  }
+  function tap(acar, h) {
+    acar = acarTemizle(String(acar || '').trim());
     var up = acar.toUpperCase();
-    return siyahi().filter(function (b) { return b.secret === acar || b.code === up || b.id === acar; })[0] || null;
+    return siyahi().filter(function (b) { return (h && b.h === h) || b.code === up || b.id === acar; })[0] || null;
   }
   function acarTemizle(metn) {
     var s = String(metn), k = s.match(/[?&]k=([A-Za-z0-9]{20,})/); if (k) return k[1];
@@ -138,7 +143,12 @@
 
   // Qeyd: əvvəl serverə (3 san.), alınmasa telefonda saxla və sonra göndər
   function qeyd(metn, usul) {
-    var acar = acarTemizle(metn), b = tap(acar), vaxt = new Date().toISOString();
+    var acar = acarTemizle(metn);
+    if (acar.length >= 20) iz(acar).then(function (h) { qeydEt(acar, usul, tap(acar, h)); });
+    else qeydEt(acar, usul, tap(acar));
+  }
+  function qeydEt(acar, usul, b) {
+    var vaxt = new Date().toISOString();
     var yerliNetice = function () {
       if (!b) return { status: navigator.onLine ? 'yoxdur' : 'yoxdur' };
       if (b.revoked) return { status: 'legv', name: b.name, num: b.num };

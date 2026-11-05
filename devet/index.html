@@ -2,13 +2,15 @@
 <html lang="az">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://bxykddiqsxwnwfrgnutm.supabase.co; connect-src 'self' https://bxykddiqsxwnwfrgnutm.supabase.co wss://bxykddiqsxwnwfrgnutm.supabase.co https://cloudflareinsights.com https://static.cloudflareinsights.com; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Şəxsi dəvət · HER Society</title>
 <meta name="theme-color" content="#661712">
 <link rel="icon" type="image/png" href="../assets/favicon.png">
 <link rel="apple-touch-icon" href="../assets/favicon.png">
-<link rel="stylesheet" href="../assets/stil.css?v=202611051810">
+<link rel="stylesheet" href="../assets/stil.css?v=202611051813">
 <style>
 html{background:#430d0a}
 body{background:radial-gradient(ellipse at 50% 30%,#7d2019 0%,#661712 55%,#430d0a 100%) fixed;font-family:HSCG,Georgia,serif;min-height:100vh}
@@ -46,32 +48,8 @@ body{background:radial-gradient(ellipse at 50% 30%,#7d2019 0%,#661712 55%,#430d0
   <p class="alt-yazi">Qadından qadına…</p>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="../assets/config.js?v=202611051810"></script>
-<script src="../assets/ortaq.js?v=202611051810"></script>
-<script>
-(function () {
-  var HS = window.HS, el = function (id) { return document.getElementById(id); };
-  var k = new URLSearchParams(location.search).get('k') || '';
-  function olmadi(m) { el('dSalam').textContent = m; el('dQeyd').innerHTML = '<a href="https://instagram.com/hersociety.az">@hersociety.az</a>'; }
-  if (!HS.db || k.length < 20) { olmadi('Dəvət tapılmadı.'); return; }
-  HS.db.rpc('devet_bax', { acar: k }).then(function (r) {
-    var d = r.data;
-    if (r.error) { olmadi('Bağlantı alınmadı. Bir az sonra yenidən açın.'); return; }
-    if (!d) { olmadi('Dəvət tapılmadı.'); return; }
-    var ev = d.event, t = HS.hisseler(ev.starts_at);
-    document.title = ev.title + ' · Şəxsi dəvət';
-    el('dBasliq').textContent = ev.title;
-    el('dMovzu').textContent = ev.topic || '';
-    if (d.revoked) { el('dSalam').textContent = 'Bu dəvət artıq etibarlı deyil.'; return; }
-    el('dSalam').textContent = 'Hörmətli ' + d.name + ', ' + (ev.card_note || 'yeriniz ayrıldı — sizi gözləyirik');
-    el('dNum').textContent = 'DƏVƏT № ' + String(d.num).padStart(2, '0'); el('dNum').hidden = false;
-    var s = [['TARİX', t.hefte.charAt(0).toLocaleUpperCase('az') + t.hefte.slice(1) + ', ' + t.gun + ' ' + t.ay + ' ' + t.il, ''], ['SAAT', t.saat, ''], ['MƏKAN', ev.venue || '', ev.venue_detail || '']];
-    if (ev.guest_name) s.push(['QONAQ', ev.guest_name, ev.guest_title || '']);
-    el('dSetirler').innerHTML = s.map(function (x) { return '<div><b>' + x[0] + '</b><span>' + HS.esc(x[1]) + (x[2] ? '<small>' + HS.esc(x[2]) + '</small>' : '') + '</span></div>'; }).join('');
-    if (ev.map_url || ev.venue) { el('dXerite').href = ev.map_url || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(ev.venue + ' ' + (ev.venue_detail || '') + ' Bakı')); el('dXerite').hidden = false; }
-    el('dQeyd').textContent = 'Girişdə dəvət kartınızdakı QR kodu göstərməyiniz kifayətdir.';
-  });
-})();
-</script>
+<script src="../assets/config.js?v=202611051813"></script>
+<script src="../assets/ortaq.js?v=202611051813"></script>
+<script src="../assets/devet.js?v=202611051813"></script>
 </body>
 </html>
