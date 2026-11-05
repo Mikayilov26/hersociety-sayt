@@ -72,6 +72,7 @@
     document.querySelectorAll('[data-tab]').forEach(function (b) { b.setAttribute('aria-selected', b.getAttribute('data-tab') === ad ? 'true' : 'false'); });
     document.querySelectorAll('[data-tabpanel]').forEach(function (p) { p.hidden = p.getAttribute('data-tabpanel') !== ad; });
     if (ad === 'albom') albomYukle(); else { secilen.clear(); emeliyyatPaneli(); }
+    if (ad === 'hesab') adminler();
     if (ad === 'devetler') dvSiyahi();
     try { sessionStorage.setItem('hs-tab', ad); } catch (x) {}
   }
@@ -80,7 +81,7 @@
   function basla() {
     gorusleriYukle().then(function () {
       var t = 'gorusler'; try { t = sessionStorage.getItem('hs-tab') || 'gorusler'; } catch (x) {}
-      tab(t);
+      menimHesab().then(function (m) { tab(m && m.must_change ? 'hesab' : t); });
     });
   }
 
@@ -466,7 +467,39 @@
   });
 
   /* ---------- Hesab ---------- */
-  function adminler() {}
+  var menim = { super: false, must_change: false };
+  function menimHesab() {
+    return db.from('admins').select('email,super,must_change').then(function (r) {
+      var list = r.data || [], me = (istifadeci && istifadeci.email || '').toLowerCase();
+      menim = list.filter(function (a) { return a.email === me; })[0] || menim;
+      el('adminPanel').hidden = !menim.super;
+      el('mecburiSifre').hidden = !menim.must_change;
+      el('adminSiyahi').innerHTML = list.map(function (a) {
+        return '<div class="qonaq-setir"><div><div class="ad">' + e(a.email) + '</div><div class="alt">' + (a.super ? 'baş admin' : 'admin') + (a.must_change ? ' · müvəqqəti şifrə ilə' : '') + '</div></div>' +
+          (a.email === me ? '' : '<button class="duyme kicik" type="button" data-sifirla="' + e(a.email) + '">Yeni şifrə</button>') + '</div>';
+      }).join('');
+      return menim;
+    });
+  }
+  function adminler() { menimHesab(); }
+  el('adminSiyahi').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-sifirla]'); if (!b) return;
+    var kim = b.getAttribute('data-sifirla');
+    tesdiq('Yeni şifrə yaradılsın?', kim + ' üçün müvəqqəti şifrə yaradılacaq. Köhnə şifrəsi dərhal işləməz olacaq.', 'Yarat').then(function (ok) {
+      if (!ok) return;
+      db.rpc('admin_sifre_sifirla', { hedef: kim }).then(function (r) {
+        if (r.error || !r.data) return xeta(r.error);
+        el('smKime').textContent = kim; el('smSifre').textContent = r.data; el('sifreModal').hidden = false;
+        menimHesab();
+      });
+    });
+  });
+  el('smBagla').addEventListener('click', function () { el('sifreModal').hidden = true; el('smSifre').textContent = ''; });
+  el('smPaylas').addEventListener('click', function () {
+    var metn = 'HER Society admin panel: https://hersociety.az/admin\nEmail: ' + el('smKime').textContent + '\nMüvəqqəti şifrə: ' + el('smSifre').textContent + '\nGirəndən sonra Hesab bölməsində öz şifrənizi qoyun.';
+    if (navigator.share) navigator.share({ text: metn }).catch(function () {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(metn).then(function () { bildir('Kopyalandı.'); });
+  });
   function sifreYoxla(a, b) {
     if (a !== b) return 'Şifrələr eyni deyil.';
     if (a.length < 10) return 'Şifrə ən azı 10 simvol olmalıdır.';
@@ -487,6 +520,7 @@
     db.auth.updateUser({ password: a }).then(function (r) {
       if (r.error) { el('hXeta').hidden = false; el('hXeta').textContent = 'Şifrə dəyişmədi. Yenidən cəhd edin.'; return; }
       el('hSifre').value = el('hSifre2').value = '';
+      db.rpc('sifre_deyisdi').then(function () { el('mecburiSifre').hidden = true; });
       bildir('Yeni şifrə yadda saxlandı.');
     });
   });
