@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="az" class="admin">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · HER Society</title>
+<meta name="theme-color" content="#661712">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/stil.css">
+</head>
+<body>
+
+<header class="basliq-zolaq">
+  <div class="wrap adm-ust">
+    <a class="wordmark" href="../" aria-label="Sayta keç"><b>HER</b><span>Society</span><small lang="en">Admin</small></a>
+    <button class="duyme kicik" id="cixis" type="button" hidden>Çıxış</button>
+  </div>
+</header>
+
+<main class="adm-esas">
+
+  <!-- GİRİŞ -->
+  <section id="giris" hidden>
+    <form class="panel" id="girisForm" style="max-width:440px;margin:24px auto 0">
+      <h1 style="font-size:30px">Admin panelə giriş</h1>
+      <div class="sahe"><label for="gEmail">Email</label><input id="gEmail" type="email" autocomplete="username" required></div>
+      <div class="sahe"><label for="gSifre">Şifrə</label><input id="gSifre" type="password" autocomplete="current-password" required></div>
+      <p class="xeta" id="gXeta" hidden></p>
+      <button class="duyme dolu" type="submit" style="width:100%">Daxil ol</button>
+      <p style="font-size:16px;font-style:italic">Şifrəni unutmusunuzsa, Kənana yazın.</p>
+    </form>
+  </section>
+
+  <!-- PANEL -->
+  <section id="app" hidden>
+    <div class="tablar" role="tablist">
+      <button type="button" role="tab" data-tab="gorusler" aria-selected="true">Görüşlər</button>
+      <button type="button" role="tab" data-tab="albom" aria-selected="false">Albom</button>
+      <button type="button" role="tab" data-tab="hesab" aria-selected="false">Hesab</button>
+    </div>
+
+    <!-- Görüşlər -->
+    <div data-tabpanel="gorusler" style="display:flex;flex-direction:column;gap:20px">
+      <div class="duymeler"><button class="duyme dolu" id="yeniGorus" type="button">+ Yeni görüş</button></div>
+
+      <form class="panel" id="gorusForm" hidden>
+        <h2 id="formBasliq">Yeni görüş</h2>
+        <div class="sahe"><label for="fTitle">Görüşün adı</label><input id="fTitle" required value="Çay Süfrəsi"></div>
+        <div class="sahe"><label for="fTopic">Mövzu (alt başlıq)</label><input id="fTopic" placeholder="məs. Bir qadının bir neçə rolu"></div>
+        <div class="sahe"><label for="fGuest">Qonaq</label><input id="fGuest" placeholder="Ad Soyad"></div>
+        <div class="sahe"><label for="fGuestTitle">Qonağın titulu</label><input id="fGuestTitle" placeholder="məs. Azərbaycanın Əməkdar artisti"></div>
+        <div class="sahe-cut">
+          <div class="sahe"><label for="fDate">Tarix</label><input id="fDate" type="date" required></div>
+          <div class="sahe"><label for="fTime">Saat</label><input id="fTime" type="time" required value="13:00"></div>
+        </div>
+        <div class="sahe"><label for="fVenue">Məkan</label><input id="fVenue" placeholder="Məkanın adı, ünvan"></div>
+        <label class="yoxla"><input type="checkbox" id="fPublished" checked> Saytda göstər</label>
+        <p class="xeta" id="fXeta" hidden></p>
+        <div class="duymeler">
+          <button class="duyme dolu" type="submit">Saxla</button>
+          <button class="duyme" type="button" id="formLegv">Ləğv et</button>
+        </div>
+      </form>
+
+      <div class="kart-siyahi" id="gorusSiyahi"></div>
+
+      <div class="panel">
+        <h2>Albom QR kodu</h2>
+        <div class="qr-qutu">
+          <div id="qr" aria-label="hersociety.az/albom üçün QR kod"></div>
+          <div style="display:flex;flex-direction:column;gap:10px;flex:1 1 200px">
+            <p>Masa kartında bu QR olacaq. Həmişə eyni linkə aparır: <b>hersociety.az/albom</b>. Hansı görüşün albomu açıqdırsa, şəkillər ora düşür.</p>
+            <button class="duyme kicik" id="qrYukle" type="button">QR-ı şəkil kimi yüklə</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Albom -->
+    <div data-tabpanel="albom" hidden style="display:flex;flex-direction:column;gap:16px">
+      <div class="sahe"><label for="aGorus">Görüş</label><select id="aGorus"></select></div>
+      <div id="aXeberdarliq"></div>
+      <div class="melumat-zolaq" id="aSay"></div>
+      <div class="filtrler" role="group" aria-label="Süzgəc">
+        <button type="button" data-f="hamisi" aria-pressed="true">Hamısı</button>
+        <button type="button" data-f="gizli" aria-pressed="false">Gizli</button>
+        <button type="button" data-f="saytda" aria-pressed="false">Saytda</button>
+        <button type="button" data-f="endirilmeyib" aria-pressed="false">Endirilməyib</button>
+      </div>
+      <div class="duymeler">
+        <button class="duyme kicik" id="hamisiniSec" type="button">Hamısını seç</button>
+        <div class="secim" style="width:auto">
+          <input id="adminFayl" type="file" accept="image/*" multiple aria-label="Şəkil yüklə">
+          <label for="adminFayl" class="duyme kicik">Şəkil yüklə</label>
+        </div>
+        <button class="duyme kicik tehlike" id="endirilenleriSil" type="button">Endirilənləri sil</button>
+      </div>
+      <div class="adm-grid" id="aGrid"></div>
+      <p class="bos-qeyd" id="aBos" hidden>Bu görüş üçün hələ şəkil yoxdur.</p>
+    </div>
+
+    <!-- Hesab -->
+    <div data-tabpanel="hesab" hidden style="display:flex;flex-direction:column;gap:20px">
+      <form class="panel" id="sifreForm">
+        <h2>Şifrəni dəyiş</h2>
+        <p>Daxil olduğunuz hesab: <b id="hEmail"></b></p>
+        <div class="sahe"><label for="hSifre">Yeni şifrə</label><input id="hSifre" type="password" autocomplete="new-password" minlength="8" required></div>
+        <div class="sahe"><label for="hSifre2">Yeni şifrə (təkrar)</label><input id="hSifre2" type="password" autocomplete="new-password" minlength="8" required></div>
+        <p class="xeta" id="hXeta" hidden></p>
+        <button class="duyme dolu" type="submit">Şifrəni yadda saxla</button>
+      </form>
+      <div class="panel">
+        <h2>Adminlər</h2>
+        <ul id="adminSiyahi" style="margin:0;padding-left:20px"></ul>
+        <p style="font-size:16px;font-style:italic">Yeni admin əlavə etmək üçün Kənana yazın.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="emeliyyat" id="emeliyyat" hidden>
+  <div class="ic">
+    <span class="say" id="secSay"></span>
+    <button class="duyme krem" id="eSayt" type="button">Saytda göstər</button>
+    <button class="duyme" id="eSaytdanCix" type="button">Saytdan çıxar</button>
+    <button class="duyme" id="eEndir" type="button">Endir</button>
+    <button class="duyme" id="eSil" type="button">Sil</button>
+    <button class="duyme" id="eTemizle" type="button" aria-label="Seçimi təmizlə">✕</button>
+  </div>
+</div>
+
+<div class="modal" id="tesdiq" hidden role="dialog" aria-modal="true" aria-labelledby="tBasliq">
+  <div class="qutu">
+    <h2 id="tBasliq"></h2>
+    <p id="tMetn"></p>
+    <div class="duymeler"><button class="duyme dolu" id="tBeli" type="button">Bəli</button><button class="duyme" id="tXeyr" type="button">Ləğv et</button></div>
+  </div>
+</div>
+
+<div class="modal" id="gozle" hidden role="dialog" aria-modal="true" aria-labelledby="gzMetn">
+  <div class="qutu">
+    <h2 id="gzMetn">Gözləyin…</h2>
+    <div class="irelileme"><div id="gzBar"></div></div>
+    <p id="gzSay" style="font-variant-numeric:tabular-nums"></p>
+  </div>
+</div>
+
+<div class="lightbox" id="onizle" hidden role="dialog" aria-modal="true" aria-label="Şəkil">
+  <img id="onizleSekil" alt="">
+  <button class="bagla" id="onizleBagla" type="button" aria-label="Bağla"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
+
+<div class="bildiris" id="bildiris" hidden role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="../assets/config.js"></script>
+<script src="../assets/ortaq.js"></script>
+<script src="../assets/admin.js"></script>
+</body>
+</html>

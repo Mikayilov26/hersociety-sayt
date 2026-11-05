@@ -1,0 +1,16 @@
+# Supabase pulsuz layihəsi 7 gün fəaliyyətsiz qalanda dayanır.
+# Bu iş hər 3 gündən bir saytın məlumatını bir dəfə oxuyur ki, layihə oyaq qalsın.
+name: Oyaq saxla
+on:
+  schedule:
+    - cron: '17 6 */3 * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Supabase-i yoxla
+        run: |
+          curl -fsS "https://bxykddiqsxwnwfrgnutm.supabase.co/rest/v1/events?select=id&limit=1" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4eWtkZGlxc3h3bndmcmdudXRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4NTk1NDMsImV4cCI6MjEwOTQzNTU0M30.uTeEqikgUNKNtHeYZPd0sPxNgvMCdjSz3zemieCXBe8" > /dev/null
+          echo "Supabase oyaqdır"

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HER Society</title>
+<meta name="description" content="HER Society — Bakıda qadınlar üçün icma. Hər görüşdə bir qonaq, bir süfrə və səmimi söhbət.">
+<meta property="og:title" content="HER Society">
+<meta property="og:description" content="Bakıda qadınlar üçün icma. Together We Rise.">
+<meta property="og:image" content="https://hersociety.az/assets/og.png">
+<meta name="theme-color" content="#661712">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/stil.css">
+</head>
+<body>
+
+<header class="basliq-zolaq">
+  <div class="wrap basliq-ic" style="position:relative">
+    <a class="wordmark" href="#ana" aria-label="HER Society — ana səhifə"><b>HER</b><span>Society</span></a>
+    <button class="menyu-ac" id="menyuAc" type="button" aria-expanded="false" aria-controls="menyu" aria-label="Menyunu aç">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+    </button>
+    <nav class="menyu" id="menyu" aria-label="Əsas menyu">
+      <a href="#ana" data-nav="ana">Ana səhifə</a>
+      <a href="#gorusler" data-nav="gorusler">Görüşlər</a>
+      <a href="#haqqimizda" data-nav="haqqimizda">Haqqımızda</a>
+      <a href="#albom" data-nav="albom">Albom</a>
+      <a class="duyme" href="https://ig.me/m/hersociety.az" target="_blank" rel="noopener">Bizə yazın</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ANA SƏHİFƏ -->
+<div data-view="ana">
+  <section class="bordo hero">
+    <div class="wrap hero-ic">
+      <div class="tag"><div class="tag-ic"><img src="assets/loqo.png" alt="HER Society loqosu: dairə ətrafında uçan iki quş. Grow, Glow, Inspire." width="560" height="558"></div></div>
+      <div class="hero-metn">
+        <p class="etiket">Bakı · yalnız qadınlar üçün</p>
+        <h1 class="el">Together We Rise</h1>
+        <p class="alt">Qadından qadına…</p>
+        <p class="izah">Hər görüşdə bir qonaq, bir süfrə və uzun, səmimi söhbət.</p>
+        <div class="hero-duymeler">
+          <a class="duyme krem" href="#gorusler">Növbəti görüş</a>
+          <a class="duyme" href="#haqqimizda">Biz kimik</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bolme">
+    <div class="wrap">
+      <div class="bolme-basliq merkez"><p class="etiket">Növbəti görüş</p></div>
+      <div id="novbetiKart"></div>
+    </div>
+  </section>
+
+  <section class="bordo bolme">
+    <div class="wrap">
+      <div class="bolme-basliq">
+        <p class="etiket">Bizim üç sözümüz</p>
+        <h2>Grow · Glow · Inspire</h2>
+      </div>
+      <div class="deyerler">
+        <div class="deyer"><b>GROW</b><p>Hər görüşdən özünlə yeni bir fikir və yeni bir tanışlıq aparırsan.</p></div>
+        <div class="deyer"><b>GLOW</b><p>Gözəl süfrə, isti məkan və yalnız özünə ayırdığın bir neçə saat.</p></div>
+        <div class="deyer"><b>INSPIRE</b><p>Qonaqlarımızın yolu və hekayələri bir-birimizə ilham verir.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bolme" id="anaQalereyaBolme" hidden>
+    <div class="wrap">
+      <div class="bolme-basliq merkez">
+        <p class="etiket">Görüşlərimizdən anlar</p>
+        <h2>Birlikdə keçirdiyimiz anlar</h2>
+      </div>
+      <div class="qalereya" id="anaQalereya"></div>
+      <div style="display:flex;justify-content:center;margin-top:32px"><a class="duyme dolu" href="#albom">Albomu aç</a></div>
+    </div>
+  </section>
+
+  <section class="bolme" id="anaAlbomBolme">
+    <div class="wrap">
+      <div class="albom-kart">
+        <div class="albom-ic">
+          <p class="etiket">Ortaq albom</p>
+          <p class="zerif-el">Anları birlikdə toplayaq</p>
+          <p>Görüşdə çəkdiyiniz şəkilləri masadakı QR ilə bir yerə əlavə edə bilərsiniz.</p>
+          <a class="duyme dolu" href="#albom">Albomu aç</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- GÖRÜŞLƏR -->
+<div data-view="gorusler" hidden>
+  <section class="bordo bolme">
+    <div class="wrap">
+      <div class="bolme-basliq">
+        <p class="etiket">Görüşlər</p>
+        <h2>Hər görüş bir süfrə, hər süfrə bir hekayə</h2>
+        <p class="giris">Ayda bir və ya iki həftədən bir toplaşırıq. Yerinizi Instagram-da bizə yazaraq ayıra bilərsiniz.</p>
+      </div>
+      <div id="gorusSiyahi"></div>
+    </div>
+  </section>
+  <section class="bolme">
+    <div class="wrap"><p class="sitat zerif-el">Qadından qadına…</p></div>
+  </section>
+</div>
+
+<!-- HAQQIMIZDA -->
+<div data-view="haqqimizda" hidden>
+  <section class="bolme">
+    <div class="wrap iki-sutun">
+      <div class="emblem-panel"><img src="assets/emblem.png" alt="" aria-hidden="true"></div>
+      <div>
+        <div class="bolme-basliq" style="margin-bottom:0">
+          <p class="etiket">Haqqımızda</p>
+          <h2>Bakıda qadınların bir araya gəldiyi süfrə</h2>
+          <p class="giris">HER Society qadınlar üçün icmadır. Görüşlərimizdə tanış oluruq, dinləyirik və bir-birimizdən güc alırıq.</p>
+        </div>
+        <ul class="fakt-siyahi">
+          <li><span class="etiket">Kimlər üçün</span><span>Yalnız qadınlar üçün</span></li>
+          <li><span class="etiket">Nə qədər</span><span>Ayda bir və ya iki həftədən bir</span></li>
+          <li><span class="etiket">Necə</span><span>Hər görüşdə bir qonaq öz yolundan danışır</span></li>
+          <li><span class="etiket">Qeydiyyat</span><span>Yerinizi Instagram DM ilə ayırırsınız</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <section class="bolme" style="padding-top:0">
+    <div class="wrap"><p class="sitat">Together We Rise</p></div>
+  </section>
+</div>
+
+<!-- ALBOM -->
+<div data-view="albom" hidden>
+  <section class="bolme">
+    <div class="wrap">
+      <div class="albom-kart">
+        <div class="albom-ic">
+          <p class="etiket" id="albomEtiket">Ortaq albom</p>
+          <h1 class="el">Ortaq albomumuz</h1>
+
+          <div id="albomBagli" style="width:100%;display:flex;flex-direction:column;gap:14px;align-items:center">
+            <p>Albom görüş günü açılır. Görüşdə masadakı QR-ı oxudaraq şəkillərinizi buraya əlavə edə bilərsiniz.</p>
+          </div>
+
+          <div id="albomAcik" hidden style="width:100%;display:flex;flex-direction:column;gap:14px;align-items:center">
+            <p>Bu günün xatirələrini bizimlə bölüşün. Bir dəfəyə bir neçə şəkil seçə bilərsiniz. Hesab və ya tətbiq lazım deyil.</p>
+
+            <div id="addimSec" style="width:100%">
+              <div class="secim">
+                <input id="fayl" type="file" accept="image/*" multiple>
+                <label for="fayl" class="duyme dolu">Şəkil əlavə et</label>
+              </div>
+            </div>
+
+            <div id="addimBax" hidden style="width:100%;display:flex;flex-direction:column;gap:14px">
+              <p id="sayYazi" style="font-family:var(--f-basliq);font-size:24px"></p>
+              <div class="sekiller" id="sekiller"></div>
+              <button class="duyme dolu" id="gonder" type="button" style="width:100%;min-height:56px">Alboma göndər</button>
+              <div class="secim">
+                <input id="faylElave" type="file" accept="image/*" multiple>
+                <label for="faylElave" class="duyme" style="min-height:50px">Daha çox seç</label>
+              </div>
+            </div>
+
+            <div id="addimYukle" hidden style="width:100%;display:flex;flex-direction:column;gap:14px;align-items:center">
+              <p style="font-family:var(--f-basliq);font-size:24px">Yüklənir…</p>
+              <div class="irelileme"><div id="bar"></div></div>
+              <p id="yukleSay" style="font-variant-numeric:tabular-nums"></p>
+              <p style="font-size:16px;font-style:italic">Səhifəni bağlamayın.</p>
+            </div>
+
+            <div id="addimSon" hidden style="width:100%;display:flex;flex-direction:column;gap:14px;align-items:center">
+              <p class="zerif-el" id="sonBasliq">Təşəkkür edirik!</p>
+              <p id="sonYazi"></p>
+              <button class="duyme dolu" id="tekrar" type="button" hidden>Yenidən cəhd et</button>
+              <button class="duyme" id="yeniden" type="button">Daha çox əlavə et</button>
+            </div>
+          </div>
+
+          <p style="font-size:15px;line-height:1.45;margin-top:10px;padding-top:16px;border-top:1px solid var(--xett);width:100%">Şəkilləriniz əvvəlcə yalnız təşkilatçılara görünür. Seçilən anlar HER Society səhifəsində paylaşıla bilər. Videolarınızı <a href="https://ig.me/m/hersociety.az" target="_blank" rel="noopener">@hersociety.az</a> DM ilə göndərin.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="bolme" style="padding-top:0" id="albomQalereyaBolme" hidden>
+    <div class="wrap">
+      <div class="bolme-basliq merkez"><p class="etiket">Görüşlərimizdən anlar</p></div>
+      <div class="qalereya" id="albomQalereya"></div>
+    </div>
+  </section>
+  <section class="bolme" style="padding-top:0">
+    <div class="wrap">
+      <div class="bolme-basliq"><p class="etiket">Necə işləyir</p><h2>Üç addım</h2></div>
+      <div class="addimlar">
+        <div class="addim"><b>1</b><p>Görüşdə telefonun adi kamerası ilə şəkil çəkin.</p></div>
+        <div class="addim"><b>2</b><p>Masadakı QR-ı oxudun və “Şəkil əlavə et” düyməsinə basın.</p></div>
+        <div class="addim"><b>3</b><p>Şəkilləri seçin. Onlar Instagram keyfiyyətində kiçildilib alboma düşür.</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer class="bordo alt-hisse">
+  <div class="wrap">
+    <img src="assets/emblem.png" alt="" aria-hidden="true">
+    <p class="zerif-el">Sizi aramızda görməyə şad olarıq</p>
+    <nav aria-label="Alt menyu">
+      <a href="#ana">Ana səhifə</a>
+      <a href="#gorusler">Görüşlər</a>
+      <a href="#haqqimizda">Haqqımızda</a>
+      <a href="#albom">Albom</a>
+      <a href="https://instagram.com/hersociety.az" target="_blank" rel="noopener" lang="en" style="text-transform:none;letter-spacing:.08em;font-size:17px">@hersociety.az</a>
+    </nav>
+    <p class="huquq">© 2026 HER Society · Bakı</p>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Şəkil">
+  <img id="lbSekil" alt="">
+  <button class="bagla" id="lbBagla" type="button" aria-label="Bağla"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <button class="evvelki" id="lbEvvel" type="button" aria-label="Əvvəlki şəkil"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="sonraki" id="lbSonra" type="button" aria-label="Növbəti şəkil"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/ortaq.js"></script>
+<script src="assets/sayt.js"></script>
+</body>
+</html>
