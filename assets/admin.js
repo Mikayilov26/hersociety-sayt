@@ -249,7 +249,8 @@
       return '<div style="position:relative"><button type="button" class="adm-sekil" data-sec="' + s.id + '" aria-pressed="' + sec + '" aria-label="Şəkil seç">' +
         '<img loading="lazy" src="' + (url[s.thumb_path] || '') + '" alt="">' +
         '<span class="isare" aria-hidden="true">' + (sec ? '✓' : '') + '</span>' +
-        '<span class="etiketler">' + (s.on_site ? '<span>Saytda</span>' : '') + (s.downloaded_at ? '<span>↓</span>' : '') + (s.source === 'admin' ? '<span>Admin</span>' : '') + '</span>' +
+        '<span class="etiketler">' + (s.on_site ? '<span>Saytda</span>' : '') + (s.downloaded_at ? '<span>↓</span>' : '') + (!s.consent ? '<span>İcazəsiz</span>' : '') + '</span>' +
+        (s.uploader ? '<span class="yukleyen">' + e(s.uploader) + '</span>' : '') +
         '</button><button type="button" class="boyut-dg" data-boyut="' + s.id + '" aria-label="Şəkli böyüt">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5"/></svg></button></div>';
     }).join('');
@@ -291,6 +292,7 @@
   function onizle(id) {
     var s = sekiller.filter(function (x) { return x.id === id; })[0]; if (!s) return;
     el('onizleSekil').src = url[s.thumb_path] || '';
+    el('onizleAd').textContent = (s.uploader ? 'Yükləyən: ' + s.uploader : 'Ad yazılmayıb') + ' · ' + HS.hisseler(s.created_at).saat + (s.consent ? ' · paylaşmağa icazə var' : ' · icazə yoxdur');
     el('onizle').hidden = false;
     db.storage.from('albom').createSignedUrl(s.path, 3600).then(function (r) { if (r.data) el('onizleSekil').src = r.data.signedUrl; });
   }
@@ -313,8 +315,9 @@
 
   el('eSayt').addEventListener('click', function () {
     var ev = el('aGorus').value;
-    var list = secilenler().filter(function (s) { return !s.on_site; });
-    if (!list.length) { bildir('Seçilən şəkillər artıq saytdadır.'); return; }
+    var icazesiz = secilenler().filter(function (s) { return !s.on_site && !s.consent; }).length;
+    var list = secilenler().filter(function (s) { return !s.on_site && s.consent; });
+    if (!list.length) { bildir(icazesiz ? 'Bu şəkillərin paylaşılmasına icazə verilməyib.' : 'Seçilən şəkillər artıq saytdadır.'); return; }
     ardicil(list, 'Sayta əlavə olunur…', function (s) {
       var yol = ev + '/' + s.id + '.jpg';
       return boyukFayl(s).then(function (blob) { return HS.kicilt(blob, 1600, 0.82); })
@@ -391,7 +394,8 @@
           return p2.then(function () {
             gozle('Hazırlanır…' + (hisseler.length > 1 ? ' (hissə ' + (hi + 1) + '/' + hisseler.length + ')' : ''), bitdi, umumi);
             return boyukFayl(s).then(function (blob) {
-              zip.file(ad + '-' + String(hi * ZIP_HISSE + si + 1).padStart(3, '0') + '.jpg', blob);
+              var kim = (s.uploader || '').toLowerCase().replace(/[^a-z0-9əğıöşüç]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 30);
+              zip.file(ad + '-' + String(hi * ZIP_HISSE + si + 1).padStart(3, '0') + (kim ? '-' + kim : '') + '.jpg', blob);
               endirilen.push(s.id);
             }).catch(function (x) { console.error(x); }).then(function () { bitdi++; });
           });
@@ -427,7 +431,7 @@
         return db.storage.from('albom').upload(gid + '/kicik/' + ad, k, { contentType: 'image/jpeg' });
       }).then(function (r) { if (r.error) throw r.error; return HS.kicilt(f, 3000, 0.88); })
         .then(function (b) { return db.storage.from('albom').upload(gid + '/' + ad, b, { contentType: 'image/jpeg' }); })
-        .then(function (r) { if (r.error) throw r.error; });
+        .then(function (r) { if (r.error) throw r.error; return db.from('photos').update({ uploader: 'HER Society', consent: true, consent_at: new Date().toISOString() }).eq('path', gid + '/' + ad); });
     }).then(function (u) {
       bildir(u ? (fayllar.length - u) + ' şəkil yükləndi, ' + u + ' alınmadı.' : fayllar.length + ' şəkil yükləndi.');
       albomYukle();

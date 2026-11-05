@@ -216,7 +216,9 @@
         return db.storage.from('albom').upload(ev + '/kicik/' + ad, kicik, { contentType: 'image/jpeg', upsert: false })
           .then(function (r) { if (r.error) throw r.error; })
           .then(function () { return db.storage.from('albom').upload(ev + '/' + ad, boyuk, { contentType: 'image/jpeg', upsert: false }); })
-          .then(function (r) { if (r.error) throw r.error; });
+          .then(function (r) { if (r.error) throw r.error; })
+          .then(function () { return db.rpc('albom_qeyd', { yol: ev + '/' + ad, ad: el('yukleyenAd').value.trim(), razilik: true }); })
+          .then(function (r) { if (r && r.error) console.warn(r.error); });
       });
     });
   }
@@ -255,7 +257,14 @@
       addim('addimSon');
     });
   }
-  el('gonder').addEventListener('click', function () { gonder(secilen); });
+  // Ad yadda qalsın (növbəti dəfə yazmamaq üçün)
+  try { el('yukleyenAd').value = localStorage.getItem('hs-ad') || ''; } catch (x) {}
+  el('razilik').addEventListener('change', function () { if (el('razilik').checked) el('razilikXeta').hidden = true; });
+  el('gonder').addEventListener('click', function () {
+    if (!el('razilik').checked) { el('razilikXeta').hidden = false; el('razilik').focus(); return; }
+    try { localStorage.setItem('hs-ad', el('yukleyenAd').value.trim()); } catch (x) {}
+    gonder(secilen);
+  });
   el('tekrar').addEventListener('click', function () { gonder(ugursuz.slice()); });
   el('yeniden').addEventListener('click', function () { secilen = []; ugursuz = []; addim('addimSec'); });
 })();

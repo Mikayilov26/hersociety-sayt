@@ -243,3 +243,13 @@ p{margin:0;text-wrap:pretty}
 .qr-qutu #qr{background:var(--krem);padding:6px;border:1px solid var(--xett)}
 .qr-qutu #qr img,.qr-qutu #qr canvas{display:block;width:160px;height:160px}
 .bildiris{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:70;background:var(--bordo);color:var(--krem);padding:12px 18px;font-size:17px;max-width:calc(100% - 32px);box-shadow:0 6px 20px rgba(40,8,6,.3)}
+
+/* Albom: ad və icazə */
+.albom-ic .sahe{width:100%}
+.albom-ic .sahe label{font-size:13px;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+.albom-ic .sahe input{min-height:50px;border:1px solid var(--xett);background:#fff;color:var(--bordo);font-family:var(--f-metn);font-size:19px;padding:8px 12px;border-radius:0;width:100%;-webkit-appearance:none;appearance:none}
+.yoxla.razilik{align-items:flex-start;text-align:left;gap:12px;font-size:17px;line-height:1.4;cursor:pointer;width:100%}
+.yoxla.razilik input{flex:0 0 auto;margin-top:2px;width:24px;height:24px;accent-color:var(--bordo)}
+.yoxla{display:flex;align-items:center;gap:10px;min-height:44px;font-size:18px}
+.adm-sekil .yukleyen{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(40,8,6,.75));color:var(--krem);font-size:12px;padding:14px 6px 4px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adm-sekil .etiketler{bottom:auto;top:34px}
