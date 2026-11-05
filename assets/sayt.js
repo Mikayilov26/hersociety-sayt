@@ -5,7 +5,7 @@
 
   // Bağlantı olmasa göstəriləcək ehtiyat məlumat
   var EHTIYAT = [
-    { id: 'e2', title: 'Çay Süfrəsi', topic: 'Bir qadının bir neçə rolu', guest_name: 'Dilarə Əliyeva', guest_title: 'Azərbaycanın Əməkdar artisti', starts_at: '2026-11-21T13:00:00+04:00', venue: 'Latitude & Longitude Bar Lounge, The Merchant Baku', album_open: false },
+    { id: 'e2', title: 'Çay Süfrəsi', topic: 'Bir qadının bir neçə rolu', guest_name: 'Dilarə Əliyeva', guest_title: 'Azərbaycanın Əməkdar artisti', starts_at: '2026-11-21T13:00:00+04:00', venue: 'Latitude & Longitude', venue_detail: 'Bar Lounge · The Merchant Baku', album_open: false },
     { id: 'e1', title: 'Çay Süfrəsi', topic: null, guest_name: "Sabina xanım (Papillon's)", guest_title: 'süfrə təqdimatı', starts_at: '2026-10-23T13:00:00+04:00', venue: 'Luciano restoranı, Bakı', album_open: false }
   ];
 
@@ -60,7 +60,7 @@
       '<div class="melumat">' +
       '<div><span class="etiket">Tarix</span><span>' + t.gun + ' ' + t.ay + ', ' + t.hefte + '</span></div>' +
       '<div><span class="etiket">Saat</span><span>' + t.saat + '</span></div>' +
-      '<div><span class="etiket">Məkan</span><span>' + e(g.venue || '') + '</span></div>' +
+      '<div><span class="etiket">Məkan</span><span>' + e(mekan(g)) + '</span></div>' +
       '</div>' +
       '<div class="geri-sayim" id="geriSayim" aria-label="Görüşə qalan vaxt">' +
       '<div><strong data-g="gun">–</strong><small>gün</small></div><div><strong data-g="saat">–</strong><small>saat</small></div><div><strong data-g="deq">–</strong><small>dəq</small></div></div>' +
@@ -80,6 +80,8 @@
     say(); geriSayimTaymer = setInterval(say, 30000);
   }
 
+  function mekan(g) { return [g.venue, g.venue_detail].filter(Boolean).join(', '); }
+
   function qalereyaHtml(list) {
     return list.map(function (s) {
       return '<button type="button" data-lb="' + s.id + '" aria-label="Şəkli böyüt"><img loading="lazy" src="' + HS.saytUrl(s.site_path) + '" alt=""></button>';
@@ -92,7 +94,7 @@
       var t = HS.hisseler(g.starts_at);
       html += '<article class="gorus"><p class="tarix">' + t.gun + ' ' + t.ay + '<small>' + t.hefte + ' · ' + t.saat + '</small></p><div>' +
         '<h3>' + e(g.title) + '</h3>' + (g.topic ? '<p style="font-style:italic;font-size:22px">' + e(g.topic) + '</p>' : '') +
-        '<p style="margin-top:8px">' + (g.guest_name ? 'Qonaq: ' + e(g.guest_name) + (g.guest_title ? ', ' + e(g.guest_title) : '') + '. ' : '') + e(g.venue || '') + '</p>' +
+        '<p style="margin-top:8px">' + (g.guest_name ? 'Qonaq: ' + e(g.guest_name) + (g.guest_title ? ', ' + e(g.guest_title) : '') + '. ' : '') + e(mekan(g)) + '</p>' +
         '<a class="duyme krem" style="margin-top:20px" href="https://ig.me/m/hersociety.az" target="_blank" rel="noopener">Yerinizi ayırın</a></div>' +
         '<span class="status yaxin">' + (i === 0 ? 'Növbəti' : 'Tezliklə') + '</span></article>';
     });
@@ -101,7 +103,7 @@
       var s = sekiller.filter(function (x) { return x.event_id === g.id; });
       html += '<article class="gorus"><p class="tarix">' + t.gun + ' ' + t.ay + '<small>' + t.il + '</small></p><div>' +
         '<h3>' + e(g.title) + '</h3>' + (g.topic ? '<p style="font-style:italic;font-size:22px">' + e(g.topic) + '</p>' : '') +
-        '<p style="margin-top:4px">' + (g.guest_name ? 'Qonaq: ' + e(g.guest_name) + (g.guest_title ? ', ' + e(g.guest_title) : '') + '. ' : '') + e(g.venue || '') + '</p>' +
+        '<p style="margin-top:4px">' + (g.guest_name ? 'Qonaq: ' + e(g.guest_name) + (g.guest_title ? ', ' + e(g.guest_title) : '') + '. ' : '') + e(mekan(g)) + '</p>' +
         (s.length ? '<div class="qalereya">' + qalereyaHtml(s) + '</div>' : '') +
         '</div><span class="status">Keçirildi</span></article>';
     });
@@ -137,7 +139,7 @@
   function yukle() {
     if (!db) { gorusler = EHTIYAT; hamisi(); return; }
     Promise.all([
-      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,venue,album_open').eq('published', true),
+      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,album_open').eq('published', true),
       db.from('photos').select('id,event_id,site_path,created_at').eq('on_site', true).not('site_path', 'is', null).order('created_at', { ascending: false })
     ]).then(function (r) {
       if (r[0].error) throw r[0].error;

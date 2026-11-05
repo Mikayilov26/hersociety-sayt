@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Şəxsi dəvət · HER Society</title>
+<meta name="theme-color" content="#661712">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/stil.css">
+<style>
+html{background:#430d0a}
+body{background:radial-gradient(ellipse at 50% 30%,#7d2019 0%,#661712 55%,#430d0a 100%) fixed;font-family:HSCG,Georgia,serif;min-height:100vh}
+.dv{max-width:520px;margin:0 auto;padding:22px 16px 40px}
+.dv-ust{text-align:center;color:var(--krem);font-size:13px;letter-spacing:.42em;font-weight:700;margin:4px 0 16px;opacity:.85}
+.kagiz{background:#F5EDE0;padding:10px;box-shadow:0 20px 40px rgba(20,0,0,.35)}
+.cerceve{border:2px solid var(--bordo);outline:1px solid rgba(102,23,18,.35);outline-offset:-8px;padding:30px 20px 26px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.cerceve .etiket{color:var(--qirmizi)}
+.cerceve h1{font-family:HSPinyon,cursive;font-weight:400;font-size:clamp(52px,15vw,72px);line-height:1.1}
+.movzu{font-size:14px;letter-spacing:.3em;font-weight:700;color:var(--qirmizi);text-transform:uppercase}
+.salam{font-style:italic;font-size:22px;margin-top:10px;text-wrap:balance}
+.nisan2{display:inline-block;margin-top:4px;border:1.5px solid var(--qirmizi);color:var(--qirmizi);border-radius:999px;padding:6px 16px;font-weight:700;letter-spacing:.2em;font-size:12px}
+.setirler{width:100%;text-align:left;margin-top:16px}
+.setirler div{display:flex;gap:12px;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(102,23,18,.18)}
+.setirler div:last-child{border-bottom:0}
+.setirler b{width:96px;flex:none;font-weight:700;letter-spacing:.22em;font-size:11px;color:var(--qirmizi)}
+.setirler span{font-weight:500;font-size:19px;line-height:1.25}
+.setirler small{display:block;font-style:italic;font-size:16px;opacity:.85}
+.alt-yazi{text-align:center;color:var(--krem);font-style:italic;opacity:.85;margin-top:22px}
+</style>
+</head>
+<body>
+<main class="dv">
+  <p class="dv-ust" lang="en">HER SOCIETY</p>
+  <div class="kagiz"><div class="cerceve" id="kart">
+    <p class="etiket">ŞƏXSİ DƏVƏT</p>
+    <h1 id="dBasliq">HER Society</h1>
+    <p class="movzu" id="dMovzu"></p>
+    <p class="salam" id="dSalam">Dəvət yüklənir…</p>
+    <span class="nisan2" id="dNum" hidden></span>
+    <div class="setirler" id="dSetirler"></div>
+    <a class="duyme dolu" id="dXerite" target="_blank" rel="noopener" hidden style="width:100%;margin-top:14px">Xəritədə aç</a>
+    <p id="dQeyd" style="font-style:italic;font-size:16px;margin-top:12px;opacity:.85"></p>
+  </div></div>
+  <p class="alt-yazi">Qadından qadına…</p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="../assets/config.js"></script>
+<script src="../assets/ortaq.js"></script>
+<script>
+(function () {
+  var HS = window.HS, el = function (id) { return document.getElementById(id); };
+  var k = new URLSearchParams(location.search).get('k') || '';
+  function olmadi(m) { el('dSalam').textContent = m; el('dQeyd').innerHTML = '<a href="https://instagram.com/hersociety.az">@hersociety.az</a>'; }
+  if (!HS.db || k.length < 20) { olmadi('Dəvət tapılmadı.'); return; }
+  HS.db.rpc('devet_bax', { acar: k }).then(function (r) {
+    var d = r.data;
+    if (r.error) { olmadi('Bağlantı alınmadı. Bir az sonra yenidən açın.'); return; }
+    if (!d) { olmadi('Dəvət tapılmadı.'); return; }
+    var ev = d.event, t = HS.hisseler(ev.starts_at);
+    document.title = ev.title + ' · Şəxsi dəvət';
+    el('dBasliq').textContent = ev.title;
+    el('dMovzu').textContent = ev.topic || '';
+    if (d.revoked) { el('dSalam').textContent = 'Bu dəvət artıq etibarlı deyil.'; return; }
+    el('dSalam').textContent = 'Hörmətli ' + d.name + ', ' + (ev.card_note || 'yeriniz ayrıldı — sizi gözləyirik');
+    el('dNum').textContent = 'DƏVƏT № ' + String(d.num).padStart(2, '0'); el('dNum').hidden = false;
+    var s = [['TARİX', t.hefte.charAt(0).toLocaleUpperCase('az') + t.hefte.slice(1) + ', ' + t.gun + ' ' + t.ay + ' ' + t.il, ''], ['SAAT', t.saat, ''], ['MƏKAN', ev.venue || '', ev.venue_detail || '']];
+    if (ev.guest_name) s.push(['QONAQ', ev.guest_name, ev.guest_title || '']);
+    el('dSetirler').innerHTML = s.map(function (x) { return '<div><b>' + x[0] + '</b><span>' + HS.esc(x[1]) + (x[2] ? '<small>' + HS.esc(x[2]) + '</small>' : '') + '</span></div>'; }).join('');
+    if (ev.venue) { el('dXerite').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(ev.venue + ' ' + (ev.venue_detail || '') + ' Bakı'); el('dXerite').hidden = false; }
+    el('dQeyd').textContent = 'Girişdə dəvət kartınızdakı QR kodu göstərməyiniz kifayətdir.';
+  });
+})();
+</script>
+</body>
+</html>

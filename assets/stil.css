@@ -190,7 +190,7 @@ p{margin:0;text-wrap:pretty}
 .adm-ust small{font-size:13px;letter-spacing:.3em;text-transform:uppercase;font-weight:600;margin-left:10px;opacity:.9}
 .adm-esas{max-width:980px;margin:0 auto;padding:24px 16px 140px}
 .tablar{display:flex;gap:0;border-bottom:1px solid var(--xett);margin-bottom:24px;overflow-x:auto}
-.tablar button{flex:1;min-height:52px;background:none;border:none;border-bottom:2px solid transparent;color:var(--bordo);font-family:var(--f-metn);font-size:15px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;white-space:nowrap;padding:0 12px}
+.tablar button{flex:1;min-height:52px;background:none;border:none;border-bottom:2px solid transparent;color:var(--bordo);font-family:var(--f-metn);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;padding:0 6px}
 .tablar button[aria-selected="true"]{border-bottom-color:var(--bordo)}
 .panel{background:#fbf5ec;border:1px solid var(--xett);padding:20px;display:flex;flex-direction:column;gap:14px}
 .panel h2{font-size:26px}
@@ -253,3 +253,26 @@ p{margin:0;text-wrap:pretty}
 .yoxla{display:flex;align-items:center;gap:10px;min-height:44px;font-size:18px}
 .adm-sekil .yukleyen{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(40,8,6,.75));color:var(--krem);font-size:12px;padding:14px 6px 4px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .adm-sekil .etiketler{bottom:auto;top:34px}
+
+/* Kart şriftləri (dəvət kartı və giriş üçün) */
+@font-face{font-family:HSPinyon;src:url(fonts/pinyon.ttf);font-display:swap}
+@font-face{font-family:HSCG;src:url(fonts/cg.ttf);font-weight:300 700;font-display:swap}
+@font-face{font-family:HSCG;src:url(fonts/cgi.ttf);font-style:italic;font-weight:300 700;font-display:swap}
+@font-face{font-family:HSBodoni;src:url(fonts/bodoni.ttf);font-weight:400 900;font-display:swap}
+
+/* Dəvətlər */
+.ev-setir{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:#fbf5ec;border:1px solid var(--xett);padding:16px 18px;cursor:pointer;color:var(--bordo);font-family:var(--f-metn)}
+.ev-setir:hover{border-color:var(--bordo)}
+.ev-setir .sol{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ev-setir .sol b{font-family:var(--f-basliq);font-weight:400;font-size:22px}
+.ev-setir .sol span{font-size:16px;opacity:.85}
+.ev-setir .say{font-family:var(--f-basliq);font-size:26px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ev-setir .say small{display:block;font-family:var(--f-metn);font-size:12px;letter-spacing:.16em;text-transform:uppercase;text-align:right}
+.qonaq-setir{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--xett)}
+.qonaq-setir .ad{font-size:19px;font-weight:600}
+.qonaq-setir .alt{font-size:15px;opacity:.8}
+.qonaq-setir.legv .ad{text-decoration:line-through;opacity:.6}
+.qonaq-setir .duymeler{flex:0 0 auto;flex-wrap:nowrap}
+.linkqutu{word-break:break-all;background:#fff;border:1px solid var(--xett);padding:10px 12px;font-size:16px}
+#kartOnizle{width:100%;max-width:360px;display:block;margin:0 auto;box-shadow:0 10px 24px rgba(40,8,6,.25)}
+.ev-setir .tarix-et{font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}

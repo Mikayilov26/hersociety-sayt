@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Giriş · HER Society</title>
+<meta name="theme-color" content="#661712">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/stil.css">
+<style>
+body{background:var(--bordo);font-family:HSCG,Georgia,serif}
+.gr{max-width:520px;margin:0 auto;padding:16px 14px 48px;display:flex;flex-direction:column;gap:14px}
+.gr-ust{text-align:center;color:var(--krem);padding:6px 0 2px}
+.gr-ust img{width:84px;margin:0 auto 6px}
+.gr-ust .etiket{opacity:.9}
+.gr-ust h1{font-family:HSPinyon,cursive;font-weight:400;font-size:44px;line-height:1.1;margin-top:4px}
+.kart{background:var(--krem);padding:18px 16px;display:flex;flex-direction:column;gap:12px}
+.kart h2{font-size:22px}
+.stat{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.stat .n{font-family:HSBodoni,serif;font-size:44px;line-height:1}
+.stat .n small{font-size:22px;opacity:.7}
+.sahe label{font-size:12px;letter-spacing:.24em;text-transform:uppercase;font-weight:700}
+.sahe input{min-height:52px;border:1px solid var(--xett);background:#fff;color:var(--bordo);font-family:HSCG,Georgia,serif;font-size:20px;padding:8px 12px;border-radius:0;width:100%;-webkit-appearance:none;appearance:none}
+#camwrap{position:relative;overflow:hidden;background:#1a0504;aspect-ratio:1/1}
+#cam{width:100%;height:100%;object-fit:cover;display:block}
+#camwrap .aim{position:absolute;inset:16%;border:3px solid rgba(243,230,210,.9);border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.28)}
+#camhint{position:absolute;left:0;right:0;bottom:10px;text-align:center;color:var(--krem);font-style:italic;font-size:16px}
+#ov{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 22px;color:#fff}
+#ov.ok{background:#1F6B3A}#ov.used{background:#B26A00}#ov.bad{background:#7a1a14}
+#ov .ic{font-size:96px;line-height:1}
+#ov .t1{font-weight:700;letter-spacing:.2em;font-size:16px;margin-top:14px;opacity:.95}
+#ov .t2{font-size:40px;font-weight:600;margin-top:10px;line-height:1.15}
+#ov .t3{font-size:20px;font-style:italic;margin-top:10px;opacity:.95}
+#ov button{margin-top:34px;min-height:56px;width:100%;max-width:360px;background:#fff;color:#222;border:none;font-family:HSCG,Georgia,serif;font-size:16px;font-weight:700;letter-spacing:.2em;cursor:pointer}
+.setir{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--xett)}
+.setir .ad{font-size:18px;font-weight:600}
+.setir .alt{font-size:14px;opacity:.8}
+.setir button{flex:0 0 auto}
+.zolaq{font-size:15px;text-align:center;color:var(--krem);opacity:.9}
+.zolaq.xeb{background:#B26A00;color:#fff;opacity:1;padding:8px 10px}
+</style>
+</head>
+<body>
+<main class="gr">
+  <div class="gr-ust">
+    <img src="../assets/emblem.png" alt="">
+    <p class="etiket">GİRİŞ</p>
+    <h1 id="evAd">HER Society</h1>
+    <p id="evTarix" style="font-style:italic"></p>
+  </div>
+
+  <section class="kart" id="giris" hidden>
+    <h2>Giriş rejimi</h2>
+    <p>Təşkilatçının verdiyi giriş kodunu yazın.</p>
+    <div class="sahe"><label for="kod">Giriş kodu</label><input id="kod" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+    <button class="duyme dolu" id="daxil" type="button">Daxil ol</button>
+    <p class="xeta" id="girisXeta" hidden></p>
+  </section>
+
+  <p class="kart" id="linkXeta" hidden>Link natamamdır. Təşkilatçıdan giriş linkini yenidən istəyin.</p>
+
+  <div id="app" hidden style="display:flex;flex-direction:column;gap:14px">
+    <p class="zolaq" id="zolaq"></p>
+    <section class="kart">
+      <div class="stat"><div><p class="etiket">Daxil olub</p><p style="font-size:15px;font-style:italic">bütün girişlər üzrə</p></div><div class="n" id="say">0<small>/0</small></div></div>
+      <div id="camwrap" hidden><video id="cam" playsinline muted autoplay></video><div class="aim"></div><div id="camhint">QR kodu çərçivəyə tutun</div></div>
+      <button class="duyme dolu" id="kameraAc" type="button" style="min-height:56px">Kameranı aç</button>
+      <p class="xeta" id="kameraXeta" hidden></p>
+    </section>
+
+    <section class="kart">
+      <h2>QR oxunmursa</h2>
+      <p style="font-size:16px;font-style:italic">Kartın aşağısındakı 6 simvollu kodu yazın (KOD sözünün yanında).</p>
+      <div class="sahe"><label for="elKod">Kod</label><input id="elKod" maxlength="6" autocapitalize="characters" autocorrect="off" spellcheck="false" style="text-transform:uppercase;letter-spacing:.2em"></div>
+      <button class="duyme" id="elTesdiq" type="button">Təsdiqlə</button>
+    </section>
+
+    <section class="kart">
+      <div class="stat"><h2>Qonaq siyahısı</h2><p id="gozlenen" style="font-style:italic"></p></div>
+      <div class="sahe"><label for="axtar">Adla axtar</label><input id="axtar" autocomplete="off" placeholder="məs. Aynur"></div>
+      <div id="qonaqlar"></div>
+    </section>
+
+    <section class="kart">
+      <h2>Daxil olanlar</h2>
+      <div id="gelenler"></div>
+      <button class="duyme kicik" id="cixis" type="button" style="align-self:flex-start;margin-top:6px">Çıxış (kodu unut)</button>
+    </section>
+  </div>
+</main>
+
+<div id="ov" hidden role="alertdialog" aria-live="assertive">
+  <div class="ic" id="ovIc"></div>
+  <div class="t1" id="ov1"></div>
+  <div class="t2" id="ov2"></div>
+  <div class="t3" id="ov3"></div>
+  <button type="button" id="novbeti">NÖVBƏTİ QONAQ</button>
+</div>
+<div class="modal" id="tesdiq" hidden role="dialog" aria-modal="true" aria-labelledby="tBasliq">
+  <div class="qutu"><h2 id="tBasliq"></h2><p id="tMetn"></p>
+    <div class="duymeler"><button class="duyme dolu" id="tBeli" type="button">Bəli</button><button class="duyme" id="tXeyr" type="button">Ləğv et</button></div></div>
+</div>
+<canvas id="cv" hidden></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="../assets/jsqr.js"></script>
+<script src="../assets/config.js"></script>
+<script src="../assets/ortaq.js"></script>
+<script src="../assets/giris.js"></script>
+</body>
+</html>

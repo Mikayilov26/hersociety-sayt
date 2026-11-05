@@ -4,6 +4,7 @@
   var el = function (id) { return document.getElementById(id); };
   var ALBOM_LINK = 'https://hersociety.az/albom';
   var ZIP_HISSE = 60;
+  var EV_SAHELER = 'id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,card_note,album_open,published,door_active';
 
   var istifadeci = null, gorusler = [], sekiller = [], url = {}, secilen = new Set(), filtr = 'hamisi', redakte = null;
 
@@ -71,6 +72,7 @@
     document.querySelectorAll('[data-tab]').forEach(function (b) { b.setAttribute('aria-selected', b.getAttribute('data-tab') === ad ? 'true' : 'false'); });
     document.querySelectorAll('[data-tabpanel]').forEach(function (p) { p.hidden = p.getAttribute('data-tabpanel') !== ad; });
     if (ad === 'albom') albomYukle(); else { secilen.clear(); emeliyyatPaneli(); }
+    if (ad === 'devetler') dvSiyahi();
     if (ad === 'hesab') adminler();
     try { sessionStorage.setItem('hs-tab', ad); } catch (x) {}
   }
@@ -85,7 +87,7 @@
 
   /* ---------- Görüşlər ---------- */
   function gorusleriYukle() {
-    return db.from('events').select('*').order('starts_at', { ascending: false }).then(function (r) {
+    return db.from('events').select(EV_SAHELER).order('starts_at', { ascending: false }).then(function (r) {
       if (r.error) return xeta(r.error);
       gorusler = r.data || [];
       gorusCiz(); gorusSecimi();
@@ -164,6 +166,8 @@
     el('fDate').value = t;
     el('fTime').value = g ? HS.hisseler(g.starts_at).saat : '13:00';
     el('fVenue').value = g ? (g.venue || '') : '';
+    el('fVenueDetail').value = g ? (g.venue_detail || '') : '';
+    el('fCardNote').value = g ? (g.card_note || '') : '';
     el('fPublished').checked = g ? g.published : true;
     el('fXeta').hidden = true;
     el('gorusForm').hidden = false;
@@ -182,6 +186,8 @@
       guest_title: el('fGuestTitle').value.trim() || null,
       starts_at: d + 'T' + s + ':00+04:00',
       venue: el('fVenue').value.trim() || null,
+      venue_detail: el('fVenueDetail').value.trim() || null,
+      card_note: el('fCardNote').value.trim() || null,
       published: el('fPublished').checked
     };
     var sorgu = redakte ? db.from('events').update(melumat).eq('id', redakte.id) : db.from('events').insert(melumat);
