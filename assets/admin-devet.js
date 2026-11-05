@@ -47,7 +47,7 @@
     el('dvSiyahi').hidden = true; el('dvDetal').hidden = false;
     el('dvTarix').textContent = tarix(cari);
     el('dvBasliq').textContent = cari.title + (cari.guest_name ? ' · ' + cari.guest_name : '');
-    el('kartNetice').hidden = true; el('kXeta').hidden = true; el('kAd').value = ''; el('dvAxtar').value = ''; axtaris = '';
+    el('kartNetice').hidden = true; el('kXeta').hidden = true; el('kartAcilan').open = false; el('girisAcilan').open = false; el('kAd').value = ''; el('dvAxtar').value = ''; axtaris = '';
     girisVeziyyeti();
     biletleriYukle();
     window.scrollTo(0, 0);
@@ -85,7 +85,7 @@
     var b = ev.target.closest('button'); if (!b) return;
     var id = b.getAttribute('data-kart') || b.getAttribute('data-legv') || b.getAttribute('data-berpa');
     var bl = biletler.filter(function (x) { return x.id === id; })[0]; if (!bl) return;
-    if (b.hasAttribute('data-kart')) kartGoster(bl).then(function () { el('kartForm').scrollIntoView({ behavior: 'smooth' }); });
+    if (b.hasAttribute('data-kart')) { el('kartAcilan').open = true; kartGoster(bl).then(function () { el('kartNetice').scrollIntoView({ behavior: 'smooth', block: 'start' }); }); }
     if (b.hasAttribute('data-legv')) legvEt(bl, true);
     if (b.hasAttribute('data-berpa')) legvEt(bl, false);
   });
@@ -149,6 +149,7 @@
     el('grSondur').hidden = !cari.door_active;
     el('grLinkQutu').hidden = !cari.door_active;
     el('grLink').textContent = GIRIS_LINK + cari.id;
+    el('girisBasliq').textContent = cari.door_active ? 'Giriş linki · aktiv ✓' : 'Giriş linki (işçilər)';
   }
   el('grQoy').addEventListener('click', function () {
     var kod = el('grKod').value.trim();

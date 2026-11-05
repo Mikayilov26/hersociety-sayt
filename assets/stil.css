@@ -276,3 +276,9 @@ p{margin:0;text-wrap:pretty}
 .linkqutu{word-break:break-all;background:#fff;border:1px solid var(--xett);padding:10px 12px;font-size:16px}
 #kartOnizle{width:100%;max-width:360px;display:block;margin:0 auto;box-shadow:0 10px 24px rgba(40,8,6,.25)}
 .ev-setir .tarix-et{font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.acilanlar{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.acilan>summary{list-style:none;width:100%;min-height:52px;letter-spacing:.12em;font-size:14px;white-space:nowrap}
+.acilan>summary::-webkit-details-marker{display:none}
+.acilan>summary::after{content:"";width:9px;height:9px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-4px 0 0 6px;transition:transform .2s}
+.acilan[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+.acilan[open]>summary{margin-bottom:10px}

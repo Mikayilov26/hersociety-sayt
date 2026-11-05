@@ -99,8 +99,10 @@
           <p id="dvStat" style="font-size:18px;margin-top:6px"></p>
         </div>
 
+        <div class="acilanlar">
+        <details class="acilan" id="kartAcilan">
+          <summary class="duyme dolu">+ Yeni dəvət kartı</summary>
         <form class="panel" id="kartForm">
-          <h2>Yeni dəvət kartı</h2>
           <div class="sahe"><label for="kAd">Qonağın adı</label><input id="kAd" maxlength="60" placeholder="məs. Aynur xanım" autocomplete="off" required></div>
           <div class="sahe"><label for="kNum">Dəvət №</label><input id="kNum" type="number" inputmode="numeric" min="1" max="9999" required></div>
           <p class="xeta" id="kXeta" hidden></p>
@@ -112,9 +114,11 @@
             <p style="font-size:16px;font-style:italic;text-align:center">Kartı qonağa DM-də şəkil kimi göndərin. Kartdakı yazıları dəyişmək üçün: Görüşlər → Düzəlt.</p>
           </div>
         </form>
+        </details>
 
+        <details class="acilan" id="girisAcilan">
+          <summary class="duyme" id="girisBasliq">Giriş linki (işçilər)</summary>
         <div class="panel">
-          <h2>Giriş (işçilər üçün)</h2>
           <p id="grVeziyyet"></p>
           <div class="sahe"><label for="grKod">Giriş kodu (özünüz seçin, ən azı 4 simvol)</label><input id="grKod" autocomplete="off" autocapitalize="off" placeholder="məs. lalo2111"></div>
           <div class="duymeler">
@@ -127,12 +131,12 @@
             <p style="font-size:16px;font-style:italic">İşçilər linki açıb giriş kodunu yazır. Kodu ayrıca deyin və ya mesaja əlavə edin. Bir neçə telefon eyni anda işləyə bilər.</p>
           </div>
         </div>
+        </details>
+        </div>
 
         <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-            <h2>Qonaqlar</h2>
-            <button class="duyme kicik" id="dvExcel" type="button">Siyahını yüklə (Excel)</button>
-          </div>
+          <h2>Qonaqlar</h2>
+          <button class="duyme kicik" id="dvExcel" type="button" style="align-self:flex-start">Siyahını yüklə (Excel)</button>
           <div class="sahe"><label for="dvAxtar">Axtar</label><input id="dvAxtar" placeholder="Ad, № və ya kod" autocomplete="off"></div>
           <div id="dvQonaqlar"></div>
         </div>
