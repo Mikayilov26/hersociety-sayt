@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/stil.css?v=202611051759">
+<link rel="stylesheet" href="../assets/stil.css?v=202611051803">
 </head>
 <body>
 
@@ -32,7 +32,26 @@
       <div class="sahe"><label for="gSifre">Şifrə</label><input id="gSifre" type="password" autocomplete="current-password" required></div>
       <p class="xeta" id="gXeta" hidden></p>
       <button class="duyme dolu" type="submit" style="width:100%">Daxil ol</button>
-      <p style="font-size:16px;font-style:italic">Şifrəni unutmusunuzsa, Kənana yazın.</p>
+      <button class="duyme kicik" id="unutdum" type="button" style="align-self:flex-start;border:none;text-decoration:underline;padding:0">Şifrəni unutmusunuz?</button>
+    </form>
+
+    <form class="panel" id="berpaForm" hidden style="max-width:440px;margin:24px auto 0">
+      <h1 style="font-size:28px">Şifrəni bərpa et</h1>
+      <p>Admin email-inizi yazın. Yeni şifrə qoymaq üçün link göndərəcəyik.</p>
+      <div class="sahe"><label for="bEmail">Email</label><input id="bEmail" type="email" autocomplete="username" required></div>
+      <p class="xeta" id="bXeta" hidden></p>
+      <p id="bOk" hidden style="font-style:italic">Bu email admindirsə, bir neçə dəqiqəyə link gələcək. Spam qovluğunu da yoxlayın.</p>
+      <button class="duyme dolu" type="submit" style="width:100%">Link göndər</button>
+      <button class="duyme kicik" id="berpaGeri" type="button" style="align-self:flex-start">← Girişə qayıt</button>
+    </form>
+
+    <form class="panel" id="yeniSifreForm" hidden style="max-width:440px;margin:24px auto 0">
+      <h1 style="font-size:28px">Yeni şifrə qoyun</h1>
+      <p>Ən azı 10 simvol, içində həm hərf, həm rəqəm olsun.</p>
+      <div class="sahe"><label for="ySifre">Yeni şifrə</label><input id="ySifre" type="password" autocomplete="new-password" required></div>
+      <div class="sahe"><label for="ySifre2">Yeni şifrə (təkrar)</label><input id="ySifre2" type="password" autocomplete="new-password" required></div>
+      <p class="xeta" id="yXeta" hidden></p>
+      <button class="duyme dolu" type="submit" style="width:100%">Şifrəni saxla və daxil ol</button>
     </form>
   </section>
 
@@ -173,14 +192,16 @@
       <form class="panel" id="sifreForm">
         <h2>Şifrəni dəyiş</h2>
         <p>Daxil olduğunuz hesab: <b id="hEmail"></b></p>
-        <div class="sahe"><label for="hSifre">Yeni şifrə</label><input id="hSifre" type="password" autocomplete="new-password" minlength="8" required></div>
-        <div class="sahe"><label for="hSifre2">Yeni şifrə (təkrar)</label><input id="hSifre2" type="password" autocomplete="new-password" minlength="8" required></div>
+        <p style="font-size:16px;font-style:italic">Ən azı 10 simvol, içində həm hərf, həm rəqəm olsun.</p>
+        <div class="sahe"><label for="hSifre">Yeni şifrə</label><input id="hSifre" type="password" autocomplete="new-password" required></div>
+        <div class="sahe"><label for="hSifre2">Yeni şifrə (təkrar)</label><input id="hSifre2" type="password" autocomplete="new-password" required></div>
         <p class="xeta" id="hXeta" hidden></p>
         <button class="duyme dolu" type="submit">Şifrəni yadda saxla</button>
       </form>
       <div class="panel">
-        <h2>Adminlər</h2>
-        <ul id="adminSiyahi" style="margin:0;padding-left:20px"></ul>
+        <h2>Təhlükəsizlik</h2>
+        <p>Şifrəni heç kimlə paylaşmayın. Telefonu başqasına verəcəksinizsə və ya şübhəli giriş hiss etsəniz, bütün cihazlardan çıxın və şifrəni dəyişin.</p>
+        <button class="duyme kicik" id="hamisindanCix" type="button" style="align-self:flex-start">Bütün cihazlardan çıx</button>
         <p style="font-size:16px;font-style:italic">Yeni admin əlavə etmək üçün Kənana yazın.</p>
       </div>
     </div>
@@ -225,11 +246,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="../assets/qrcode.js?v=202611051759"></script>
-<script src="../assets/config.js?v=202611051759"></script>
-<script src="../assets/ortaq.js?v=202611051759"></script>
-<script src="../assets/kart.js?v=202611051759"></script>
-<script src="../assets/admin.js?v=202611051759"></script>
-<script src="../assets/admin-devet.js?v=202611051759"></script>
+<script src="../assets/qrcode.js?v=202611051803"></script>
+<script src="../assets/config.js?v=202611051803"></script>
+<script src="../assets/ortaq.js?v=202611051803"></script>
+<script src="../assets/kart.js?v=202611051803"></script>
+<script src="../assets/admin.js?v=202611051803"></script>
+<script src="../assets/admin-devet.js?v=202611051803"></script>
 </body>
 </html>
