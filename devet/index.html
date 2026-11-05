@@ -68,7 +68,7 @@ body{background:radial-gradient(ellipse at 50% 30%,#7d2019 0%,#661712 55%,#430d0
     var s = [['TARİX', t.hefte.charAt(0).toLocaleUpperCase('az') + t.hefte.slice(1) + ', ' + t.gun + ' ' + t.ay + ' ' + t.il, ''], ['SAAT', t.saat, ''], ['MƏKAN', ev.venue || '', ev.venue_detail || '']];
     if (ev.guest_name) s.push(['QONAQ', ev.guest_name, ev.guest_title || '']);
     el('dSetirler').innerHTML = s.map(function (x) { return '<div><b>' + x[0] + '</b><span>' + HS.esc(x[1]) + (x[2] ? '<small>' + HS.esc(x[2]) + '</small>' : '') + '</span></div>'; }).join('');
-    if (ev.venue) { el('dXerite').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(ev.venue + ' ' + (ev.venue_detail || '') + ' Bakı'); el('dXerite').hidden = false; }
+    if (ev.map_url || ev.venue) { el('dXerite').href = ev.map_url || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(ev.venue + ' ' + (ev.venue_detail || '') + ' Bakı')); el('dXerite').hidden = false; }
     el('dQeyd').textContent = 'Girişdə dəvət kartınızdakı QR kodu göstərməyiniz kifayətdir.';
   });
 })();

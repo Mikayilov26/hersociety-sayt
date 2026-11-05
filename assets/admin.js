@@ -4,7 +4,7 @@
   var el = function (id) { return document.getElementById(id); };
   var ALBOM_LINK = 'https://hersociety.az/albom';
   var ZIP_HISSE = 60;
-  var EV_SAHELER = 'id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,card_note,album_open,published,door_active';
+  var EV_SAHELER = 'id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,card_note,map_url,album_open,published,door_active';
 
   var istifadeci = null, gorusler = [], sekiller = [], url = {}, secilen = new Set(), filtr = 'hamisi', redakte = null;
 
@@ -168,6 +168,7 @@
     el('fVenue').value = g ? (g.venue || '') : '';
     el('fVenueDetail').value = g ? (g.venue_detail || '') : '';
     el('fCardNote').value = g ? (g.card_note || '') : '';
+    el('fMap').value = g ? (g.map_url || '') : '';
     el('fPublished').checked = g ? g.published : true;
     el('fXeta').hidden = true;
     el('gorusForm').hidden = false;
@@ -188,6 +189,7 @@
       venue: el('fVenue').value.trim() || null,
       venue_detail: el('fVenueDetail').value.trim() || null,
       card_note: el('fCardNote').value.trim() || null,
+      map_url: (function (u) { u = u.trim(); var m = u.match(/https:\/\/\S+/); return m ? m[0] : null; })(el('fMap').value),
       published: el('fPublished').checked
     };
     var sorgu = redakte ? db.from('events').update(melumat).eq('id', redakte.id) : db.from('events').insert(melumat);
