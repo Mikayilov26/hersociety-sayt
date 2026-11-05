@@ -40,7 +40,7 @@
   if (!db) { el('giris').hidden = false; el('gXeta').hidden = false; el('gXeta').textContent = 'Bağlantı qurulmayıb.'; return; }
 
   /* ---------- Giriş ---------- */
-  function girisEkrani() { el('giris').hidden = false; el('girisForm').hidden = false; el('berpaForm').hidden = true; el('yeniSifreForm').hidden = true; el('app').hidden = true; el('cixis').hidden = true; el('emeliyyat').hidden = true; }
+  function girisEkrani() { el('giris').hidden = false; el('girisForm').hidden = false; el('app').hidden = true; el('cixis').hidden = true; el('emeliyyat').hidden = true; }
   function yoxla(session) {
     if (!session) return girisEkrani();
     db.rpc('is_admin').then(function (r) {
@@ -55,31 +55,7 @@
       basla();
     });
   }
-  var berpaRejimi = /type=recovery/.test(location.hash);
-  db.auth.onAuthStateChange(function (hadise) { if (hadise === 'PASSWORD_RECOVERY') { berpaRejimi = true; yeniSifreGoster(); } });
-  function yeniSifreGoster() { el('giris').hidden = false; el('girisForm').hidden = true; el('berpaForm').hidden = true; el('yeniSifreForm').hidden = false; el('app').hidden = true; }
-  db.auth.getSession().then(function (r) { if (berpaRejimi && r.data.session) return yeniSifreGoster(); yoxla(r.data.session); });
-
-  el('unutdum').addEventListener('click', function () { el('girisForm').hidden = true; el('berpaForm').hidden = false; el('bEmail').value = el('gEmail').value; });
-  el('berpaGeri').addEventListener('click', function () { el('berpaForm').hidden = true; el('girisForm').hidden = false; });
-  el('berpaForm').addEventListener('submit', function (ev) {
-    ev.preventDefault(); el('bXeta').hidden = true; el('bOk').hidden = true;
-    db.auth.resetPasswordForEmail(el('bEmail').value.trim().toLowerCase(), { redirectTo: 'https://hersociety.az/admin/' }).then(function (r) {
-      if (r.error && /rate|limit|seconds/i.test(r.error.message)) { el('bXeta').hidden = false; el('bXeta').textContent = 'Çox tez-tez cəhd edildi. Bir az sonra yenidən yoxlayın.'; return; }
-      el('bOk').hidden = false; // email admin olmasa da eyni cavab (kim admindir bilinməsin)
-    });
-  });
-  el('yeniSifreForm').addEventListener('submit', function (ev) {
-    ev.preventDefault();
-    var sx = sifreYoxla(el('ySifre').value, el('ySifre2').value);
-    if (sx) { el('yXeta').hidden = false; el('yXeta').textContent = sx; return; }
-    db.auth.updateUser({ password: el('ySifre').value }).then(function (r) {
-      if (r.error) { el('yXeta').hidden = false; el('yXeta').textContent = 'Şifrə saxlanmadı. Linkin vaxtı keçmiş ola bilər, yenidən "Şifrəni unutmusunuz?" ilə link istəyin.'; return; }
-      history.replaceState(null, '', location.pathname);
-      el('yeniSifreForm').hidden = true; el('girisForm').hidden = false; berpaRejimi = false;
-      db.auth.getSession().then(function (s) { yoxla(s.data.session); bildir('Yeni şifrə saxlandı.'); });
-    });
-  });
+  db.auth.getSession().then(function (r) { yoxla(r.data.session); });
 
   el('girisForm').addEventListener('submit', function (ev) {
     ev.preventDefault();
