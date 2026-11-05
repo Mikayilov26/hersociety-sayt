@@ -279,7 +279,7 @@ p{margin:0;text-wrap:pretty}
 .acilanlar{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .acilan>summary{list-style:none;width:100%;min-height:52px;letter-spacing:.12em;font-size:14px;white-space:nowrap}
 .acilan>summary::-webkit-details-marker{display:none}
-.acilan>summary::after{content:"";width:9px;height:9px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-4px 0 0 6px;transition:transform .2s}
+.acilan>summary::after{content:"";flex:0 0 auto;box-sizing:content-box;width:9px;height:9px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-4px 0 0 6px;transition:transform .2s}
 .acilan[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
 .acilan[open]>summary{margin-bottom:10px}
 /* Görüşlər: yığcam siyahı */
