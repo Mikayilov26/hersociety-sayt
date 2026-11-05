@@ -295,3 +295,21 @@ p{margin:0;text-wrap:pretty}
 .ev-acilan .nisan{flex:0 0 auto;font-size:11px;padding:3px 8px}
 .ev-ic{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--xett);padding-top:12px}
 .ev-ic h3{font-size:22px}
+
+/* Dar ekranlarda heç nə kənara çıxmasın */
+.qonaq-setir{flex-wrap:wrap}
+.qonaq-setir>div:first-child{flex:1 1 180px;min-width:0}
+.qonaq-setir .ad{overflow-wrap:anywhere}
+.qonaq-setir .duymeler{flex-wrap:wrap;justify-content:flex-end}
+.adm-esas,.panel,.ev-kart,.ev-acilan,.ev-ic{min-width:0;max-width:100%}
+.panel p,.ev-ic p,.linkqutu{overflow-wrap:anywhere}
+.duymeler .duyme{max-width:100%}
+.adm-ust{min-width:0}
+.adm-ust>*:first-child{min-width:0;flex:1 1 auto;overflow:hidden}
+#cixis{flex:0 0 auto}
+@media (max-width:360px){
+  .adm-ust small{display:none}
+  .duyme{letter-spacing:.12em}
+  #cixis{padding-left:12px;padding-right:12px}
+  .tablar button{font-size:12px;letter-spacing:.04em;padding:0 4px}
+}
