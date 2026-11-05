@@ -282,3 +282,16 @@ p{margin:0;text-wrap:pretty}
 .acilan>summary::after{content:"";width:9px;height:9px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-4px 0 0 6px;transition:transform .2s}
 .acilan[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
 .acilan[open]>summary{margin-bottom:10px}
+/* Görüşlər: yığcam siyahı */
+#gorusSiyahi{gap:10px}
+.ev-acilan{background:#fbf5ec;border:1px solid var(--xett)}
+.ev-acilan>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;min-height:64px}
+.ev-acilan>summary::-webkit-details-marker{display:none}
+.ev-acilan>summary .sol{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ev-acilan>summary b{font-family:var(--f-basliq);font-weight:400;font-size:21px;line-height:1.2}
+.ev-acilan>summary::after{content:"";flex:0 0 auto;width:9px;height:9px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-4px 4px 0 6px;transition:transform .2s}
+.ev-acilan[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+.ev-acilan.kecmis>summary{opacity:.75}
+.ev-acilan .nisan{flex:0 0 auto;font-size:11px;padding:3px 8px}
+.ev-ic{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--xett);padding-top:12px}
+.ev-ic h3{font-size:22px}

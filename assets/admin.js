@@ -95,23 +95,25 @@
   }
   function gorusCiz() {
     var indi = Date.now() - 6 * 3600e3;
+    var acig = {};
+    document.querySelectorAll('#gorusSiyahi details[open]').forEach(function (d) { acig[d.getAttribute('data-id')] = true; });
     el('gorusSiyahi').innerHTML = gorusler.map(function (g) {
       var t = HS.hisseler(g.starts_at), gelecek = new Date(g.starts_at).getTime() >= indi;
-      return '<article class="ev-kart">' +
-        '<div class="nisanlar">' +
-        (gelecek ? '<span class="nisan dolu">Gələcək</span>' : '<span class="nisan">Keçmiş</span>') +
-        (g.album_open ? '<span class="nisan yasil">Albom açıqdır</span>' : '') +
-        (!g.published ? '<span class="nisan">Saytda gizli</span>' : '') +
-        '</div>' +
-        '<p style="font-size:16px;letter-spacing:.12em;text-transform:uppercase">' + t.gun + ' ' + t.ay + ' ' + t.il + ' · ' + t.hefte + ' · ' + t.saat + '</p>' +
+      return '<details class="ev-acilan' + (gelecek ? '' : ' kecmis') + '" data-id="' + g.id + '"' + (acig[g.id] ? ' open' : '') + '>' +
+        '<summary><span class="sol"><span class="tarix-et">' + t.gun + ' ' + t.ay + ' ' + t.il + (gelecek ? '' : ' · keçmiş') + '</span>' +
+        '<b>' + e(g.guest_name || g.title) + '</b></span>' +
+        (g.album_open ? '<span class="nisan yasil">Albom açıq</span>' : '') + (!g.published ? '<span class="nisan">Gizli</span>' : '') +
+        '</summary><div class="ev-ic">' +
+        '<p class="tarix-et">' + t.hefte + ' · ' + t.saat + '</p>' +
         '<h3>' + e(g.title) + (g.topic ? ' — <i>' + e(g.topic) + '</i>' : '') + '</h3>' +
-        '<p>' + (g.guest_name ? 'Qonaq: ' + e(g.guest_name) + (g.guest_title ? ', ' + e(g.guest_title) : '') : 'Qonaq yazılmayıb') + '<br>' + e(g.venue || 'Məkan yazılmayıb') + '</p>' +
+        '<p>' + (g.guest_name ? 'Qonaq: ' + e(g.guest_name) + (g.guest_title ? ', ' + e(g.guest_title) : '') : 'Qonaq yazılmayıb') + '<br>' +
+        e([g.venue, g.venue_detail].filter(Boolean).join(', ') || 'Məkan yazılmayıb') + '</p>' +
         '<div class="duymeler">' +
         '<button class="duyme kicik ' + (g.album_open ? '' : 'dolu') + '" type="button" data-albom="' + g.id + '">' + (g.album_open ? 'Albomu bağla' : 'Albomu aç') + '</button>' +
         '<button class="duyme kicik" type="button" data-redakte="' + g.id + '">Düzəlt</button>' +
         '<button class="duyme kicik" type="button" data-sekiller="' + g.id + '">Şəkillər</button>' +
         '<button class="duyme kicik tehlike" type="button" data-sil="' + g.id + '">Sil</button>' +
-        '</div></article>';
+        '</div></div></details>';
     }).join('') || '<p class="bos-qeyd">Hələ görüş yoxdur.</p>';
   }
 
