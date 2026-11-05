@@ -8,6 +8,7 @@
   var GIRIS_LINK = 'https://hersociety.az/giris/?g=';
 
   function bildir(m) { var b = el('bildiris'); b.textContent = m; b.hidden = false; clearTimeout(bildir.t); bildir.t = setTimeout(function () { b.hidden = true; }, 3500); }
+  function saatsiz(b) { return b.checked_in_via === 'kohne-saatsiz'; }
   function tarix(g) { var t = HS.hisseler(g.starts_at); return t.gun + ' ' + t.ay + ' ' + t.il + ' · ' + t.saat; }
   function xeta(x) { console.error(x); bildir('Xəta baş verdi. İnterneti yoxlayıb yenidən cəhd edin.'); }
 
@@ -71,7 +72,7 @@
       return !q || b.name.toLocaleLowerCase('az').indexOf(q) >= 0 || b.code.toLowerCase().indexOf(q) >= 0 || String(b.num) === q.replace(/^0+/, '');
     }).sort(function (a, b) { return b.num - a.num; });
     el('dvQonaqlar').innerHTML = list.map(function (b) {
-      var st = b.revoked ? 'ləğv olunub' : b.checked_in_at ? 'gəlib · ' + HS.hisseler(b.checked_in_at).saat : 'gözlənilir';
+      var st = b.revoked ? 'ləğv olunub' : b.checked_in_at ? 'gəlib' + (saatsiz(b) ? '' : ' · ' + HS.hisseler(b.checked_in_at).saat) : 'gözlənilir';
       return '<div class="qonaq-setir' + (b.revoked ? ' legv' : '') + '"><div><div class="ad">№ ' + HS.pad(b.num) + ' · ' + e(b.name) + '</div>' +
         '<div class="alt">Kod ' + b.code + ' · ' + st + '</div></div><div class="duymeler">' +
         (b.revoked ? '<button class="duyme kicik" type="button" data-berpa="' + b.id + '">Bərpa et</button>' :
@@ -183,7 +184,7 @@
       return {
         '№': b.num, 'Ad': b.name, 'Kod': b.code,
         'Status': b.revoked ? 'Ləğv olunub' : b.checked_in_at ? 'Gəlib' : 'Gəlməyib',
-        'Gəlmə saatı': b.checked_in_at ? HS.hisseler(b.checked_in_at).saat : '',
+        'Gəlmə saatı': b.checked_in_at && !saatsiz(b) ? HS.hisseler(b.checked_in_at).saat : '',
         'Kart yaradılıb': c ? c.gun + ' ' + c.ay + ' ' + c.saat : '',
         'Yaradan': b.created_by || ''
       };
