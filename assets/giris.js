@@ -48,11 +48,15 @@
   function gelib(b) { return S.yerli[b.id] || b.in; }
   function tap(acar) {
     acar = String(acar || '').trim();
-    var k = acar.match(/[?&]k=([A-Za-z0-9]{20,})/); if (k) acar = k[1];
+    acar = acarTemizle(acar);
     var up = acar.toUpperCase();
     return siyahi().filter(function (b) { return b.secret === acar || b.code === up || b.id === acar; })[0] || null;
   }
-  function acarTemizle(metn) { var k = String(metn).match(/[?&]k=([A-Za-z0-9]{20,})/); return k ? k[1] : String(metn).trim(); }
+  function acarTemizle(metn) {
+    var s = String(metn), k = s.match(/[?&]k=([A-Za-z0-9]{20,})/); if (k) return k[1];
+    var kohne = s.match(/#t=([A-Z0-9]{6})\./); if (kohne) return kohne[1]; // köhnə sistemin kartları (21 noyabr)
+    return s.trim();
+  }
   function saat(v) { return HS.hisseler(v).saat; }
 
   function ciz() {
