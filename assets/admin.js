@@ -40,9 +40,37 @@
   if (!db) { el('giris').hidden = false; el('gXeta').hidden = false; el('gXeta').textContent = 'Bağlantı qurulmayıb.'; return; }
 
   /* ---------- Giriş ---------- */
-  function girisEkrani() { el('giris').hidden = false; el('girisForm').hidden = false; el('app').hidden = true; el('cixis').hidden = true; el('emeliyyat').hidden = true; }
+  function girisEkrani() { el('giris').hidden = false; el('girisForm').hidden = false; el('mfaForm').hidden = true; el('app').hidden = true; el('cixis').hidden = true; el('emeliyyat').hidden = true; }
   function yoxla(session) {
     if (!session) return girisEkrani();
+    // İki addımlı yoxlama qurulubsa, əvvəlcə kodu soruş
+    db.auth.mfa.getAuthenticatorAssuranceLevel().then(function (a) {
+      var s = a.data || {};
+      if (s.nextLevel === 'aal2' && s.currentLevel !== 'aal2') return mfaSorus();
+      adminYoxla(session);
+    });
+  }
+  function mfaSorus() {
+    el('giris').hidden = false; el('girisForm').hidden = true; el('mfaForm').hidden = false; el('app').hidden = true;
+    el('mfaKod').value = ''; el('mfaXeta').hidden = true; setTimeout(function () { el('mfaKod').focus(); }, 100);
+  }
+  el('mfaForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var kod = el('mfaKod').value.replace(/\D/g, '');
+    if (kod.length !== 6) { el('mfaXeta').hidden = false; el('mfaXeta').textContent = '6 rəqəmli kodu yazın.'; return; }
+    db.auth.mfa.listFactors().then(function (r) {
+      var f = (r.data && r.data.totp || [])[0];
+      if (!f) throw new Error('faktor yoxdur');
+      return db.auth.mfa.challengeAndVerify({ factorId: f.id, code: kod });
+    }).then(function (r) {
+      if (r.error) { el('mfaXeta').hidden = false; el('mfaXeta').textContent = 'Kod düz deyil və ya vaxtı keçib. Tətbiqdəki yeni kodu yazın.'; el('mfaKod').value = ''; return; }
+      el('mfaForm').hidden = true; el('girisForm').hidden = false;
+      db.auth.getSession().then(function (s) { adminYoxla(s.data.session); });
+    }).catch(function () { el('mfaXeta').hidden = false; el('mfaXeta').textContent = 'Xəta baş verdi. Yenidən cəhd edin.'; });
+  });
+  el('mfaLegv').addEventListener('click', function () { db.auth.signOut().then(function () { location.reload(); }); });
+
+  function adminYoxla(session) {
     db.rpc('is_admin').then(function (r) {
       if (r.data !== true) {
         db.auth.signOut();
@@ -475,13 +503,66 @@
       el('adminPanel').hidden = !menim.super;
       el('mecburiSifre').hidden = !menim.must_change;
       el('adminSiyahi').innerHTML = list.map(function (a) {
-        return '<div class="qonaq-setir"><div><div class="ad">' + e(a.email) + '</div><div class="alt">' + (a.super ? 'baş admin' : 'admin') + (a.must_change ? ' · müvəqqəti şifrə ilə' : '') + '</div></div>' +
+        return '<div class="qonaq-setir"><div><div class="ad">' + e(a.email) + '</div><div class="alt">' + (a.super ? 'baş admin' : 'admin') + (a.must_change ? ' · müvəqqəti şifrə ilə' : '') + '<span data-mfa="' + e(a.email) + '"></span></div></div>' +
           (a.email === me ? '' : '<button class="duyme kicik" type="button" data-sifirla="' + e(a.email) + '">Yeni şifrə</button>') + '</div>';
       }).join('');
+      if (menim.super) db.rpc('admin_mfa_veziyyeti').then(function (m) {
+        (Array.isArray(m.data) ? m.data : []).forEach(function (x) {
+          var s = el('adminSiyahi').querySelector('[data-mfa="' + x.email + '"]');
+          if (s) s.textContent = x.mfa ? ' · iki addımlı ✓' : ' · iki addımlı yox';
+        });
+      });
       return menim;
     });
   }
-  function adminler() { menimHesab(); }
+  function adminler() { menimHesab(); mfaVeziyyeti(); }
+
+  /* ---------- İki addımlı yoxlama (Google Authenticator) ---------- */
+  var mfaYeni = null;
+  function mfaVeziyyeti() {
+    el('mfaQurulus').hidden = true;
+    db.auth.mfa.listFactors().then(function (r) {
+      var aktiv = (r.data && r.data.totp || []).filter(function (f) { return f.status === 'verified'; })[0];
+      el('mfaVeziyyet').innerHTML = aktiv ? '<b>Aktivdir ✓</b> Hər girişdə şifrədən sonra telefonunuzdakı 6 rəqəmli kod soruşulur.'
+        : '<b>Aktiv deyil.</b> Yandırsanız, şifrəniz oğurlansa belə telefonunuz olmadan heç kim panelə girə bilməz. Tövsiyə edirik.';
+      el('mfaQur').hidden = !!aktiv; el('mfaSondur').hidden = !aktiv;
+      el('mfaSondur').dataset.id = aktiv ? aktiv.id : '';
+    });
+  }
+  el('mfaQur').addEventListener('click', function () {
+    el('mfaQur').disabled = true;
+    db.auth.mfa.listFactors().then(function (r) {
+      var kohne = (r.data && r.data.all || []).filter(function (f) { return f.status !== 'verified'; });
+      return Promise.all(kohne.map(function (f) { return db.auth.mfa.unenroll({ factorId: f.id }); }));
+    }).then(function () {
+      return db.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'HER Society ' + Date.now(), issuer: 'HER Society' });
+    }).then(function (r) {
+      el('mfaQur').disabled = false;
+      if (r.error) { bildir('Qurmaq alınmadı. Səhifəni yeniləyib yenidən cəhd edin.'); return; }
+      mfaYeni = r.data;
+      el('mfaLink').href = r.data.totp.uri;
+      el('mfaSirr').textContent = r.data.totp.secret.replace(/(.{4})/g, '$1 ').trim();
+      el('mfaQr').src = r.data.totp.qr_code;
+      el('mfaQurulus').hidden = false; el('mfaQur').hidden = true; el('mfaYeniKod').value = ''; el('mfaQurXeta').hidden = true;
+    });
+  });
+  el('mfaTesdiq').addEventListener('click', function () {
+    var kod = el('mfaYeniKod').value.replace(/\D/g, '');
+    if (!mfaYeni || kod.length !== 6) { el('mfaQurXeta').hidden = false; el('mfaQurXeta').textContent = 'Tətbiqdəki 6 rəqəmli kodu yazın.'; return; }
+    db.auth.mfa.challengeAndVerify({ factorId: mfaYeni.id, code: kod }).then(function (r) {
+      if (r.error) { el('mfaQurXeta').hidden = false; el('mfaQurXeta').textContent = 'Kod düz deyil. Tətbiqdəki yeni kodu yazın.'; return; }
+      mfaYeni = null; bildir('İki addımlı yoxlama yandırıldı ✓'); mfaVeziyyeti(); menimHesab();
+    });
+  });
+  el('mfaSondur').addEventListener('click', function () {
+    tesdiq('İki addımlı yoxlama söndürülsün?', 'Bundan sonra panelə yalnız şifrə ilə girmək olacaq. Bu, hesabı daha az qorunan edir.', 'Söndür').then(function (ok) {
+      if (!ok) return;
+      db.auth.mfa.unenroll({ factorId: el('mfaSondur').dataset.id }).then(function (r) {
+        if (r.error) return bildir('Söndürmək alınmadı.');
+        bildir('İki addımlı yoxlama söndürüldü.'); mfaVeziyyeti(); menimHesab();
+      });
+    });
+  });
   el('adminSiyahi').addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-sifirla]'); if (!b) return;
     var kim = b.getAttribute('data-sifirla');
