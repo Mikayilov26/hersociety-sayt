@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/stil.css?v=202611060925">
+<link rel="stylesheet" href="../assets/stil.css?v=202611060928">
 </head>
 <body>
 
@@ -77,10 +77,12 @@
         <p id="fMapQeyd" style="font-size:16px;font-style:italic;margin-top:-6px" hidden></p>
         <div class="sahe"><label for="fVenueDetail">Ünvan (linkdən özü yazılır, istəyə bağlı)</label><input id="fVenueDetail" placeholder="avtomatik"></div>
         <div class="sahe"><label for="fCardNote">Dəvət kartındakı cümlə</label><input id="fCardNote" placeholder="yeriniz ayrıldı — sizi gözləyirik"></div>
+        <p style="font-size:16px;font-style:italic;margin-top:-6px">Şəxsi dəvət kartında qonağın adının altında yazılır: “Hörmətli Aynur xanım, <b>yeriniz ayrıldı — sizi gözləyirik</b>”. Boş qalsa, bu cümlə yazılır.</p>
         <label class="yoxla"><input type="checkbox" id="fPublished" checked> Saytda göstər</label>
         <p class="xeta" id="fXeta" hidden></p>
         <div class="duymeler">
           <button class="duyme dolu" type="submit">Saxla</button>
+          <button class="duyme" type="button" id="formOnizle">Önizlə</button>
           <button class="duyme" type="button" id="formLegv">Ləğv et</button>
         </div>
       </form>
@@ -294,17 +296,30 @@
     </div>
   </div>
 </div>
+<div class="modal onizle-modal" id="gOnizle" hidden role="dialog" aria-modal="true" aria-labelledby="goBasliq">
+  <div class="qutu">
+    <h2 id="goBasliq">Önizləmə</h2>
+    <p style="font-size:16px;font-style:italic">Hələ saxlanmayıb. Bağlayıb düzəldə, sonra “Saxla” basa bilərsiniz.</p>
+    <div class="filtrler" role="group" aria-label="Önizləmə növü">
+      <button type="button" data-go="kart" aria-pressed="true">Dəvət kartı</button>
+      <button type="button" data-go="sayt" aria-pressed="false">Saytda</button>
+    </div>
+    <div id="goKart"><img id="goKartSekil" alt="Dəvət kartının önizləməsi" style="width:100%;display:block;box-shadow:0 8px 20px rgba(40,8,6,.25)"><p id="goKartQeyd" style="font-size:15px;font-style:italic;margin-top:8px;text-align:center">Nümunə: Aynur xanım, № 01. Kod və QR hər qonaq üçün ayrı olur.</p></div>
+    <div id="goSayt" hidden style="background:var(--krem);margin:0 -8px"></div>
+    <button class="duyme dolu" id="goBagla" type="button">Bağla və düzəlt</button>
+  </div>
+</div>
 <div class="bildiris" id="bildiris" hidden role="status"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="../assets/qrcode.js?v=202611060925"></script>
-<script src="../assets/config.js?v=202611060925"></script>
-<script src="../assets/ortaq.js?v=202611060925"></script>
-<script src="../assets/kart.js?v=202611060925"></script>
-<script src="../assets/admin.js?v=202611060925"></script>
-<script src="../assets/admin-stat.js?v=202611060925"></script>
-<script src="../assets/admin-devet.js?v=202611060925"></script>
+<script src="../assets/qrcode.js?v=202611060928"></script>
+<script src="../assets/config.js?v=202611060928"></script>
+<script src="../assets/ortaq.js?v=202611060928"></script>
+<script src="../assets/kart.js?v=202611060928"></script>
+<script src="../assets/admin.js?v=202611060928"></script>
+<script src="../assets/admin-stat.js?v=202611060928"></script>
+<script src="../assets/admin-devet.js?v=202611060928"></script>
 </body>
 </html>

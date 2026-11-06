@@ -231,6 +231,43 @@
   el('fMap').addEventListener('paste', function () { setTimeout(mapOxu, 50); });
   el('yeniGorus').addEventListener('click', function () { formAc(null); });
   el('formLegv').addEventListener('click', function () { el('gorusForm').hidden = true; });
+  /* ---------- Görüş önizləməsi (saxlamadan) ---------- */
+  function formMelumati() {
+    var d = el('fDate').value || new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Baku' }).format(new Date()), s = el('fTime').value || '13:00';
+    return {
+      title: el('fTitle').value.trim() || 'Çay Süfrəsi', topic: el('fTopic').value.trim() || null,
+      guest_name: el('fGuest').value.trim() || null, guest_title: el('fGuestTitle').value.trim() || null,
+      starts_at: d + 'T' + s + ':00+04:00', venue: el('fVenue').value.trim() || null,
+      venue_detail: el('fVenueDetail').value.trim() || null, card_note: el('fCardNote').value.trim() || null
+    };
+  }
+  function goNov(n) {
+    document.querySelectorAll('[data-go]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-go') === n ? 'true' : 'false'); });
+    el('goKart').hidden = n !== 'kart'; el('goSayt').hidden = n !== 'sayt';
+  }
+  document.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function () { goNov(b.getAttribute('data-go')); }); });
+  el('formOnizle').addEventListener('click', function () {
+    var g = formMelumati(), t = HS.hisseler(g.starts_at);
+    el('fXeta').hidden = true;
+    el('gOnizle').hidden = false; goNov('kart');
+    el('goKartSekil').removeAttribute('src'); el('goKartQeyd').textContent = 'Kart hazırlanır…';
+    HS.kartCiz(g, { name: 'Aynur xanım', num: 1, code: 'AB12CD', secret: 'onizleme-nümunə-000000000' }, '../').then(function (c) {
+      el('goKartSekil').src = c.toDataURL('image/jpeg', 0.85);
+      el('goKartQeyd').textContent = 'Nümunə: Aynur xanım, № 01. Kod və QR hər qonaq üçün ayrı olur.';
+    }).catch(function (x) { console.error(x); el('goKartQeyd').textContent = 'Kart önizləməsi alınmadı.'; });
+    el('goSayt').innerHTML = '<div class="devet"><div class="devet-ic">' +
+      '<p class="etiket" lang="en">HER Society presents</p><h3>' + e(g.title) + '</h3>' +
+      (g.topic ? '<p class="movzu">' + e(g.topic) + '</p>' : '') +
+      (g.guest_name ? '<div class="ayirici" aria-hidden="true"><i></i>✦<i></i></div><p class="etiket">Qonağımız</p><p class="qonaq-ad">' + e(g.guest_name) + '</p>' +
+        (g.guest_title ? '<p class="qeyd-italik">' + e(g.guest_title) + '</p>' : '') : '') +
+      '<div class="melumat"><div><span class="etiket">Tarix</span><span>' + t.gun + ' ' + t.ay + ', ' + t.hefte + '</span></div>' +
+      '<div><span class="etiket">Saat</span><span>' + t.saat + '</span></div>' +
+      '<div><span class="etiket">Məkan</span><span>' + e([g.venue, g.venue_detail].filter(Boolean).join(', ')) + '</span></div></div>' +
+      '<p class="qeyd-italik" style="margin-top:18px"><span class="setir">Yerlər məhduddur.</span><span class="setir">Yerinizi ayırmaq üçün bizə yazın.</span></p>' +
+      '<span class="duyme dolu">Bizə yazın</span></div></div>' +
+      '<p style="font-size:15px;font-style:italic;text-align:center;padding:10px 8px 4px">Ana səhifədə “Növbəti görüş” belə görünəcək (geri sayım saytda əlavə olunur).</p>';
+  });
+  el('goBagla').addEventListener('click', function () { el('gOnizle').hidden = true; });
   el('gorusForm').addEventListener('submit', function (ev) {
     ev.preventDefault();
     var d = el('fDate').value, s = el('fTime').value;

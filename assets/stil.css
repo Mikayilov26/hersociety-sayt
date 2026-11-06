@@ -358,3 +358,8 @@ img,video,canvas,svg,input,select,textarea{max-width:100%}
 .kadr.tutulur{cursor:grabbing}
 .kadr img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
 .kadr::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(var(--xett-krem),var(--xett-krem)) 33.33% 0/1px 100% no-repeat,linear-gradient(var(--xett-krem),var(--xett-krem)) 66.66% 0/1px 100% no-repeat,linear-gradient(var(--xett-krem),var(--xett-krem)) 0 33.33%/100% 1px no-repeat,linear-gradient(var(--xett-krem),var(--xett-krem)) 0 66.66%/100% 1px no-repeat}
+/* Admin: görüş önizləməsi */
+.onizle-modal{align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.onizle-modal .qutu{margin:auto 0}
+.onizle-modal .devet-ic{padding:32px 16px 28px}
+.onizle-modal .devet h3{font-size:42px}
