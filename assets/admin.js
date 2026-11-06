@@ -351,10 +351,58 @@
     el('onizleSekil').src = url[s.thumb_path] || '';
     el('onizleAd').textContent = (s.uploader ? 'Yükləyən: ' + s.uploader : 'Ad yazılmayıb') + ' · ' + HS.hisseler(s.created_at).saat + (s.consent ? ' · paylaşmağa icazə var' : ' · icazə yoxdur');
     el('onizle').hidden = false;
+    el('kadrAc').hidden = !(s.on_site && s.site_path); el('kadrAc').dataset.id = s.id;
     db.storage.from('albom').createSignedUrl(s.path, 3600).then(function (r) { if (r.data) el('onizleSekil').src = r.data.signedUrl; });
   }
   el('onizleBagla').addEventListener('click', function () { el('onizle').hidden = true; });
   el('onizle').addEventListener('click', function (ev) { if (ev.target === el('onizle')) el('onizle').hidden = true; });
+
+
+  /* ---------- Saytdakı kvadrat görünüş (sürüşdürərək) ---------- */
+  var kd = { s: null, x: 50, y: 50, ox: 0, oy: 0, bas: null };
+  function kadrOlc() {
+    var im = el('kadrSekil'), S = el('kadr').clientWidth, w = im.naturalWidth, h = im.naturalHeight;
+    if (!w || !h || !S) return;
+    var k = S / Math.min(w, h);
+    kd.ox = w * k - S; kd.oy = h * k - S;
+  }
+  function kadrYaz() { el('kadrSekil').style.objectPosition = kd.x.toFixed(1) + '% ' + kd.y.toFixed(1) + '%'; }
+  el('kadrAc').addEventListener('click', function () {
+    var s = sekiller.filter(function (x) { return x.id === el('kadrAc').dataset.id; })[0]; if (!s) return;
+    kd.s = s; kd.x = s.focus_x == null ? 50 : s.focus_x; kd.y = s.focus_y == null ? 50 : s.focus_y;
+    el('onizle').hidden = true; el('kadrModal').hidden = false;
+    var im = el('kadrSekil'); im.onload = function () { kadrOlc(); kadrYaz(); };
+    im.src = HS.saytUrl(s.site_path); kadrYaz();
+  });
+  var kadr = el('kadr');
+  kadr.addEventListener('pointerdown', function (ev) {
+    ev.preventDefault(); kadrOlc(); kd.bas = { px: ev.clientX, py: ev.clientY, x: kd.x, y: kd.y };
+    try { kadr.setPointerCapture(ev.pointerId); } catch (x) {}
+    kadr.classList.add('tutulur');
+  });
+  kadr.addEventListener('pointermove', function (ev) {
+    if (!kd.bas) return;
+    var dx = ev.clientX - kd.bas.px, dy = ev.clientY - kd.bas.py;
+    if (kd.ox > 0) kd.x = Math.max(0, Math.min(100, kd.bas.x - dx / kd.ox * 100));
+    if (kd.oy > 0) kd.y = Math.max(0, Math.min(100, kd.bas.y - dy / kd.oy * 100));
+    kadrYaz();
+  });
+  function kadrBurax() { kd.bas = null; kadr.classList.remove('tutulur'); }
+  kadr.addEventListener('pointerup', kadrBurax);
+  kadr.addEventListener('pointercancel', kadrBurax);
+  el('kadrOrta').addEventListener('click', function () { kd.x = 50; kd.y = 50; kadrYaz(); });
+  el('kadrLegv').addEventListener('click', function () { el('kadrModal').hidden = true; });
+  el('kadrSaxla').addEventListener('click', function () {
+    var s = kd.s; if (!s) return;
+    var x = Math.round(kd.x * 10) / 10, y = Math.round(kd.y * 10) / 10;
+    var orta = Math.abs(x - 50) < 0.5 && Math.abs(y - 50) < 0.5;
+    var deyer = orta ? { focus_x: null, focus_y: null } : { focus_x: x, focus_y: y };
+    db.from('photos').update(deyer).eq('id', s.id).then(function (r) {
+      if (r.error) return xeta(r.error);
+      s.focus_x = deyer.focus_x; s.focus_y = deyer.focus_y;
+      el('kadrModal').hidden = true; bildir('Saytdakı görünüş yadda saxlandı.');
+    });
+  });
 
   function boyukFayl(s) {
     return db.storage.from('albom').download(s.path).then(function (r) { if (r.error) throw r.error; return r.data; });

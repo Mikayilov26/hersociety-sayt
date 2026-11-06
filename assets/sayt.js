@@ -84,9 +84,14 @@
 
   function mekan(g) { return [g.venue, g.venue_detail].filter(Boolean).join(', '); }
 
+  function mevqe(s) {
+    if (s.focus_x == null && s.focus_y == null) return '';
+    var x = s.focus_x == null ? 50 : s.focus_x, y = s.focus_y == null ? 50 : s.focus_y;
+    return ' style="object-position:' + (+x).toFixed(1) + '% ' + (+y).toFixed(1) + '%"';
+  }
   function qalereyaHtml(list) {
     return list.map(function (s) {
-      return '<button type="button" data-lb="' + s.id + '" aria-label="Şəkli böyüt"><img loading="lazy" src="' + HS.saytUrl(s.site_path) + '" alt=""></button>';
+      return '<button type="button" data-lb="' + s.id + '" aria-label="Şəkli böyüt"><img loading="lazy" src="' + HS.saytUrl(s.site_path) + '" alt=""' + mevqe(s) + '></button>';
     }).join('');
   }
 
@@ -142,7 +147,7 @@
     if (!db) { gorusler = EHTIYAT; hamisi(); return; }
     Promise.all([
       db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,album_open').eq('published', true),
-      db.from('photos').select('id,event_id,site_path,created_at').eq('on_site', true).not('site_path', 'is', null).order('created_at', { ascending: false })
+      db.from('photos').select('id,event_id,site_path,created_at,focus_x,focus_y').eq('on_site', true).not('site_path', 'is', null).order('created_at', { ascending: false })
     ]).then(function (r) {
       if (r[0].error) throw r[0].error;
       gorusler = r[0].data || [];

@@ -15,3 +15,6 @@ grant select, delete on public.feedback to authenticated;
 create policy "rey oxu" on public.feedback for select to authenticated using (public.is_admin());
 create policy "rey sil" on public.feedback for delete to authenticated using (public.is_admin());
 -- rey_gonder(ev, qiymet, xos, arzu, ad): yalnız dərc olunmuş, görüş günündən 30 gün ərzində olan görüşə; hər görüşə ən çox 500 rəy.
+
+-- 6 noyabr: sekil_esas_noqte — saytdakı kvadrat görünüş üçün mövqe (faizlə)
+-- alter table public.photos add column focus_x real check (focus_x between 0 and 100), add column focus_y real check (focus_y between 0 and 100);

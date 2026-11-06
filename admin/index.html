@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/stil.css?v=202611060903">
+<link rel="stylesheet" href="../assets/stil.css?v=202611060915">
 </head>
 <body>
 
@@ -275,21 +275,36 @@
 
 <div class="lightbox" id="onizle" hidden role="dialog" aria-modal="true" aria-label="Şəkil">
   <img id="onizleSekil" alt="">
-  <p id="onizleAd" style="position:absolute;left:0;right:0;bottom:16px;text-align:center;color:var(--krem);font-size:17px;padding:0 16px"></p>
+  <div style="position:absolute;left:0;right:0;bottom:16px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 16px">
+    <button class="duyme krem kicik" id="kadrAc" type="button" hidden style="position:static;width:auto;height:auto">Saytdakı görünüşü düzəlt</button>
+    <p id="onizleAd" style="text-align:center;color:var(--krem);font-size:17px"></p>
+  </div>
   <button class="bagla" id="onizleBagla" type="button" aria-label="Bağla"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
 </div>
 
+<div class="modal" id="kadrModal" hidden role="dialog" aria-modal="true" aria-labelledby="kdBasliq">
+  <div class="qutu">
+    <h2 id="kdBasliq">Saytdakı görünüş</h2>
+    <p style="font-size:17px">Şəkli barmaqla sürüşdürün. Kvadratın içində görünən hissə saytda görünəcək. Şəklin özü kəsilmir.</p>
+    <div class="kadr" id="kadr"><img id="kadrSekil" alt="" draggable="false"></div>
+    <div class="duymeler">
+      <button class="duyme dolu" id="kadrSaxla" type="button">Saxla</button>
+      <button class="duyme" id="kadrOrta" type="button">Ortaya qaytar</button>
+      <button class="duyme" id="kadrLegv" type="button">Ləğv et</button>
+    </div>
+  </div>
+</div>
 <div class="bildiris" id="bildiris" hidden role="status"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="../assets/qrcode.js?v=202611060903"></script>
-<script src="../assets/config.js?v=202611060903"></script>
-<script src="../assets/ortaq.js?v=202611060903"></script>
-<script src="../assets/kart.js?v=202611060903"></script>
-<script src="../assets/admin.js?v=202611060903"></script>
-<script src="../assets/admin-stat.js?v=202611060903"></script>
-<script src="../assets/admin-devet.js?v=202611060903"></script>
+<script src="../assets/qrcode.js?v=202611060915"></script>
+<script src="../assets/config.js?v=202611060915"></script>
+<script src="../assets/ortaq.js?v=202611060915"></script>
+<script src="../assets/kart.js?v=202611060915"></script>
+<script src="../assets/admin.js?v=202611060915"></script>
+<script src="../assets/admin-stat.js?v=202611060915"></script>
+<script src="../assets/admin-devet.js?v=202611060915"></script>
 </body>
 </html>
