@@ -14,7 +14,7 @@
   window.stYukle = function () {
     el('stSiyahi').innerHTML = '<p class="bos-qeyd">Yüklənir…</p>';
     Promise.all([
-      db.from('events').select('id,title,topic,guest_name,starts_at').order('starts_at', { ascending: false }),
+      db.from('events').select('id,title,topic,guest_name,starts_at').is('deleted_at', null).order('starts_at', { ascending: false }),
       db.from('tickets').select('event_id,revoked,checked_in_at'),
       db.from('photos').select('event_id,on_site,size_bytes'),
       db.from('feedback').select('id,event_id,rating,liked,wish,name,created_at').order('created_at', { ascending: false })

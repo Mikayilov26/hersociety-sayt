@@ -166,7 +166,7 @@
   function yukle() {
     if (!db) { gorusler = EHTIYAT; hamisi(); return; }
     Promise.all([
-      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,time_tbd,venue,venue_detail,album_open').eq('published', true),
+      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,time_tbd,venue,venue_detail,album_open').eq('published', true).is('deleted_at', null),
       db.from('photos').select('id,event_id,site_path,created_at,focus_x,focus_y').eq('on_site', true).not('site_path', 'is', null).order('created_at', { ascending: false })
     ]).then(function (r) {
       if (r[0].error) throw r[0].error;

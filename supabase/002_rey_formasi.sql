@@ -21,3 +21,9 @@ create policy "rey sil" on public.feedback for delete to authenticated using (pu
 -- grant select (focus_x, focus_y) on public.photos to anon;  -- sayt mövqeyi oxuya bilsin (cədvəldə sütun səviyyəsində icazə var)
 
 -- 6 noyabr: saat_sonra_aciqlanacaq — events.time_tbd (saat hələ bəlli deyil); devet_bax və giris_ac time_tbd qaytarır
+
+-- 6 noyabr: ehtiyat_nusxe_sistemi — events.deleted_at (30 gün silinənlər), ehtiyat sxemi (API-yə bağlı):
+--   ehtiyat.nusxe (gündəlik 30, aylıq 12, əl ilə 20), ehtiyat.canli/al/temizle;
+--   public.ehtiyat_siyahi / ehtiyat_indi / ehtiyat_data (yalnız admin);
+--   pg_cron: 'ehtiyat-gunluk' 00:00 UTC (04:00 Bakı), 'silinenleri-temizle' 00:20 UTC.
+-- Bərpa: select data from ehtiyat.nusxe where id = … → lazım olan sətirləri geri yaz.

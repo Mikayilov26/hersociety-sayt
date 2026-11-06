@@ -109,6 +109,7 @@
     if (ad === 'hesab') adminler();
     if (ad === 'devetler') dvSiyahi();
     if (ad === 'statistika' && window.stYukle) window.stYukle();
+    if (ad === 'hesab' && window.ehYukle) window.ehYukle();
     try { sessionStorage.setItem('hs-tab', ad); } catch (x) {}
   }
   document.querySelectorAll('[data-tab]').forEach(function (b) { b.addEventListener('click', function () { tab(b.getAttribute('data-tab')); }); });
@@ -121,8 +122,9 @@
   }
 
   /* ---------- Görüşlər ---------- */
+  window.gorusleriYenile = function () { return gorusleriYukle(); };
   function gorusleriYukle() {
-    return db.from('events').select(EV_SAHELER).order('starts_at', { ascending: false }).then(function (r) {
+    return db.from('events').select(EV_SAHELER).is('deleted_at', null).order('starts_at', { ascending: false }).then(function (r) {
       if (r.error) return xeta(r.error);
       gorusler = r.data || [];
       gorusCiz(); gorusSecimi();
@@ -184,11 +186,11 @@
   function gorusSil(g) {
     db.from('photos').select('id', { count: 'exact', head: true }).eq('event_id', g.id).then(function (r) {
       if (r.count > 0) { bildir('Bu görüşün ' + r.count + ' şəkli var. Əvvəlcə Albom bölməsində şəkilləri silin.'); return; }
-      tesdiq('Görüş silinsin?', gorusAdi(g) + ' saytdan və siyahıdan silinəcək. Bunu geri qaytarmaq olmur.', 'Sil').then(function (ok) {
+      tesdiq('Görüş silinsin?', gorusAdi(g) + ' saytdan və siyahıdan götürüləcək. 30 gün ərzində Hesab → Ehtiyat nüsxələri bölməsindən geri qaytarmaq olar.', 'Sil').then(function (ok) {
         if (!ok) return;
-        db.from('events').delete().eq('id', g.id).then(function (r2) {
+        db.from('events').update({ deleted_at: new Date().toISOString(), album_open: false }).eq('id', g.id).then(function (r2) {
           if (r2.error) return xeta(r2.error);
-          bildir('Görüş silindi.'); gorusleriYukle();
+          bildir('Görüş silindi. 30 gün ərzində geri qaytarmaq olar.'); gorusleriYukle();
         });
       });
     });

@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/stil.css?v=202611061329">
+<link rel="stylesheet" href="../assets/stil.css?v=202611061344">
 </head>
 <body>
 
@@ -229,6 +229,18 @@
         </div>
         <button class="duyme kicik tehlike" id="mfaSondur" type="button" hidden style="align-self:flex-start">Söndür</button>
       </div>
+      <div class="panel" id="ehtiyatPanel">
+        <h2>Ehtiyat nüsxələri</h2>
+        <p id="ehVeziyyet">Yoxlanılır…</p>
+        <p style="font-size:16px;font-style:italic">Bütün məlumat (görüşlər, kartlar, giriş qeydləri, rəylər, şəkil siyahısı) hər gecə saat 04:00-da avtomatik saxlanılır. Son 30 gün və son 12 ayın hər ayı qalır. Geri qaytarmaq lazım olsa, Claude-a yazın.</p>
+        <div class="duymeler" style="justify-content:flex-start">
+          <button class="duyme dolu kicik" id="ehIndi" type="button">İndi nüsxə al</button>
+          <button class="duyme kicik" id="ehExcel" type="button">Hamısını Excel kimi yüklə</button>
+        </div>
+        <details><summary class="etiket" style="cursor:pointer;padding:8px 0">Nüsxələrin siyahısı</summary><div id="ehSiyahi"></div></details>
+        <h2 style="margin-top:12px">Silinən görüşlər</h2>
+        <div id="silinenler"><p class="bos-qeyd">Yoxdur.</p></div>
+      </div>
       <div class="panel">
         <h2>Təhlükəsizlik</h2>
         <p>Şifrəni heç kimlə paylaşmayın. Telefonu başqasına verəcəksinizsə və ya şübhəli giriş hiss etsəniz, bütün cihazlardan çıxın və şifrəni dəyişin.</p>
@@ -332,13 +344,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="../assets/qrcode.js?v=202611061329"></script>
-<script src="../assets/config.js?v=202611061329"></script>
-<script src="../assets/ortaq.js?v=202611061329"></script>
-<script src="../assets/video.js?v=202611061329"></script>
-<script src="../assets/kart.js?v=202611061329"></script>
-<script src="../assets/admin.js?v=202611061329"></script>
-<script src="../assets/admin-stat.js?v=202611061329"></script>
-<script src="../assets/admin-devet.js?v=202611061329"></script>
+<script src="../assets/qrcode.js?v=202611061344"></script>
+<script src="../assets/config.js?v=202611061344"></script>
+<script src="../assets/ortaq.js?v=202611061344"></script>
+<script src="../assets/video.js?v=202611061344"></script>
+<script src="../assets/kart.js?v=202611061344"></script>
+<script src="../assets/admin.js?v=202611061344"></script>
+<script src="../assets/admin-ehtiyat.js?v=202611061344"></script>
+<script src="../assets/admin-stat.js?v=202611061344"></script>
+<script src="../assets/admin-devet.js?v=202611061344"></script>
 </body>
 </html>
