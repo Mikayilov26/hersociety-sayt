@@ -110,6 +110,7 @@
   el('kartForm').addEventListener('submit', function (ev) {
     ev.preventDefault();
     var ad = el('kAd').value.replace(/\s+/g, ' ').trim(), num = parseInt(el('kNum').value, 10);
+    if (!el('kNum').value.trim()) num = biletler.reduce(function (m, b) { return Math.max(m, b.num); }, 0) + 1;
     el('kXeta').hidden = true;
     if (!ad) { el('kXeta').hidden = false; el('kXeta').textContent = 'Qonağın adını yazın.'; return; }
     if (!(num >= 1 && num <= 9999)) { el('kXeta').hidden = false; el('kXeta').textContent = 'Dəvət nömrəsini yazın.'; return; }
@@ -132,7 +133,7 @@
       return new Promise(function (res) { c.toBlob(res, 'image/jpeg', 0.93); });
     }).then(function (blob) {
       var url = URL.createObjectURL(blob);
-      var fad = 'HerSociety_Devet_' + HS.pad(bl.num) + '_' + bl.name.replace(/[^\p{L}\p{N}]+/gu, '_') + '.jpg';
+      var fad = 'HerSociety_Devet_' + bl.name.replace(/[^\p{L}\p{N}]+/gu, '_') + '.jpg';
       el('kartOnizle').src = url; el('kartYukle').href = url; el('kartYukle').download = fad;
       sonKart = new File([blob], fad, { type: 'image/jpeg' });
     }).catch(xeta);

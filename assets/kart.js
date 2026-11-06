@@ -49,7 +49,8 @@
     return Promise.all([
       document.fonts.load('400 120px HSPinyon'), document.fonts.load('500 40px HSCG'), document.fonts.load('italic 500 40px HSCG'),
       document.fonts.load('700 20px HSCG'), document.fonts.load('400 92px HSBodoni'),
-      loqo || (loqo = sekil(kok + 'assets/loqo-bordo.png'))
+      loqo || (loqo = sekil(kok + 'assets/loqo-bordo.png')),
+      document.fonts.load('400 112px HSBodoni96'), document.fonts.load('600 22px HSCGL')
     ]).then(function (r) {
       var lg = r[5];
       var c = document.createElement('canvas'); c.width = 1080; c.height = 1920;
@@ -119,11 +120,12 @@
       // sağ sütun
       var cx = 730; g.textAlign = 'center';
       g.fillStyle = QIRMIZI; g.font = '700 20px HSCG'; aralikli(g, 'GİRİŞ KARTI', cx, 1467, 9, 'center');
-      g.fillStyle = BORDO; g.font = '400 92px HSBodoni'; g.fillText('№ ' + HS.pad(bilet.num), cx, 1585);
-      g.fillStyle = QIRMIZI; g.font = '700 18px HSCG'; aralikli(g, 'KOD', cx - 72, 1626, 5, 'right');
-      g.fillStyle = MUREKKEB; g.font = '500 26px HSBodoni'; aralikli(g, bilet.code, cx - 54, 1627, 4, 'left');
-      g.fillStyle = MUREKKEB; g.font = '600 22px HSCG';
-      aralikli(g, t.gun + ' ' + aylarQisa[['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'].indexOf(t.ay)] + (ev.time_tbd ? '' : ' · ' + t.saat), cx, 1673, 9, 'center');
+      // Dəvət nömrəsi kartda yazılmır (qərar, 6 noyabr) — yerində görüşün günü
+      g.fillStyle = BORDO; g.font = '400 112px HSBodoni96'; g.fillText(String(t.gun), cx, 1588);
+      g.fillStyle = MUREKKEB; g.font = '600 22px HSCGL';
+      aralikli(g, HS.boyuk(t.ay) + (ev.time_tbd ? '' : ' · ' + t.saat), cx, 1630, 9, 'center');
+      g.fillStyle = QIRMIZI; g.font = '700 18px HSCG'; aralikli(g, 'KOD', cx - 72, 1676, 5, 'right');
+      g.fillStyle = MUREKKEB; g.font = '500 26px HSBodoni'; aralikli(g, bilet.code, cx - 54, 1677, 4, 'left');
       g.font = 'italic 500 29px HSCG';
       g.fillText('Girişdə bu QR kodu', cx, 1722); g.fillText('göstərməyiniz kifayətdir', cx, 1762);
       // alt yazı
