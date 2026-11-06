@@ -351,7 +351,7 @@
     el('onizleSekil').src = url[s.thumb_path] || '';
     el('onizleAd').textContent = (s.uploader ? 'Yükləyən: ' + s.uploader : 'Ad yazılmayıb') + ' · ' + HS.hisseler(s.created_at).saat + (s.consent ? ' · paylaşmağa icazə var' : ' · icazə yoxdur');
     el('onizle').hidden = false;
-    el('kadrAc').hidden = !(s.on_site && s.site_path); el('kadrAc').dataset.id = s.id;
+    el('kadrAc').hidden = false; el('kadrAc').dataset.id = s.id;
     db.storage.from('albom').createSignedUrl(s.path, 3600).then(function (r) { if (r.data) el('onizleSekil').src = r.data.signedUrl; });
   }
   el('onizleBagla').addEventListener('click', function () { el('onizle').hidden = true; });
@@ -372,7 +372,12 @@
     kd.s = s; kd.x = s.focus_x == null ? 50 : s.focus_x; kd.y = s.focus_y == null ? 50 : s.focus_y;
     el('onizle').hidden = true; el('kadrModal').hidden = false;
     var im = el('kadrSekil'); im.onload = function () { kadrOlc(); kadrYaz(); };
-    im.src = HS.saytUrl(s.site_path); kadrYaz();
+    if (s.on_site && s.site_path) { im.src = HS.saytUrl(s.site_path); }
+    else {
+      im.src = url[s.thumb_path] || '';
+      db.storage.from('albom').createSignedUrl(s.path, 3600).then(function (r) { if (r.data && kd.s === s) im.src = r.data.signedUrl; });
+    }
+    kadrYaz();
   });
   var kadr = el('kadr');
   kadr.addEventListener('pointerdown', function (ev) {
