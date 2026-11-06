@@ -220,7 +220,7 @@
   function mapOxu() {
     var u = (el('fMap').value.match(/https:\/\/\S+/) || [''])[0];
     var q = el('fMapQeyd');
-    if (!u || u === mapSon) return;
+    if (!u || (u === mapSon && el('fVenueDetail').value.trim())) return;
     mapSon = u; q.hidden = false; q.textContent = 'Ünvan axtarılır…';
     db.functions.invoke('xerite', { body: { url: u } }).then(function (r) {
       var d = r.data || {};

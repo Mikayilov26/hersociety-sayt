@@ -123,7 +123,18 @@
     var cardY = -rise * 520 + fwd * 395 + (1 - enter) * 140;
     var S = lerp(1, 1.06, fwd) * lerp(1, 4.3, zoom) * es;
     if (envO <= 0) return;
-
+    // Zərf bir bütöv kimi görünsün: zərf şəffaf olanda kartın yazısı onun içindən görünməsin
+    if (envO < 1) {
+      if (!qat) { qat = document.createElement('canvas'); qat.width = W; qat.height = H; }
+      var q = qat.getContext('2d'); q.setTransform(1, 0, 0, 1, 0, 0); q.clearRect(0, 0, W, H); q.textBaseline = 'alphabetic';
+      zerfCiz(q, t, d, 1, ang, fwd, ey, es, cardY, S);
+      g.save(); g.globalAlpha = envO; g.drawImage(qat, 0, 0); g.restore();
+      return;
+    }
+    zerfCiz(g, t, d, envO, ang, fwd, ey, es, cardY, S);
+  }
+  var qat = null;
+  function zerfCiz(g, t, d, envO, ang, fwd, ey, es, cardY, S) {
     // #back (z1)
     g.save(); g.globalAlpha = envO;
     g.translate(540, 1090 + ey); g.scale(es, es); g.translate(-540, -1090);
@@ -139,7 +150,8 @@
       cizPoli(g, FLAP, ang, ey, es); g.fill(); g.restore();
     }
     // #card (z2) — cibin arxasında
-    if (fwd <= 0) kart(g, d, t, cardY, S, envO, fwd);
+    // qapaq bağlı ikən kart görünmür (zərf girəndə yazı aralıqdan görünməsin)
+    if (fwd <= 0 && ang > Math.PI / 2) kart(g, d, t, cardY, S, envO, fwd);
     // #pocket (z4)
     g.save(); g.globalAlpha = envO;
     g.translate(540, 1090 + ey); g.scale(es, es); g.translate(150 - 540, 820 - 1090);

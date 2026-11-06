@@ -22,9 +22,15 @@ async function sonUnvan(url: string): Promise<string> {
       if (!c) break; u = c; continue;
     }
     if (/\/maps\/(place|search|@)/.test(new URL(u).pathname) || /[?&]q=/.test(u)) return u;
-    const r = await fetch(u, { redirect: "manual", headers: { "User-Agent": "Mozilla/5.0 (HER Society)" } });
-    const loc = r.headers.get("location");
-    if (!loc) return u;
+    const r = await fetch(u, { redirect: "manual", headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15" } });
+    let loc = r.headers.get("location");
+    if (!loc) {
+      // Bəzən yönləndirmə əvəzinə səhifə qayıdır — içindən xəritə linkini tap
+      const html = await r.text();
+      const m = html.match(/https:\/\/(?:www\.|maps\.)?google\.[a-z.]+\/maps[^"'\s<>\\]*/);
+      if (!m) return u;
+      loc = m[0].replace(/&amp;/g, "&");
+    }
     u = new URL(loc, u).toString();
   }
   return u;
@@ -33,7 +39,7 @@ async function sonUnvan(url: string): Promise<string> {
 function ayir(u: string) {
   const url = new URL(u);
   let ad = "";
-  const m = url.pathname.match(/\/maps\/place\/([^/]+)/);
+  const m = url.pathname.match(/\/maps\/(?:place|search)\/([^/]+)/);
   if (m) ad = decodeURIComponent(m[1].replace(/\+/g, " "));
   if (!ad) ad = url.searchParams.get("q") || url.searchParams.get("query") || "";
   let lat: number | null = null, lng: number | null = null;
@@ -44,17 +50,31 @@ function ayir(u: string) {
   return { ad: ad.trim(), lat, lng };
 }
 
+function adresYaz(a: Record<string, string>) {
+  const kuce = a.road || a.pedestrian || a.square || "";
+  const ev = a.house_number ? " " + a.house_number : "";
+  const seher = a.city || a.town || a.village || "";
+  return [kuce + ev, seher].filter((x) => x && x.trim()).join(", ");
+}
+
+// Koordinat yoxdursa (iPhone-dan paylaşılan linklərdə olur), adla axtar
+async function axtar(q: string) {
+  const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&countrycodes=az&accept-language=az&q=${encodeURIComponent(q)}`, {
+    headers: { "User-Agent": "HER Society website (hersociety.az)" },
+  });
+  if (!r.ok) return null;
+  const d = await r.json();
+  if (!Array.isArray(d) || !d.length) return null;
+  return { lat: +d[0].lat, lng: +d[0].lon, unvan: adresYaz(d[0].address || {}) };
+}
+
 async function unvan(lat: number, lng: number) {
   const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=az&zoom=18`, {
     headers: { "User-Agent": "HER Society website (hersociety.az)" },
   });
   if (!r.ok) return "";
   const d = await r.json();
-  const a = d.address || {};
-  const kuce = a.road || a.pedestrian || a.square || "";
-  const ev = a.house_number ? " " + a.house_number : "";
-  const seher = a.city || a.town || a.village || "";
-  return [kuce + ev, seher].filter((x) => x && x.trim()).join(", ");
+  return adresYaz(d.address || {});
 }
 
 Deno.serve(async (req) => {
@@ -71,9 +91,21 @@ Deno.serve(async (req) => {
     if (!temiz) return json({ error: "link" }, 400);
     const son = await sonUnvan(temiz);
     const p = ayir(son);
-    const adres = p.lat !== null && p.lng !== null ? await unvan(p.lat, p.lng) : "";
+    console.log("xerite", new URL(son).host + new URL(son).pathname.slice(0, 80), "q=" + (p.ad || "").slice(0, 80), p.lat, p.lng);
+    let adres = "";
+    // "Ad, ünvan" formasında gələn q: adı və ünvanı ayır
+    if (p.ad.includes(",")) {
+      const i = p.ad.indexOf(",");
+      adres = p.ad.slice(i + 1).trim(); p.ad = p.ad.slice(0, i).trim();
+    }
+    if (!adres && p.lat !== null && p.lng !== null) adres = await unvan(p.lat, p.lng);
+    if (!adres && p.ad) {
+      const a = await axtar(p.ad);
+      if (a) { adres = a.unvan; if (p.lat === null) { p.lat = a.lat; p.lng = a.lng; } }
+    }
     return json({ ad: p.ad, unvan: adres, lat: p.lat, lng: p.lng });
-  } catch (_e) {
+  } catch (e) {
+    console.log("xerite xeta", String(e));
     return json({ error: "oxunmadi" }, 200);
   }
 });
