@@ -57,15 +57,35 @@ function adresYaz(a: Record<string, string>) {
   return [kuce + ev, seher].filter((x) => x && x.trim()).join(", ");
 }
 
-// Koordinat yoxdursa (iPhone-dan paylaşılan linklərdə olur), adla axtar
-async function axtar(q: string) {
-  const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&countrycodes=az&accept-language=az&q=${encodeURIComponent(q)}`, {
-    headers: { "User-Agent": "HER Society website (hersociety.az)" },
-  });
-  if (!r.ok) return null;
-  const d = await r.json();
-  if (!Array.isArray(d) || !d.length) return null;
-  return { lat: +d[0].lat, lng: +d[0].lon, unvan: adresYaz(d[0].address || {}) };
+const BRAUZER = {
+  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+  "Accept-Language": "az,en;q=0.8",
+  // Google-un razılıq səhifəsini keçmək üçün
+  "Cookie": "CONSENT=YES+cb; SOCS=CAESHAgBEhJnd3NfMjAyMzA4MTAtMF9SQzIaAmVuIAEaBgiAo_CmBg",
+};
+function htmlAc(s: string) {
+  return s.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#(\d+);/g, (_m, n) => String.fromCharCode(+n));
+}
+// Linkin göstərdiyi dəqiq yerin səhifəsini açıb ad, ünvan və koordinatı oxu (adla axtarış YOX)
+async function sehife(u: string) {
+  const r = await fetch(u, { headers: BRAUZER });
+  const html = await r.text();
+  const meta = (ad: string) => {
+    const m = html.match(new RegExp('<meta[^>]+(?:property|name|itemprop)="' + ad + '"[^>]+content="([^"]*)"')) ||
+      html.match(new RegExp('<meta[^>]+content="([^"]*)"[^>]+(?:property|name|itemprop)="' + ad + '"'));
+    return m ? htmlAc(m[1]) : "";
+  };
+  const basliq = meta("og:title") || meta("name");
+  let lat: number | null = null, lng: number | null = null;
+  const k = html.match(/center=(-?\d+\.\d+)%2C(-?\d+\.\d+)/) ||
+    html.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/) ||
+    html.match(/@(-?\d+\.\d+),(-?\d+\.\d+),\d/);
+  if (k) { lat = +k[1]; lng = +k[2]; }
+  else {
+    const a = html.match(/APP_INITIALIZATION_STATE=\[\[\[-?[\d.]+,(-?\d+\.\d+),(-?\d+\.\d+)\]/);
+    if (a) { lng = +a[1]; lat = +a[2]; }
+  }
+  return { basliq, lat, lng, son: r.url };
 }
 
 async function unvan(lat: number, lng: number) {
@@ -93,16 +113,26 @@ Deno.serve(async (req) => {
     const p = ayir(son);
     console.log("xerite", new URL(son).host + new URL(son).pathname.slice(0, 80), "q=" + (p.ad || "").slice(0, 80), p.lat, p.lng);
     let adres = "";
-    // "Ad, ünvan" formasında gələn q: adı və ünvanı ayır
+    // 1) Linkdə "Ad, ünvan" varsa — birbaşa linkdən
     if (p.ad.includes(",")) {
       const i = p.ad.indexOf(",");
       adres = p.ad.slice(i + 1).trim(); p.ad = p.ad.slice(0, i).trim();
     }
-    if (!adres && p.lat !== null && p.lng !== null) adres = await unvan(p.lat, p.lng);
-    if (!adres && p.ad) {
-      const a = await axtar(p.ad);
-      if (a) { adres = a.unvan; if (p.lat === null) { p.lat = a.lat; p.lng = a.lng; } }
+    // 2) Yoxdursa — linkin açdığı dəqiq yerin səhifəsindən (başlıq "Ad · Ünvan" olur)
+    if (!adres || p.lat === null) {
+      try {
+        const s = await sehife(son);
+        console.log("xerite sehife", s.basliq.slice(0, 120), s.lat, s.lng, new URL(s.son).host);
+        if (s.basliq.includes("·")) {
+          const [a, ...b] = s.basliq.split("·");
+          if (!p.ad) p.ad = a.trim();
+          if (!adres) adres = b.join("·").replace(/\s*-\s*Google Maps\s*$/i, "").trim();
+        }
+        if (p.lat === null && s.lat !== null) { p.lat = s.lat; p.lng = s.lng; }
+      } catch (e) { console.log("xerite sehife xeta", String(e)); }
     }
+    // 3) Hələ ünvan yoxdursa — linkdəki dəqiq koordinatdan
+    if (!adres && p.lat !== null && p.lng !== null) adres = await unvan(p.lat, p.lng);
     return json({ ad: p.ad, unvan: adres, lat: p.lat, lng: p.lng });
   } catch (e) {
     console.log("xerite xeta", String(e));
