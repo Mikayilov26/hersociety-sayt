@@ -27,3 +27,7 @@ create policy "rey sil" on public.feedback for delete to authenticated using (pu
 --   public.ehtiyat_siyahi / ehtiyat_indi / ehtiyat_data (yalnız admin);
 --   pg_cron: 'ehtiyat-gunluk' 00:00 UTC (04:00 Bakı), 'silinenleri-temizle' 00:20 UTC.
 -- Bərpa: select data from ehtiyat.nusxe where id = … → lazım olan sətirləri geri yaz.
+
+-- 6 noyabr: google_qosulma — gizli.google (açarlar, refresh_token, qovluqlar, doluluq), gizli.google_state;
+--   admin: google_ayar_saxla / google_veziyyet / google_ayir; server: google_al / google_yaz / google_state_yarat / google_state_yoxla.
+--   Edge: google (url, yoxla), google-qosul (OAuth qayıdışı, verify_jwt=false). Redirect URI: https://bxykddiqsxwnwfrgnutm.supabase.co/functions/v1/google-qosul

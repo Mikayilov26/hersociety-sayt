@@ -85,4 +85,64 @@
       bildir('Görüş geri qaytarıldı.'); silinenler(); if (window.gorusleriYenile) window.gorusleriYenile();
     });
   });
+
+  /* ---------- Google Drive ---------- */
+  function gb(n) { return n >= 1073741824 ? (n / 1073741824).toFixed(1).replace('.', ',') + ' GB' : Math.round(n / 1048576) + ' MB'; }
+  function gGoster(v) {
+    el('gAcarlar').hidden = true; el('gQos').hidden = true; el('gQosulub').hidden = true;
+    if (!v.client) { el('gVez').textContent = 'Hələ qoşulmayıb. Əvvəlcə Google açarlarını əlavə edin.'; el('gAcarlar').hidden = false; return; }
+    if (!v.qosulub) {
+      el('gVez').innerHTML = 'Açarlar saxlanılıb. İndi hersociety.az@gmail.com hesabı ilə icazə verin.' + (v.xeta ? '<br><span style="color:var(--qirmizi)">Son xəta: ' + e(v.xeta) + '</span>' : '');
+      el('gQos').hidden = false; return;
+    }
+    el('gVez').innerHTML = '<b>✓ Qoşulub:</b> ' + e(v.email || '') + (v.xeta ? '<br><span style="color:var(--qirmizi)">Son xəta: ' + e(v.xeta) + '</span>' : '');
+    el('gQosulub').hidden = false;
+    if (v.limit) {
+      var f = Math.round(v.istifade / v.limit * 100);
+      el('gBar').style.width = Math.min(100, f) + '%'; el('gBar').style.background = f >= 80 ? 'var(--qirmizi)' : '';
+      el('gYer').innerHTML = 'Drive: ' + gb(v.istifade) + ' / ' + gb(v.limit) + ' (' + f + '%)' + (f >= 80 ? ' — <b style="color:var(--qirmizi)">yer dolmağa yaxındır</b>' : '');
+    } else el('gYer').textContent = '';
+  }
+  function gYukle() { return db.rpc('google_veziyyet').then(function (r) { if (!r.error && r.data) gGoster(r.data); }); }
+  var evvelki = window.ehYukle;
+  window.ehYukle = function () { evvelki(); gYukle(); };
+  el('gSaxla').addEventListener('click', function () {
+    var c = el('gClient').value.trim(), s = el('gSecret').value.trim();
+    el('gXeta').hidden = true;
+    if (!/\.apps\.googleusercontent\.com$/.test(c)) { el('gXeta').hidden = false; el('gXeta').textContent = 'Client ID “.apps.googleusercontent.com” ilə bitməlidir.'; return; }
+    if (s.length < 10) { el('gXeta').hidden = false; el('gXeta').textContent = 'Client secret-i yapışdırın.'; return; }
+    db.rpc('google_ayar_saxla', { cid: c, csec: s }).then(function (r) {
+      if (r.error) { el('gXeta').hidden = false; el('gXeta').textContent = 'Saxlanmadı. Yenidən yoxlayın.'; return; }
+      el('gClient').value = ''; el('gSecret').value = ''; bildir('Açarlar saxlanıldı.'); gYukle();
+    });
+  });
+  el('gQos').addEventListener('click', function () {
+    var b = el('gQos'); b.disabled = true; b.textContent = 'Google açılır…';
+    db.functions.invoke('google', { body: { action: 'url' } }).then(function (r) {
+      if (r.data && r.data.url) { location.href = r.data.url; return; }
+      b.disabled = false; b.textContent = 'Google Drive-ı qoş'; bildir('Alınmadı. Açarları yoxlayın.');
+    });
+  });
+  el('gYenile').addEventListener('click', function () {
+    db.functions.invoke('google', { body: { action: 'yoxla' } }).then(function (r) {
+      bildir(r.data && r.data.ok ? 'Yeniləndi.' : 'Google ilə əlaqə alınmadı.'); gYukle();
+    });
+  });
+  el('gAcarDeyis').addEventListener('click', function () { el('gAcarlar').hidden = false; });
+  el('gAyir').addEventListener('click', function () {
+    if (!window.confirm('Google Drive ayrılsın? Drive-dakı fayllar silinmir.')) return;
+    db.rpc('google_ayir').then(function () { bildir('Ayrıldı.'); gYukle(); });
+  });
+  // Google-dan qayıdanda
+  var qp = new URLSearchParams(location.search).get('google');
+  if (qp) {
+    var mesaj = { ok: 'Google Drive qoşuldu.', redd: 'İcazə verilmədi.', vaxt: 'Vaxt keçdi, yenidən “Google Drive-ı qoş” basın.', xeta: 'Qoşulmadı. Yenidən cəhd edin.' }[qp] || '';
+    history.replaceState(null, '', location.pathname);
+    var say = 0;
+    (function gozle() {
+      var t = document.querySelector('[data-tab="hesab"]');
+      if (t && t.offsetParent !== null) { t.click(); if (mesaj) bildir(mesaj); return; }
+      if (++say < 40) setTimeout(gozle, 250);
+    })();
+  }
 })();
