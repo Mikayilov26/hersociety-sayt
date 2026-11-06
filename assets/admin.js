@@ -402,8 +402,9 @@
         var d = r.data || {};
         if (d.error || d.xeta) { b.disabled = false; bildir('Bəzi şəkillər köçmədi. Bir az sonra yenidən cəhd edin.'); albomYukle(); return; }
         if (d.qalan > 0 && d.kocdu > 0) { b.textContent = 'Köçürülür… (' + d.qalan + ' qalıb)'; return addim(); }
-        b.disabled = false; bildir('Şəkillər Google Drive-a köçürüldü.'); albomYukle();
-      });
+        b.disabled = false; albomYukle();
+        bildir(d.kocdu > 0 || d.qalan === 0 ? 'Şəkillər Google Drive-a köçürüldü.' : 'Şəkillər köçmədi. Bir az sonra yenidən cəhd edin.');
+      }).catch(function () { b.disabled = false; bildir('Şəkillər köçmədi. Bir az sonra yenidən cəhd edin.'); albomYukle(); });
     })();
   });
 
@@ -603,7 +604,22 @@
     if (!list.length) return;
     tesdiq(driveQosulub ? 'Drive-dakılar buradan silinsin?' : 'Endirilənlər silinsin?', list.length + ' şəkil buradakı anbardan silinəcək və yer boşalacaq.' + (driveQosulub ? ' Onların orijinalı Google Drive-da qalır.' : '') + ' Saytda göstərilən şəkillər qalır.', 'Sil').then(function (ok) {
       if (!ok) return;
-      sekilleriSil(list).then(function () { bildir(list.length + ' şəkil silindi, yer boşaldı.'); secilen.clear(); albomYukle(); }).catch(xeta);
+      var drivedakilar = list.filter(function (s) { return s.drive_id; });
+      var yoxla = drivedakilar.length
+        ? db.functions.invoke('drive', { body: { action: 'tesdiq', ids: drivedakilar.map(function (s) { return s.id; }) } }).then(function (r) {
+            var d = r.data || {};
+            if (r.error || d.error || !d.var) throw new Error('Drive yoxlanılmadı');
+            var tesdiqli = {}; d.var.forEach(function (id) { tesdiqli[id] = 1; });
+            return { list: list.filter(function (s) { return !s.drive_id || tesdiqli[s.id]; }), yox: (d.yox || []).length };
+          })
+        : Promise.resolve({ list: list, yox: 0 });
+      yoxla.then(function (n) {
+        if (!n.list.length) { bildir('Heç nə silinmədi: şəkillər Drive-da tapılmadı, yenidən köçürüləcək.'); albomYukle(); return; }
+        return sekilleriSil(n.list).then(function () {
+          bildir(n.list.length + ' şəkil silindi, yer boşaldı.' + (n.yox ? ' ' + n.yox + ' şəkil Drive-da tapılmadı — silinmədi, yenidən köçürüləcək.' : ''));
+          secilen.clear(); albomYukle();
+        });
+      }).catch(function () { bildir('Drive yoxlanıla bilmədi, heç nə silinmədi. Bir az sonra yenidən cəhd edin.'); });
     });
   });
 

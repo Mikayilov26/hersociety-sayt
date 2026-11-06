@@ -35,3 +35,7 @@ create policy "rey sil" on public.feedback for delete to authenticated using (pu
 -- 6 noyabr: drive_kocurme — albom limiti 30 MB (orijinallar), photos.drive_id, events.drive_qovluq, gizli.google.cron_acar,
 --   public.ehtiyat_servis (service_role), pg_net; cron: 'drive-sekiller' hər 20 dəq (gözləyən şəkil varsa), 'drive-ehtiyat' bazar ertəsi 00:40 UTC.
 --   Edge: drive (verify_jwt=false; x-acar və ya admin JWT) — action sekiller / ehtiyat.
+
+-- drive_servis_icazesi (6 noyabr): Drive funksiyası photos/events cədvəllərini oxuya və yaza bilsin
+grant select, update on public.photos to service_role;
+grant select, update on public.events to service_role;

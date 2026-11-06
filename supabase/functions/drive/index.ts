@@ -62,8 +62,9 @@ async function sekiller(srv: ReturnType<typeof createClient>, g: Record<string, 
   let kocdu = 0, xeta = 0;
   const qovluqlar: Record<string, string> = {};
   while (Date.now() - bas < 100000) {
-    const { data: list } = await srv.from("photos").select("id,event_id,path,uploader,created_at")
+    const { data: list, error: le } = await srv.from("photos").select("id,event_id,path,uploader,created_at")
       .eq("consent", true).is("drive_id", null).not("event_id", "is", null).order("created_at").limit(5);
+    if (le) throw new Error("siyahı: " + le.message);
     if (!list || !list.length) break;
     for (const s of list) {
       if (Date.now() - bas > 100000) break;
@@ -98,8 +99,27 @@ async function sekiller(srv: ReturnType<typeof createClient>, g: Record<string, 
     }
     if (xeta >= 3) break;
   }
-  const { count } = await srv.from("photos").select("id", { count: "exact", head: true }).eq("consent", true).is("drive_id", null).not("event_id", "is", null);
+  const { count, error: ce } = await srv.from("photos").select("id", { count: "exact", head: true }).eq("consent", true).is("drive_id", null).not("event_id", "is", null);
+  if (ce) throw new Error("say: " + ce.message);
   return { kocdu, qalan: count || 0, xeta };
+}
+
+// ---------- silmədən əvvəl yoxlama: şəkil Drive-da həqiqətən varmı ----------
+async function tesdiq(srv: ReturnType<typeof createClient>, at: string, ids: string[]) {
+  const { data: list, error } = await srv.from("photos").select("id,drive_id,size_bytes").in("id", (ids || []).slice(0, 500));
+  if (error) throw new Error("tesdiq: " + error.message);
+  const var_: string[] = [], yox: string[] = [];
+  for (const s of list || []) {
+    let ok = false;
+    if (s.drive_id) {
+      const r = await fetch("https://www.googleapis.com/drive/v3/files/" + s.drive_id + "?fields=id,trashed,size", { headers: { Authorization: "Bearer " + at } });
+      if (r.ok) { const d = await r.json(); ok = !d.trashed && +(d.size || 0) > 0; }
+      else if (r.status !== 404) throw new Error("drive yoxlama: " + r.status);
+    }
+    if (ok) var_.push(s.id);
+    else { yox.push(s.id); if (s.drive_id) await srv.from("photos").update({ drive_id: null }).eq("id", s.id); }
+  }
+  return { var: var_, yox };
 }
 
 // ---------- həftəlik ehtiyat ----------
@@ -156,10 +176,11 @@ Deno.serve(async (req) => {
     }
     if (!icaze) return json({ error: "icaze" }, 403);
     if (!g?.refresh_token) return json({ error: "qosulmayib" });
-    const { action } = await req.json();
+    const { action, ids } = await req.json();
     const at = await token(g);
     let netice: unknown;
     if (action === "sekiller") netice = await sekiller(srv, g, at);
+    else if (action === "tesdiq") netice = await tesdiq(srv, at, ids);
     else if (action === "ehtiyat") netice = await ehtiyat(srv, g, at);
     else return json({ error: "action" }, 400);
     const y = await yer(at);
