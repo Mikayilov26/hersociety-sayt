@@ -1,0 +1,25 @@
+name: xerite-test
+on:
+  push:
+    branches: [xerite-test]
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          L="https://maps.app.goo.gl/DrgCtvQwEJQnU2tN6"
+          for UA in "curl/8.4.0" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"; do
+            echo "=== $UA"
+            curl -s -D - -o body.html -A "$UA" "$L" | head -20
+            echo "--- body len $(wc -c < body.html)"; head -c 600 body.html; echo
+            grep -o 'google\.[a-z.]*\\\?/maps[^"<> ]\{0,300\}' body.html | head -5
+          done
+          echo "=== follow"
+          curl -sL -o /dev/null -w "%{url_effective}\n" -A "curl/8.4.0" "$L"
+          U=$(curl -sL -o /dev/null -w "%{url_effective}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" -H "Cookie: CONSENT=YES+cb; SOCS=CAESHAgBEhJnd3NfMjAyMzA4MTAtMF9SQzIaAmVuIAEaBgiAo_CmBg" "$L"); echo "$U"
+          curl -sL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" -H "Cookie: CONSENT=YES+cb; SOCS=CAESHAgBEhJnd3NfMjAyMzA4MTAtMF9SQzIaAmVuIAEaBgiAo_CmBg" "$L" -o page.html
+          echo "page len $(wc -c < page.html)"
+          grep -o '<meta[^>]*og:title[^>]*>' page.html | head -2
+          grep -o '<meta[^>]*og:image[^>]*>' page.html | head -2 | cut -c1-400
+          grep -o 'APP_INITIALIZATION_STATE=\[\[\[[^]]*\]' page.html | head -1
+          grep -o '<title>[^<]*' page.html | head -1
