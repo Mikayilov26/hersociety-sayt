@@ -122,6 +122,20 @@ async function tesdiq(srv: ReturnType<typeof createClient>, at: string, ids: str
   return { var: var_, yox };
 }
 
+// ---------- boş görüş qovluğunu zibil qutusuna atmaq (yalnız şəkli qalmayan görüş üçün) ----------
+async function qovluqTemizle(srv: ReturnType<typeof createClient>, at: string, gorus: string) {
+  const { count, error } = await srv.from("photos").select("id", { count: "exact", head: true }).eq("event_id", gorus);
+  if (error) throw new Error("qovluq: " + error.message);
+  if (count) return { ok: false, sebeb: "şəkil var" };
+  const { data: ev } = await srv.from("events").select("drive_qovluq").eq("id", gorus).single();
+  if (ev?.drive_qovluq) {
+    const r = await fetch("https://www.googleapis.com/drive/v3/files/" + ev.drive_qovluq, { method: "PATCH", headers: { Authorization: "Bearer " + at, "Content-Type": "application/json" }, body: JSON.stringify({ trashed: true }) });
+    if (!r.ok && r.status !== 404) throw new Error("zibil: " + r.status);
+    await srv.from("events").update({ drive_qovluq: null }).eq("id", gorus);
+  }
+  return { ok: true };
+}
+
 // ---------- həftəlik ehtiyat ----------
 async function ehtiyat(srv: ReturnType<typeof createClient>, g: Record<string, string>, at: string) {
   const { data: d } = await srv.rpc("ehtiyat_servis");
@@ -176,11 +190,12 @@ Deno.serve(async (req) => {
     }
     if (!icaze) return json({ error: "icaze" }, 403);
     if (!g?.refresh_token) return json({ error: "qosulmayib" });
-    const { action, ids } = await req.json();
+    const { action, ids, gorus } = await req.json();
     const at = await token(g);
     let netice: unknown;
     if (action === "sekiller") netice = await sekiller(srv, g, at);
     else if (action === "tesdiq") netice = await tesdiq(srv, at, ids);
+    else if (action === "qovluq_temizle") netice = await qovluqTemizle(srv, at, gorus);
     else if (action === "ehtiyat") netice = await ehtiyat(srv, g, at);
     else return json({ error: "action" }, 400);
     const y = await yer(at);
