@@ -35,6 +35,12 @@
     var t = HS.hisseler(g.starts_at);
     return t.gun + ' ' + t.ay + ' ' + t.il + ' · ' + g.title + (g.guest_name ? ' · ' + g.guest_name : '');
   }
+  // Siyahılar üçün qısa ad: 21.11.2026 - Qonaq
+  function qisaAd(g) {
+    var t = HS.hisseler(g.starts_at), iki = function (n) { return (n < 10 ? '0' : '') + n; };
+    var ay = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'].indexOf(t.ay) + 1;
+    return iki(t.gun) + '.' + iki(ay) + '.' + t.il + ' - ' + (g.guest_name || g.title);
+  }
   function xeta(err) { console.error(err); bildir('Xəta baş verdi. İnterneti yoxlayıb yenidən cəhd edin.'); }
 
   if (!db) { el('giris').hidden = false; el('gXeta').hidden = false; el('gXeta').textContent = 'Bağlantı qurulmayıb.'; return; }
@@ -253,7 +259,7 @@
   /* ---------- Albom ---------- */
   function gorusSecimi() {
     var sec = el('aGorus'), evvel = sec.value;
-    sec.innerHTML = gorusler.map(function (g) { return '<option value="' + g.id + '">' + e(gorusAdi(g)) + (g.album_open ? ' (açıq)' : '') + '</option>'; }).join('');
+    sec.innerHTML = gorusler.map(function (g) { return '<option value="' + g.id + '">' + e(qisaAd(g)) + (g.album_open ? ' (açıq)' : '') + '</option>'; }).join('');
     var acik = gorusler.filter(function (g) { return g.album_open; })[0];
     sec.value = evvel && gorusler.some(function (g) { return g.id === evvel; }) ? evvel : (acik ? acik.id : (gorusler[0] ? gorusler[0].id : ''));
   }
