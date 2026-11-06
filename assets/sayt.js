@@ -9,14 +9,14 @@
     { id: 'e1', title: 'Çay Süfrəsi', topic: null, guest_name: "Sabina xanım (Papillon's)", guest_title: 'süfrə təqdimatı', starts_at: '2026-10-23T13:00:00+04:00', venue: 'Luciano restoranı, Bakı', album_open: false }
   ];
 
-  var gorusler = [], sekiller = [], acikGorus = null, reyLinki = false;
+  var gorusler = [], sekiller = [], acikGorus = null;
 
   /* ---------- Naviqasiya ---------- */
   var gorunusler = ['ana', 'gorusler', 'haqqimizda', 'albom'];
   var menyu = el('menyu'), menyuAc = el('menyuAc');
   function goster() {
     var h = (location.hash || '#ana').slice(1);
-    reyLinki = h === 'rey'; if (reyLinki) h = 'albom';
+    if (h === 'rey') h = 'albom';
     if (gorunusler.indexOf(h) < 0) h = 'ana';
     document.querySelectorAll('[data-view]').forEach(function (v) { v.hidden = v.getAttribute('data-view') !== h; });
     document.querySelectorAll('[data-nav]').forEach(function (a) {
@@ -25,7 +25,6 @@
     document.title = { ana: 'HER Society — Bakıda qadınlar üçün icma · Çay Süfrəsi görüşləri', gorusler: 'Görüşlər · HER Society', haqqimizda: 'Haqqımızda · HER Society', albom: 'Ortaq albom · HER Society' }[h];
     menyu.classList.remove('acik'); menyuAc.setAttribute('aria-expanded', 'false');
     window.scrollTo(0, 0);
-    if (reyLinki && typeof reyVeziyyeti === 'function') reyVeziyyeti();
   }
   window.addEventListener('hashchange', goster);
   goster();
@@ -313,7 +312,8 @@
   function reyVeziyyeti() {
     reyGorus = reyHedef();
     var kutu = el('rey');
-    if (!reyGorus) { kutu.hidden = true; return; }
+    var qr = 0; try { qr = +localStorage.getItem('hs-qr') || 0; } catch (x) {}
+    if (!reyGorus || Date.now() - qr > 30 * 864e5) { kutu.hidden = true; return; }
     kutu.hidden = false;
     var t = HS.hisseler(reyGorus.starts_at);
     el('reyBasliq').textContent = reyGorus.title + ' · ' + t.gun + ' ' + t.ay;
@@ -321,11 +321,6 @@
     try { gonderilib = localStorage.getItem('hs-rey-' + reyGorus.id) === '1'; } catch (x) {}
     if (gonderilib) { el('reySual').hidden = true; el('reyForm').hidden = true; el('reySon').hidden = false; }
     else if (el('reyForm').hidden) { el('reySual').hidden = false; el('reySon').hidden = true; }
-    if (reyLinki && !gonderilib) { reyAc(); }
-    if (reyLinki) {
-      reyLinki = false;
-      setTimeout(function () { kutu.scrollIntoView({ block: 'start' }); window.scrollBy(0, -84); }, 50);
-    }
   }
   function urekCiz() {
     var html = '';
