@@ -15,7 +15,7 @@
     if (d.revoked) { el('dSalam').textContent = 'Bu dəvət artıq etibarlı deyil.'; return; }
     el('dSalam').textContent = 'Hörmətli ' + d.name + ', ' + (ev.card_note || 'yeriniz ayrıldı — sizi gözləyirik');
     el('dNum').textContent = 'DƏVƏT № ' + String(d.num).padStart(2, '0'); el('dNum').hidden = false;
-    var s = [['TARİX', t.hefte.charAt(0).toLocaleUpperCase('az') + t.hefte.slice(1) + ', ' + t.gun + ' ' + t.ay + ' ' + t.il, ''], ['SAAT', t.saat, ''], ['MƏKAN', ev.venue || '', ev.venue_detail || '']];
+    var s = [['TARİX', t.hefte.charAt(0).toLocaleUpperCase('az') + t.hefte.slice(1) + ', ' + t.gun + ' ' + t.ay + ' ' + t.il, ''], ['SAAT', ev.time_tbd ? HS.SAAT_YOX : t.saat, ''], ['MƏKAN', ev.venue || '', ev.venue_detail || '']];
     if (ev.guest_name) s.push(['QONAQ', ev.guest_name, ev.guest_title || '']);
     el('dSetirler').innerHTML = s.map(function (x) { return '<div><b>' + x[0] + '</b><span>' + HS.esc(x[1]) + (x[2] ? '<small>' + HS.esc(x[2]) + '</small>' : '') + '</span></div>'; }).join('');
     if (ev.map_url || ev.venue) { el('dXerite').href = ev.map_url || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(ev.venue + ' ' + (ev.venue_detail || '') + ' Bakı')); el('dXerite').hidden = false; }

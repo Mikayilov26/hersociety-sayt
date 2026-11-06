@@ -90,7 +90,7 @@
       var t = HS.hisseler(ev.starts_at);
       var setirler = [
         ['TARİX', HS.boyuk(t.hefte[0]) + t.hefte.slice(1) + ', ' + t.gun + ' ' + t.ay + ' ' + t.il, null],
-        ['SAAT', t.saat, null],
+        ['SAAT', ev.time_tbd ? HS.SAAT_YOX : t.saat, null],
         ['MƏKAN', ev.venue || '', ev.venue_detail || ''],
       ];
       if (ev.guest_name) setirler.push(['QONAĞIMIZ', ev.guest_name, ev.guest_title || '']);
@@ -123,7 +123,7 @@
       g.fillStyle = QIRMIZI; g.font = '700 18px HSCG'; aralikli(g, 'KOD', cx - 72, 1626, 5, 'right');
       g.fillStyle = MUREKKEB; g.font = '500 26px HSBodoni'; aralikli(g, bilet.code, cx - 54, 1627, 4, 'left');
       g.fillStyle = MUREKKEB; g.font = '600 22px HSCG';
-      aralikli(g, t.gun + ' ' + aylarQisa[['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'].indexOf(t.ay)] + ' · ' + t.saat, cx, 1673, 9, 'center');
+      aralikli(g, t.gun + ' ' + aylarQisa[['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'].indexOf(t.ay)] + (ev.time_tbd ? '' : ' · ' + t.saat), cx, 1673, 9, 'center');
       g.font = 'italic 500 29px HSCG';
       g.fillText('Girişdə bu QR kodu', cx, 1722); g.fillText('göstərməyiniz kifayətdir', cx, 1762);
       // alt yazı

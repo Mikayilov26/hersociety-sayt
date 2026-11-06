@@ -4,7 +4,7 @@
   var el = function (id) { return document.getElementById(id); };
   var ALBOM_LINK = 'https://hersociety.az/albom';
   var ZIP_HISSE = 60;
-  var EV_SAHELER = 'id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,card_note,map_url,album_open,published,door_active';
+  var EV_SAHELER = 'id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,card_note,map_url,album_open,published,door_active,time_tbd';
 
   var istifadeci = null, gorusler = [], sekiller = [], url = {}, secilen = new Set(), filtr = 'hamisi', redakte = null;
 
@@ -139,7 +139,7 @@
         '<b>' + e(g.guest_name || g.title) + '</b></span>' +
         (g.album_open ? '<span class="nisan yasil">Albom açıq</span>' : '') + (!g.published ? '<span class="nisan">Gizli</span>' : '') +
         '</summary><div class="ev-ic">' +
-        '<p class="tarix-et">' + t.hefte + ' · ' + t.saat + '</p>' +
+        '<p class="tarix-et">' + t.hefte + ' · ' + (g.time_tbd ? 'saat bəlli deyil' : t.saat) + '</p>' +
         '<h3>' + e(g.title) + (g.topic ? ' — <i>' + e(g.topic) + '</i>' : '') + '</h3>' +
         '<p>' + (g.guest_name ? 'Qonaq: ' + e(g.guest_name) + (g.guest_title ? ', ' + e(g.guest_title) : '') : 'Qonaq yazılmayıb') + '<br>' +
         e([g.venue, g.venue_detail].filter(Boolean).join(', ') || 'Məkan yazılmayıb') + '</p>' +
@@ -203,7 +203,8 @@
     el('fGuest').value = g ? (g.guest_name || '') : '';
     el('fGuestTitle').value = g ? (g.guest_title || '') : '';
     el('fDate').value = t;
-    el('fTime').value = g ? HS.hisseler(g.starts_at).saat : '13:00';
+    el('fTime').value = g ? (g.time_tbd ? '' : HS.hisseler(g.starts_at).saat) : '13:00';
+    el('fSaatYox').checked = !!(g && g.time_tbd); el('fTime').disabled = el('fSaatYox').checked;
     el('fVenue').value = g ? (g.venue || '') : '';
     el('fVenueDetail').value = g ? (g.venue_detail || '') : '';
     el('fCardNote').value = g ? (g.card_note || '') : '';
@@ -231,12 +232,14 @@
   }
   el('fMap').addEventListener('change', mapOxu);
   el('fMap').addEventListener('paste', function () { setTimeout(mapOxu, 50); });
+  el('fSaatYox').addEventListener('change', function () { el('fTime').disabled = el('fSaatYox').checked; if (!el('fSaatYox').checked && !el('fTime').value) el('fTime').value = '13:00'; });
   el('yeniGorus').addEventListener('click', function () { formAc(null); });
   el('formLegv').addEventListener('click', function () { el('gorusForm').hidden = true; });
   /* ---------- Görüş önizləməsi (saxlamadan) ---------- */
   function formMelumati() {
-    var d = el('fDate').value || new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Baku' }).format(new Date()), s = el('fTime').value || '13:00';
+    var d = el('fDate').value || new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Baku' }).format(new Date()), yox = el('fSaatYox').checked || !el('fTime').value, s = yox ? '12:00' : el('fTime').value;
     return {
+      time_tbd: yox,
       title: el('fTitle').value.trim() || 'Çay Süfrəsi', topic: el('fTopic').value.trim() || null,
       guest_name: el('fGuest').value.trim() || null, guest_title: el('fGuestTitle').value.trim() || null,
       starts_at: d + 'T' + s + ':00+04:00', venue: el('fVenue').value.trim() || null,
@@ -266,7 +269,7 @@
       (g.guest_name ? '<div class="ayirici" aria-hidden="true"><i></i>✦<i></i></div><p class="etiket">Qonağımız</p><p class="qonaq-ad">' + e(g.guest_name) + '</p>' +
         (g.guest_title ? '<p class="qeyd-italik">' + e(g.guest_title) + '</p>' : '') : '') +
       '<div class="melumat"><div><span class="etiket">Tarix</span><span>' + t.gun + ' ' + t.ay + ', ' + t.hefte + '</span></div>' +
-      '<div><span class="etiket">Saat</span><span>' + t.saat + '</span></div>' +
+      '<div><span class="etiket">Saat</span><span>' + (g.time_tbd ? HS.SAAT_YOX : t.saat) + '</span></div>' +
       '<div><span class="etiket">Məkan</span><span>' + e([g.venue, g.venue_detail].filter(Boolean).join(', ')) + '</span></div></div>' +
       '<p class="qeyd-italik" style="margin-top:18px"><span class="setir">Yerlər məhduddur.</span><span class="setir">Yerinizi ayırmaq üçün bizə yazın.</span></p>' +
       '<span class="duyme dolu">Bizə yazın</span></div></div>' +
@@ -320,14 +323,15 @@
   el('vBagla').addEventListener('click', function () { videoTemizle(); el('vModal').hidden = true; });
   el('gorusForm').addEventListener('submit', function (ev) {
     ev.preventDefault();
-    var d = el('fDate').value, s = el('fTime').value;
-    if (!d || !s) { el('fXeta').hidden = false; el('fXeta').textContent = 'Tarix və saatı seçin.'; return; }
+    var d = el('fDate').value, yox = el('fSaatYox').checked || !el('fTime').value, s = yox ? '12:00' : el('fTime').value;
+    if (!d) { el('fXeta').hidden = false; el('fXeta').textContent = 'Tarixi seçin.'; return; }
     var melumat = {
       title: el('fTitle').value.trim() || 'Çay Süfrəsi',
       topic: el('fTopic').value.trim() || null,
       guest_name: el('fGuest').value.trim() || null,
       guest_title: el('fGuestTitle').value.trim() || null,
       starts_at: d + 'T' + s + ':00+04:00',
+      time_tbd: yox,
       venue: el('fVenue').value.trim() || null,
       venue_detail: el('fVenueDetail').value.trim() || null,
       card_note: el('fCardNote').value.trim() || null,

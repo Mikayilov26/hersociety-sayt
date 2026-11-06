@@ -19,3 +19,5 @@ create policy "rey sil" on public.feedback for delete to authenticated using (pu
 -- 6 noyabr: sekil_esas_noqte — saytdakı kvadrat görünüş üçün mövqe (faizlə)
 -- alter table public.photos add column focus_x real check (focus_x between 0 and 100), add column focus_y real check (focus_y between 0 and 100);
 -- grant select (focus_x, focus_y) on public.photos to anon;  -- sayt mövqeyi oxuya bilsin (cədvəldə sütun səviyyəsində icazə var)
+
+-- 6 noyabr: saat_sonra_aciqlanacaq — events.time_tbd (saat hələ bəlli deyil); devet_bax və giris_ac time_tbd qaytarır

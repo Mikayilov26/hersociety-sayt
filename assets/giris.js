@@ -39,7 +39,7 @@
   function goster() {
     el('app').hidden = false; el('giris').hidden = true;
     var ev = S.data.event, t = HS.hisseler(ev.starts_at);
-    el('evAd').textContent = ev.title; el('evTarix').textContent = t.gun + ' ' + t.ay + ' · ' + t.saat;
+    el('evAd').textContent = ev.title; el('evTarix').textContent = t.gun + ' ' + t.ay + (ev.time_tbd ? '' : ' · ' + t.saat);
     ciz();
   }
 

@@ -61,7 +61,7 @@
         (g.guest_title ? '<p class="qeyd-italik">' + e(g.guest_title) + '</p>' : '') : '') +
       '<div class="melumat">' +
       '<div><span class="etiket">Tarix</span><span>' + t.gun + ' ' + t.ay + ', ' + t.hefte + '</span></div>' +
-      '<div><span class="etiket">Saat</span><span>' + t.saat + '</span></div>' +
+      '<div><span class="etiket">Saat</span><span>' + (g.time_tbd ? HS.SAAT_YOX : t.saat) + '</span></div>' +
       '<div><span class="etiket">Məkan</span><span>' + e(mekan(g)) + '</span></div>' +
       '</div>' +
       '<div class="geri-sayim" id="geriSayim" aria-label="Görüşə qalan vaxt">' +
@@ -69,8 +69,9 @@
       '<p class="qeyd-italik" style="margin-top:18px"><span class="setir">Yerlər məhduddur.</span><span class="setir">Yerinizi ayırmaq üçün bizə yazın.</span></p>' +
       '<a class="duyme dolu" href="https://ig.me/m/hersociety.az" target="_blank" rel="noopener">Bizə yazın</a>' +
       '</div></div>';
-    var hedef = new Date(g.starts_at).getTime();
     clearInterval(geriSayimTaymer);
+    if (g.time_tbd) { var gs = el('geriSayim'); if (gs) gs.remove(); return; }
+    var hedef = new Date(g.starts_at).getTime();
     function say() {
       var kutu = el('geriSayim'); if (!kutu) return;
       var q = hedef - Date.now();
@@ -99,7 +100,7 @@
     var nv = novbetiVePecmis(), e = HS.esc, html = '';
     nv.gelecek.forEach(function (g, i) {
       var t = HS.hisseler(g.starts_at);
-      html += '<article class="gorus"><p class="tarix">' + t.gun + ' ' + t.ay + '<small>' + t.hefte + ' · ' + t.saat + '</small></p><div>' +
+      html += '<article class="gorus"><p class="tarix">' + t.gun + ' ' + t.ay + '<small>' + t.hefte + (g.time_tbd ? '' : ' · ' + t.saat) + '</small></p><div>' +
         '<h3>' + e(g.title) + '</h3>' + (g.topic ? '<p style="font-style:italic;font-size:22px">' + e(g.topic) + '</p>' : '') +
         '<p style="margin-top:8px">' + (g.guest_name ? 'Qonaq: ' + e(g.guest_name) + (g.guest_title ? ', ' + e(g.guest_title) : '') + '. ' : '') + e(mekan(g)) + '</p>' +
         '<a class="duyme krem" style="margin-top:20px" href="https://ig.me/m/hersociety.az" target="_blank" rel="noopener">Yerinizi ayırın</a></div>' +
@@ -146,7 +147,7 @@
   function yukle() {
     if (!db) { gorusler = EHTIYAT; hamisi(); return; }
     Promise.all([
-      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,album_open').eq('published', true),
+      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,time_tbd,venue,venue_detail,album_open').eq('published', true),
       db.from('photos').select('id,event_id,site_path,created_at,focus_x,focus_y').eq('on_site', true).not('site_path', 'is', null).order('created_at', { ascending: false })
     ]).then(function (r) {
       if (r[0].error) throw r[0].error;

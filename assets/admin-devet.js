@@ -9,14 +9,14 @@
 
   function bildir(m) { var b = el('bildiris'); b.textContent = m; b.hidden = false; clearTimeout(bildir.t); bildir.t = setTimeout(function () { b.hidden = true; }, 3500); }
   function saatsiz(b) { return b.checked_in_via === 'kohne-saatsiz'; }
-  function tarix(g) { var t = HS.hisseler(g.starts_at); return t.gun + ' ' + t.ay + ' ' + t.il + ' · ' + t.saat; }
+  function tarix(g) { var t = HS.hisseler(g.starts_at); return t.gun + ' ' + t.ay + ' ' + t.il + (g.time_tbd ? '' : ' · ' + t.saat); }
   function xeta(x) { console.error(x); bildir('Xəta baş verdi. İnterneti yoxlayıb yenidən cəhd edin.'); }
 
   /* ---------- Görüşlər siyahısı (sağda gələn/kart sayı) ---------- */
   window.dvSiyahi = function () {
     el('dvDetal').hidden = true; el('dvSiyahi').hidden = false; cari = null;
     Promise.all([
-      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,card_note,door_active').order('starts_at', { ascending: false }),
+      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,time_tbd,venue,venue_detail,card_note,door_active').order('starts_at', { ascending: false }),
       db.from('tickets').select('event_id,revoked,checked_in_at')
     ]).then(function (r) {
       if (r[0].error) throw r[0].error;

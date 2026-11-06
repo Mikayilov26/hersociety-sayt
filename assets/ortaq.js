@@ -28,6 +28,10 @@
     };
   };
 
+  // Saat: görüşdə saat hələ bəlli deyilsə (time_tbd), boş qaytarır
+  HS.saat = function (ev) { return ev && ev.time_tbd ? '' : HS.hisseler(ev.starts_at).saat; };
+  HS.SAAT_YOX = 'Tezliklə açıqlanacaq';
+
   HS.esc = function (s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
