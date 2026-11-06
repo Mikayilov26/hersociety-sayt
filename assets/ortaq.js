@@ -8,6 +8,9 @@
     auth: { persistSession: true, storageKey: 'hs-admin' }
   }) : null;
 
+  // Saytdakı kiçik surət (qalereya üçün): ev/id.jpg → ev/id-k.jpg
+  HS.kicikYol = function (path) { return path.replace(/\.jpg$/, '-k.jpg'); };
+
   HS.saytUrl = function (path) {
     return C.url + '/storage/v1/object/public/sayt/' + path.split('/').map(encodeURIComponent).join('/');
   };

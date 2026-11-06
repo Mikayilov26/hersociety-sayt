@@ -552,7 +552,8 @@
     ardicil(list, 'Sayta əlavə olunur…', function (s) {
       var yol = ev + '/' + s.id + '.jpg';
       return boyukFayl(s).then(function (blob) { return HS.kicilt(blob, 1600, 0.82); })
-        .then(function (kicik) { return db.storage.from('sayt').upload(yol, kicik, { contentType: 'image/jpeg', upsert: true }); })
+        .then(function (kicik) { return db.storage.from('sayt').upload(yol, kicik, { contentType: 'image/jpeg', upsert: true }).then(function (r) { if (r.error) throw r.error; return HS.kicilt(kicik, 800, 0.8); }); })
+        .then(function (qal) { return db.storage.from('sayt').upload(HS.kicikYol(yol), qal, { contentType: 'image/jpeg', upsert: true }); })
         .then(function (r) { if (r.error) throw r.error; return db.from('photos').update({ on_site: true, site_path: yol }).eq('id', s.id); })
         .then(function (r) { if (r.error) throw r.error; });
     }).then(function (u) {
@@ -564,7 +565,8 @@
   el('eSaytdanCix').addEventListener('click', function () {
     var list = secilenler().filter(function (s) { return s.on_site; });
     if (!list.length) { bildir('Seçilən şəkillər saytda deyil.'); return; }
-    var yollar = list.map(function (s) { return s.site_path; }).filter(Boolean);
+    var yollar = [];
+    list.forEach(function (s) { if (s.site_path) yollar.push(s.site_path, HS.kicikYol(s.site_path)); });
     gozle('Saytdan çıxarılır…');
     db.storage.from('sayt').remove(yollar).then(function () {
       return db.from('photos').update({ on_site: false, site_path: null }).in('id', list.map(function (s) { return s.id; }));
@@ -577,7 +579,7 @@
 
   function sekilleriSil(list) {
     var albomYollar = [], saytYollar = [];
-    list.forEach(function (s) { albomYollar.push(s.path); if (s.thumb_path) albomYollar.push(s.thumb_path); if (s.site_path) saytYollar.push(s.site_path); });
+    list.forEach(function (s) { albomYollar.push(s.path); if (s.thumb_path) albomYollar.push(s.thumb_path); if (s.site_path) saytYollar.push(s.site_path, HS.kicikYol(s.site_path)); });
     gozle('Silinir…');
     var parca = [];
     for (var i = 0; i < albomYollar.length; i += 100) parca.push(albomYollar.slice(i, i + 100));

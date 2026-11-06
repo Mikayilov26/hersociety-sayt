@@ -109,9 +109,15 @@
   }
   function qalereyaHtml(list) {
     return list.map(function (s) {
-      return '<button type="button" data-lb="' + s.id + '" aria-label="Şəkli böyüt"><img loading="lazy" src="' + HS.saytUrl(s.site_path) + '" alt=""' + mevqe(s) + '></button>';
+      return '<button type="button" data-lb="' + s.id + '" aria-label="Şəkli böyüt"><img loading="lazy" decoding="async" src="' + HS.saytUrl(HS.kicikYol(s.site_path)) + '" data-full="' + HS.saytUrl(s.site_path) + '" alt=""' + mevqe(s) + '></button>';
     }).join('');
   }
+
+  // Kiçik surət yoxdursa (köhnə şəkillər), böyüyünü göstər
+  document.addEventListener('error', function (ev) {
+    var i = ev.target, f = i && i.getAttribute && i.getAttribute('data-full');
+    if (f && i.src !== f) i.src = f;
+  }, true);
 
   function gorusSiyahi() {
     var nv = novbetiVePecmis(), e = HS.esc, html = '';
@@ -190,7 +196,7 @@
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-lb]'); if (!b) return;
     var kap = b.parentElement;
-    lbList = [].map.call(kap.querySelectorAll('[data-lb] img'), function (i) { return i.src; });
+    lbList = [].map.call(kap.querySelectorAll('[data-lb] img'), function (i) { return i.getAttribute('data-full') || i.src; });
     lbI = [].indexOf.call(kap.querySelectorAll('[data-lb]'), b);
     lbAc();
   });
