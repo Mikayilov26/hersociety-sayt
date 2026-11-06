@@ -12,28 +12,29 @@ const json = (d: unknown, s = 200) =>
 
 const ICAZELI = /^(maps\.app\.goo\.gl|goo\.gl|(www\.)?google\.[a-z.]+|maps\.google\.[a-z.]+|consent\.google\.[a-z.]+)$/i;
 
+function htmldenLink(html: string) {
+  const h = html.replace(/\\\//g, "/").replace(/\\u003d/gi, "=").replace(/\\u0026/gi, "&").replace(/&amp;/g, "&");
+  const m = h.match(/https:\/\/(?:www\.|maps\.)?google\.[a-z.]+\/?(?:maps)?\?[^"'\s<>\\]*q=[^"'\s<>\\]*/) ||
+    h.match(/https:\/\/(?:www\.|maps\.)?google\.[a-z.]+\/maps[^"'\s<>\\]*/);
+  return m ? m[0] : "";
+}
+function hazirdir(u: string) {
+  return /\/maps\/(place|search|@)/.test(new URL(u).pathname) || /[?&](q|query)=/.test(u);
+}
+// Qısa linki (maps.app.goo.gl) açıb son ünvanı tap. Edge mühitində redirect:"manual" başlıqları göstərmir,
+// ona görə yönləndirmələrə özü gedir və son URL-i götürür.
 async function sonUnvan(url: string): Promise<string> {
-  let u = url;
-  for (let i = 0; i < 6; i++) {
-    const host = new URL(u).hostname;
-    if (!ICAZELI.test(host)) throw new Error("host");
-    if (/consent\.google/.test(host)) {
-      const c = new URL(u).searchParams.get("continue");
-      if (!c) break; u = c; continue;
-    }
-    if (/\/maps\/(place|search|@)/.test(new URL(u).pathname) || /[?&]q=/.test(u)) return u;
-    const r = await fetch(u, { redirect: "manual", headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15" } });
-    let loc = r.headers.get("location");
-    if (!loc) {
-      // Bəzən yönləndirmə əvəzinə səhifə qayıdır — içindən xəritə linkini tap
-      const html = await r.text();
-      const m = html.match(/https:\/\/(?:www\.|maps\.)?google\.[a-z.]+\/maps[^"'\s<>\\]*/);
-      if (!m) return u;
-      loc = m[0].replace(/&amp;/g, "&");
-    }
-    u = new URL(loc, u).toString();
-  }
-  return u;
+  const u = url;
+  if (!ICAZELI.test(new URL(u).hostname)) throw new Error("host");
+  if (hazirdir(u)) return u;
+  const r = await fetch(u, { redirect: "follow", headers: { "User-Agent": "curl/8.4.0" } });
+  let f = r.url || u;
+  let html = "";
+  try { html = await r.text(); } catch (_e) { /* boş */ }
+  console.log("xerite yonlendirme", r.status, new URL(f).host, f.slice(0, 160));
+  if (/consent\.google/.test(new URL(f).hostname)) f = new URL(f).searchParams.get("continue") || f;
+  if (!hazirdir(f)) { const l = htmldenLink(html); if (l) f = l; }
+  return f;
 }
 
 function ayir(u: string) {
@@ -116,10 +117,10 @@ Deno.serve(async (req) => {
     // 1) Linkdə "Ad, ünvan" varsa — birbaşa linkdən
     if (p.ad.includes(",")) {
       const i = p.ad.indexOf(",");
-      adres = p.ad.slice(i + 1).trim(); p.ad = p.ad.slice(0, i).trim();
+      adres = p.ad.slice(i + 1).trim().replace(/,\s*(Azerbaijan|Azərbaycan)\s*$/i, ""); p.ad = p.ad.slice(0, i).trim();
     }
     // 2) Yoxdursa — linkin açdığı dəqiq yerin səhifəsindən (başlıq "Ad · Ünvan" olur)
-    if (!adres || p.lat === null) {
+    if (!adres) {
       try {
         const s = await sehife(son);
         console.log("xerite sehife", s.basliq.slice(0, 120), s.lat, s.lng, new URL(s.son).host);
