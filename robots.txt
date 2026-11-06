@@ -1,0 +1,9 @@
+# HER Society — hersociety.az
+User-agent: *
+Allow: /
+# Şəxsi və işçi səhifələri axtarışda görünməsin
+Disallow: /admin/
+Disallow: /giris/
+Disallow: /devet/
+
+Sitemap: https://hersociety.az/sitemap.xml

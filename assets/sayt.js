@@ -22,7 +22,7 @@
     document.querySelectorAll('[data-nav]').forEach(function (a) {
       if (a.getAttribute('data-nav') === h) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
-    document.title = { ana: 'HER Society', gorusler: 'Görüşlər · HER Society', haqqimizda: 'Haqqımızda · HER Society', albom: 'Ortaq albom · HER Society' }[h];
+    document.title = { ana: 'HER Society — Bakıda qadınlar üçün icma · Çay Süfrəsi görüşləri', gorusler: 'Görüşlər · HER Society', haqqimizda: 'Haqqımızda · HER Society', albom: 'Ortaq albom · HER Society' }[h];
     menyu.classList.remove('acik'); menyuAc.setAttribute('aria-expanded', 'false');
     window.scrollTo(0, 0);
     if (reyLinki && typeof reyVeziyyeti === 'function') reyVeziyyeti();
@@ -44,6 +44,24 @@
   }
 
   var geriSayimTaymer;
+  // Google üçün növbəti görüşün strukturlaşdırılmış təsviri (səhifədə görünmür)
+  function sxemTedbir(g) {
+    var kohne = document.getElementById('sxemTedbir'); if (kohne) kohne.remove();
+    if (!g || !g.canli) return;
+    var d = {
+      '@context': 'https://schema.org', '@type': 'Event',
+      name: g.title + (g.topic ? ': ' + g.topic : ''),
+      description: 'HER Society görüşü — yalnız qadınlar üçün.' + (g.guest_name ? ' Qonaq: ' + g.guest_name + (g.guest_title ? ', ' + g.guest_title : '') + '.' : '') + ' Yerlər məhduddur.',
+      startDate: g.time_tbd ? new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Baku' }).format(new Date(g.starts_at)) : g.starts_at,
+      eventStatus: 'https://schema.org/EventScheduled', eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: { '@type': 'Place', name: g.venue || 'Bakı', address: { '@type': 'PostalAddress', streetAddress: g.venue_detail || '', addressLocality: 'Bakı', addressCountry: 'AZ' } },
+      organizer: { '@type': 'Organization', name: 'HER Society', url: 'https://hersociety.az/' },
+      image: 'https://hersociety.az/assets/og.png', inLanguage: 'az', url: 'https://hersociety.az/#gorusler'
+    };
+    if (g.guest_name) d.performer = { '@type': 'Person', name: g.guest_name };
+    var s = document.createElement('script'); s.type = 'application/ld+json'; s.id = 'sxemTedbir'; s.textContent = JSON.stringify(d);
+    document.head.appendChild(s);
+  }
   function novbetiKart(g) {
     var k = el('novbetiKart');
     if (!g) {
@@ -141,6 +159,7 @@
 
   function hamisi() {
     novbetiKart(novbetiVePecmis().gelecek[0]);
+    sxemTedbir(novbetiVePecmis().gelecek[0]);
     gorusSiyahi(); qalereyalar(); albomVeziyyeti(); reyVeziyyeti();
   }
 
