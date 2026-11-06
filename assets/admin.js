@@ -147,6 +147,7 @@
         '<button class="duyme kicik ' + (g.album_open ? '' : 'dolu') + '" type="button" data-albom="' + g.id + '">' + (g.album_open ? 'Albomu bağla' : 'Albomu aç') + '</button>' +
         '<button class="duyme kicik" type="button" data-redakte="' + g.id + '">Düzəlt</button>' +
         '<button class="duyme kicik" type="button" data-sekiller="' + g.id + '">Şəkillər</button>' +
+        '<button class="duyme kicik" type="button" data-video="' + g.id + '">Anons videosu</button>' +
         '<button class="duyme kicik tehlike" type="button" data-sil="' + g.id + '">Sil</button>' +
         '</div></div></details>';
     }).join('') || '<p class="bos-qeyd">Hələ görüş yoxdur.</p>';
@@ -154,11 +155,12 @@
 
   el('gorusSiyahi').addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
-    var id = b.getAttribute('data-albom') || b.getAttribute('data-redakte') || b.getAttribute('data-sekiller') || b.getAttribute('data-sil');
+    var id = b.getAttribute('data-albom') || b.getAttribute('data-redakte') || b.getAttribute('data-sekiller') || b.getAttribute('data-video') || b.getAttribute('data-sil');
     var g = gorusler.filter(function (x) { return x.id === id; })[0]; if (!g) return;
     if (b.hasAttribute('data-albom')) albomAcBagla(g);
     if (b.hasAttribute('data-redakte')) formAc(g);
     if (b.hasAttribute('data-sekiller')) { el('aGorus').value = g.id; tab('albom'); }
+    if (b.hasAttribute('data-video')) videoAc(g);
     if (b.hasAttribute('data-sil')) gorusSil(g);
   });
 
@@ -243,8 +245,11 @@
   }
   function goNov(n) {
     document.querySelectorAll('[data-go]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-go') === n ? 'true' : 'false'); });
-    el('goKart').hidden = n !== 'kart'; el('goSayt').hidden = n !== 'sayt';
+    el('goKart').hidden = n !== 'kart'; el('goSayt').hidden = n !== 'sayt'; el('goVideo').hidden = n !== 'video';
+    if (goDayan) { goDayan(); goDayan = null; }
+    if (n === 'video') goDayan = HS.videoOynat(el('goVideoCanvas'), formMelumati());
   }
+  var goDayan = null;
   document.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function () { goNov(b.getAttribute('data-go')); }); });
   el('formOnizle').addEventListener('click', function () {
     var g = formMelumati(), t = HS.hisseler(g.starts_at);
@@ -267,7 +272,52 @@
       '<span class="duyme dolu">Bizə yazın</span></div></div>' +
       '<p style="font-size:15px;font-style:italic;text-align:center;padding:10px 8px 4px">Ana səhifədə “Növbəti görüş” belə görünəcək (geri sayım saytda əlavə olunur).</p>';
   });
-  el('goBagla').addEventListener('click', function () { el('gOnizle').hidden = true; });
+  el('goBagla').addEventListener('click', function () { el('gOnizle').hidden = true; if (goDayan) { goDayan(); goDayan = null; } });
+
+  /* ---------- Anons videosu ---------- */
+  var vGorus = null, vDayan = null, vFayl = null, vUrl = null;
+  function videoTemizle() {
+    if (vDayan) { vDayan(); vDayan = null; }
+    if (vUrl) { URL.revokeObjectURL(vUrl); vUrl = null; }
+    el('vVideo').pause(); el('vVideo').removeAttribute('src'); el('vVideo').hidden = true; vFayl = null;
+  }
+  function videoAc(g) {
+    vGorus = g; videoTemizle();
+    var t = HS.hisseler(g.starts_at);
+    el('vAlt').textContent = t.gun + ' ' + t.ay + ' · ' + (g.guest_name || g.title) + '. Aşağıda canlı önizləmədir. Bəyənsəniz, "Videonu hazırla" basın.';
+    el('vCanvas').hidden = false; el('vIrelileme').hidden = true; el('vXeta').hidden = true;
+    el('vHazirla').hidden = false; el('vHazirla').disabled = false; el('vPaylas').hidden = true; el('vYukle').hidden = true;
+    el('vModal').hidden = false;
+    vDayan = HS.videoOynat(el('vCanvas'), Object.assign({}, g));
+  }
+  el('vHazirla').addEventListener('click', function () {
+    if (!vGorus) return;
+    if (vDayan) { vDayan(); vDayan = null; }
+    el('vHazirla').disabled = true; el('vXeta').hidden = true; el('vIrelileme').hidden = false; el('vBar').style.width = '0%'; el('vFaiz').textContent = 'Hazırlanır… 0%';
+    HS.videoYarat(Object.assign({}, vGorus), function (p) { el('vBar').style.width = Math.round(p * 100) + '%'; el('vFaiz').textContent = 'Hazırlanır… ' + Math.round(p * 100) + '%'; })
+      .then(function (blob) {
+        var t = HS.hisseler(vGorus.starts_at), ext = /mp4/.test(blob.type) ? 'mp4' : 'webm';
+        var ad = 'HER-Society-anons-' + t.gun + '-' + t.ay + '-' + t.il + '.' + ext;
+        vFayl = new File([blob], ad, { type: blob.type });
+        vUrl = URL.createObjectURL(blob);
+        el('vCanvas').hidden = true; el('vIrelileme').hidden = true; el('vHazirla').hidden = true;
+        var v = el('vVideo'); v.src = vUrl; v.hidden = false; v.muted = true; v.play().catch(function () {});
+        el('vYukle').href = vUrl; el('vYukle').download = ad; el('vYukle').hidden = false;
+        el('vPaylas').hidden = false;
+        if (ext !== 'mp4') { el('vXeta').hidden = false; el('vXeta').textContent = 'Bu brauzer MP4 yarada bilmədi. iPhone-da Safari ilə açıb yenidən hazırlayın.'; }
+      })
+      .catch(function (x) {
+        console.error(x); el('vIrelileme').hidden = true; el('vHazirla').disabled = false;
+        el('vXeta').hidden = false; el('vXeta').textContent = 'Video hazırlanmadı. Səhifəni yeniləyib yenidən cəhd edin.';
+      });
+  });
+  el('vPaylas').addEventListener('click', function () {
+    if (!vFayl) return;
+    var d = { files: [vFayl], title: 'HER Society · Anons' };
+    if (navigator.canShare && navigator.canShare(d)) navigator.share(d).catch(function () {});
+    else el('vYukle').click();
+  });
+  el('vBagla').addEventListener('click', function () { videoTemizle(); el('vModal').hidden = true; });
   el('gorusForm').addEventListener('submit', function (ev) {
     ev.preventDefault();
     var d = el('fDate').value, s = el('fTime').value;
