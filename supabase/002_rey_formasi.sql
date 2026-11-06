@@ -31,3 +31,7 @@ create policy "rey sil" on public.feedback for delete to authenticated using (pu
 -- 6 noyabr: google_qosulma — gizli.google (açarlar, refresh_token, qovluqlar, doluluq), gizli.google_state;
 --   admin: google_ayar_saxla / google_veziyyet / google_ayir; server: google_al / google_yaz / google_state_yarat / google_state_yoxla.
 --   Edge: google (url, yoxla), google-qosul (OAuth qayıdışı, verify_jwt=false). Redirect URI: https://bxykddiqsxwnwfrgnutm.supabase.co/functions/v1/google-qosul
+
+-- 6 noyabr: drive_kocurme — albom limiti 30 MB (orijinallar), photos.drive_id, events.drive_qovluq, gizli.google.cron_acar,
+--   public.ehtiyat_servis (service_role), pg_net; cron: 'drive-sekiller' hər 20 dəq (gözləyən şəkil varsa), 'drive-ehtiyat' bazar ertəsi 00:40 UTC.
+--   Edge: drive (verify_jwt=false; x-acar və ya admin JWT) — action sekiller / ehtiyat.

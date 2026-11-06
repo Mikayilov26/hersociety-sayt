@@ -241,7 +241,7 @@
 
   function birini(s) {
     var ad = HS.id() + '.jpg', ev = acikGorus.id;
-    return HS.kicilt(s.fayl, 3000, 0.85).then(function (boyuk) {
+    return HS.orijinal(s.fayl).then(function (boyuk) {
       return HS.kicilt(s.fayl, 480, 0.75).then(function (kicik) {
         return db.storage.from('albom').upload(ev + '/kicik/' + ad, kicik, { contentType: 'image/jpeg', upsert: false })
           .then(function (r) { if (r.error) throw r.error; })

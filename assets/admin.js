@@ -359,6 +359,7 @@
   el('aGorus').addEventListener('change', function () { secilen.clear(); albomYukle(); });
 
   function albomYukle() {
+    if (!albomYukle.d) { albomYukle.d = 1; driveYoxla().then(function () { if (sekiller.length) albomCiz(); }); }
     var id = el('aGorus').value; if (!id) { el('aGrid').innerHTML = ''; el('aBos').hidden = false; return; }
     db.from('photos').select('*').eq('event_id', id).order('created_at', { ascending: false }).then(function (r) {
       if (r.error) return xeta(r.error);
@@ -375,7 +376,7 @@
 
   function kohneXeberdarliq() {
     var hedd = new Date(Date.now() - 30 * 864e5).toISOString();
-    db.from('photos').select('id', { count: 'exact', head: true }).is('downloaded_at', null).eq('on_site', false).lt('created_at', hedd).then(function (r) {
+    db.from('photos').select('id', { count: 'exact', head: true }).is('downloaded_at', null).is('drive_id', null).eq('on_site', false).lt('created_at', hedd).then(function (r) {
       el('aXeberdarliq').innerHTML = r.count > 0 ? '<p class="xeberdarliq">' + r.count + ' şəkil 30 gündən çoxdur ki, endirilməyib. Yer dolmasın deyə onları endirib silin.</p>' : '';
     });
   }
@@ -389,13 +390,33 @@
     });
   }
 
+  // Şəkil təhlükəsiz saxlanılıbmı (Drive-a köçüb və ya endirilib) və saytda deyil
+  function saxlanib(s) { return (s.drive_id || s.downloaded_at) && !s.on_site; }
+  var driveQosulub = false;
+  function driveYoxla() { return db.rpc('google_veziyyet').then(function (r) { driveQosulub = !!(r.data && r.data.qosulub); }).catch(function () {}); }
+  el('driveKocur').addEventListener('click', function () {
+    var b = el('driveKocur'); b.disabled = true;
+    (function addim() {
+      b.textContent = 'Köçürülür…';
+      db.functions.invoke('drive', { body: { action: 'sekiller' } }).then(function (r) {
+        var d = r.data || {};
+        if (d.error || d.xeta) { b.disabled = false; bildir('Bəzi şəkillər köçmədi. Bir az sonra yenidən cəhd edin.'); albomYukle(); return; }
+        if (d.qalan > 0 && d.kocdu > 0) { b.textContent = 'Köçürülür… (' + d.qalan + ' qalıb)'; return addim(); }
+        b.disabled = false; bildir('Şəkillər Google Drive-a köçürüldü.'); albomYukle();
+      });
+    })();
+  });
+
   function albomCiz() {
     var saytda = sekiller.filter(function (s) { return s.on_site; }).length;
     var endirilib = sekiller.filter(function (s) { return s.downloaded_at; }).length;
+    var driveda = sekiller.filter(function (s) { return s.drive_id; }).length;
+    var gozleyir = sekiller.filter(function (s) { return s.consent && !s.drive_id; }).length;
     var hecm = sekiller.reduce(function (a, s) { return a + (s.size_bytes || 0); }, 0);
-    el('aSay').innerHTML = '<span><b>' + sekiller.length + '</b>şəkil</span><span><b>' + saytda + '</b>saytda</span><span><b>' + endirilib + '</b>endirilib</span>' + (hecm ? '<span><b>' + HS.mb(hecm) + '</b>yer</span>' : '');
-    var silinecek = sekiller.filter(function (s) { return s.downloaded_at && !s.on_site; }).length;
-    el('endirilenleriSil').textContent = 'Endirilənləri sil' + (silinecek ? ' (' + silinecek + ')' : '');
+    el('aSay').innerHTML = '<span><b>' + sekiller.length + '</b>şəkil</span><span><b>' + saytda + '</b>saytda</span>' + (driveQosulub ? '<span><b>' + driveda + '</b>Drive-da</span>' : '<span><b>' + endirilib + '</b>endirilib</span>') + (hecm ? '<span><b>' + HS.mb(hecm) + '</b>yer</span>' : '');
+    el('driveKocur').hidden = !(driveQosulub && gozleyir); el('driveKocur').textContent = 'Drive-a köçür (' + gozleyir + ')';
+    var silinecek = sekiller.filter(saxlanib).length;
+    el('endirilenleriSil').textContent = (driveQosulub ? 'Drive-dakıları buradan sil' : 'Endirilənləri sil') + (silinecek ? ' (' + silinecek + ')' : '');
     el('endirilenleriSil').disabled = !silinecek;
     var list = gorunenler();
     el('aBos').hidden = list.length > 0;
@@ -405,7 +426,7 @@
       return '<div style="position:relative"><button type="button" class="adm-sekil" data-sec="' + s.id + '" aria-pressed="' + sec + '" aria-label="Şəkil seç">' +
         '<img loading="lazy" src="' + (url[s.thumb_path] || '') + '" alt="">' +
         '<span class="isare" aria-hidden="true">' + (sec ? '✓' : '') + '</span>' +
-        '<span class="etiketler">' + (s.on_site ? '<span>Saytda</span>' : '') + (s.downloaded_at ? '<span>↓</span>' : '') + (!s.consent ? '<span>İcazəsiz</span>' : '') + '</span>' +
+        '<span class="etiketler">' + (s.on_site ? '<span>Saytda</span>' : '') + (s.drive_id ? '<span>Drive</span>' : s.downloaded_at ? '<span>↓</span>' : '') + (!s.consent ? '<span>İcazəsiz</span>' : '') + '</span>' +
         (s.uploader ? '<span class="yukleyen">' + e(s.uploader) + '</span>' : '') +
         '</button><button type="button" class="boyut-dg" data-boyut="' + s.id + '" aria-label="Şəkli böyüt">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5"/></svg></button></div>';
@@ -569,8 +590,8 @@
   el('eSil').addEventListener('click', function () {
     var list = secilenler();
     var saytda = list.filter(function (s) { return s.on_site; }).length;
-    var endirilmeyib = list.filter(function (s) { return !s.downloaded_at; }).length;
-    var metn = list.length + ' şəkil həmişəlik silinəcək.' + (endirilmeyib ? ' Onlardan ' + endirilmeyib + ' hələ endirilməyib.' : '') + (saytda ? ' ' + saytda + ' şəkil saytdan da çıxacaq.' : '');
+    var endirilmeyib = list.filter(function (s) { return !s.downloaded_at && !s.drive_id; }).length;
+    var metn = list.length + ' şəkil həmişəlik silinəcək.' + (endirilmeyib ? ' Onlardan ' + endirilmeyib + ' hələ nə endirilib, nə Drive-a köçüb.' : '') + (saytda ? ' ' + saytda + ' şəkil saytdan da çıxacaq.' : '');
     tesdiq('Şəkillər silinsin?', metn, 'Sil').then(function (ok) {
       if (!ok) return;
       sekilleriSil(list).then(function () { bildir(list.length + ' şəkil silindi.'); secilen.clear(); albomYukle(); }).catch(xeta);
@@ -578,9 +599,9 @@
   });
 
   el('endirilenleriSil').addEventListener('click', function () {
-    var list = sekiller.filter(function (s) { return s.downloaded_at && !s.on_site; });
+    var list = sekiller.filter(saxlanib);
     if (!list.length) return;
-    tesdiq('Endirilənlər silinsin?', list.length + ' endirilmiş şəkil anbardan silinəcək və yer boşalacaq. Saytda göstərilən şəkillər qalır.', 'Sil').then(function (ok) {
+    tesdiq(driveQosulub ? 'Drive-dakılar buradan silinsin?' : 'Endirilənlər silinsin?', list.length + ' şəkil buradakı anbardan silinəcək və yer boşalacaq.' + (driveQosulub ? ' Onların orijinalı Google Drive-da qalır.' : '') + ' Saytda göstərilən şəkillər qalır.', 'Sil').then(function (ok) {
       if (!ok) return;
       sekilleriSil(list).then(function () { bildir(list.length + ' şəkil silindi, yer boşaldı.'); secilen.clear(); albomYukle(); }).catch(xeta);
     });
@@ -638,7 +659,7 @@
       var ad = HS.id() + '.jpg';
       return HS.kicilt(f, 480, 0.75).then(function (k) {
         return db.storage.from('albom').upload(gid + '/kicik/' + ad, k, { contentType: 'image/jpeg' });
-      }).then(function (r) { if (r.error) throw r.error; return HS.kicilt(f, 3000, 0.88); })
+      }).then(function (r) { if (r.error) throw r.error; return HS.orijinal(f); })
         .then(function (b) { return db.storage.from('albom').upload(gid + '/' + ad, b, { contentType: 'image/jpeg' }); })
         .then(function (r) { if (r.error) throw r.error; return db.from('photos').update({ uploader: 'HER Society', consent: true, consent_at: new Date().toISOString() }).eq('path', gid + '/' + ad); });
     }).then(function (u) {
