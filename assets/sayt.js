@@ -9,13 +9,14 @@
     { id: 'e1', title: 'Çay Süfrəsi', topic: null, guest_name: "Sabina xanım (Papillon's)", guest_title: 'süfrə təqdimatı', starts_at: '2026-10-23T13:00:00+04:00', venue: 'Luciano restoranı, Bakı', album_open: false }
   ];
 
-  var gorusler = [], sekiller = [], acikGorus = null;
+  var gorusler = [], sekiller = [], acikGorus = null, reyLinki = false;
 
   /* ---------- Naviqasiya ---------- */
   var gorunusler = ['ana', 'gorusler', 'haqqimizda', 'albom'];
   var menyu = el('menyu'), menyuAc = el('menyuAc');
   function goster() {
     var h = (location.hash || '#ana').slice(1);
+    reyLinki = h === 'rey'; if (reyLinki) h = 'albom';
     if (gorunusler.indexOf(h) < 0) h = 'ana';
     document.querySelectorAll('[data-view]').forEach(function (v) { v.hidden = v.getAttribute('data-view') !== h; });
     document.querySelectorAll('[data-nav]').forEach(function (a) {
@@ -24,6 +25,7 @@
     document.title = { ana: 'HER Society', gorusler: 'Görüşlər · HER Society', haqqimizda: 'Haqqımızda · HER Society', albom: 'Ortaq albom · HER Society' }[h];
     menyu.classList.remove('acik'); menyuAc.setAttribute('aria-expanded', 'false');
     window.scrollTo(0, 0);
+    if (reyLinki && typeof reyVeziyyeti === 'function') reyVeziyyeti();
   }
   window.addEventListener('hashchange', goster);
   goster();
@@ -133,7 +135,7 @@
 
   function hamisi() {
     novbetiKart(novbetiVePecmis().gelecek[0]);
-    gorusSiyahi(); qalereyalar(); albomVeziyyeti();
+    gorusSiyahi(); qalereyalar(); albomVeziyyeti(); reyVeziyyeti();
   }
 
   function yukle() {
@@ -144,6 +146,7 @@
     ]).then(function (r) {
       if (r[0].error) throw r[0].error;
       gorusler = r[0].data || [];
+      gorusler.forEach(function (g) { g.canli = true; });
       sekiller = (r[1].data || []);
       try { localStorage.setItem('hs-gorusler', JSON.stringify(gorusler)); } catch (e) {}
       hamisi();
@@ -269,4 +272,68 @@
   });
   el('tekrar').addEventListener('click', function () { gonder(ugursuz.slice()); });
   el('yeniden').addEventListener('click', function () { secilen = []; ugursuz = []; addim('addimSec'); });
+
+  /* ---------- Rəy forması ---------- */
+  var reyGorus = null, reyQiymet = null;
+  var URK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg>';
+  var URK_DOLU = URK.replace('fill="none"', 'fill="currentColor"');
+  function reyHedef() {
+    if (acikGorus && acikGorus.canli) return acikGorus;
+    var indi = Date.now();
+    return gorusler.filter(function (g) {
+      var t = new Date(g.starts_at).getTime();
+      return g.canli && t <= indi + 12 * 3600e3 && t >= indi - 30 * 864e5;
+    }).sort(function (a, b) { return new Date(b.starts_at) - new Date(a.starts_at); })[0] || null;
+  }
+  function reyVeziyyeti() {
+    reyGorus = reyHedef();
+    var kutu = el('rey');
+    if (!reyGorus) { kutu.hidden = true; return; }
+    kutu.hidden = false;
+    var t = HS.hisseler(reyGorus.starts_at);
+    el('reyBasliq').textContent = reyGorus.title + ' · ' + t.gun + ' ' + t.ay;
+    var gonderilib = false;
+    try { gonderilib = localStorage.getItem('hs-rey-' + reyGorus.id) === '1'; } catch (x) {}
+    if (gonderilib) { el('reySual').hidden = true; el('reyForm').hidden = true; el('reySon').hidden = false; }
+    else if (el('reyForm').hidden) { el('reySual').hidden = false; el('reySon').hidden = true; }
+    if (reyLinki && !gonderilib) { reyAc(); }
+    if (reyLinki) {
+      reyLinki = false;
+      setTimeout(function () { kutu.scrollIntoView({ block: 'start' }); window.scrollBy(0, -84); }, 50);
+    }
+  }
+  function urekCiz() {
+    var html = '';
+    for (var i = 1; i <= 5; i++) {
+      var dolu = reyQiymet !== null && i <= reyQiymet;
+      html += '<button type="button" data-q="' + i + '" aria-pressed="' + (reyQiymet === i) + '" aria-label="' + i + ' / 5"' +
+        (dolu ? ' style="color:var(--qirmizi)"' : '') + '>' + (dolu ? URK_DOLU : URK) + '</button>';
+    }
+    el('urekler').innerHTML = html;
+  }
+  function reyAc() {
+    el('reySual').hidden = true; el('reyForm').hidden = false; el('reySon').hidden = true;
+    try { if (!el('reyAd').value) el('reyAd').value = localStorage.getItem('hs-ad') || ''; } catch (x) {}
+    urekCiz();
+  }
+  el('reyAc').addEventListener('click', reyAc);
+  el('urekler').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-q]'); if (!b) return;
+    var q = +b.getAttribute('data-q'); reyQiymet = reyQiymet === q ? null : q; urekCiz();
+    el('reyXeta').hidden = true;
+  });
+  el('reyForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var xos = el('reyXos').value.trim(), arzu = el('reyArzu').value.trim(), ad = el('reyAd').value.trim();
+    if (reyQiymet === null && !xos && !arzu) { el('reyXeta').hidden = false; el('reyXeta').textContent = 'Ən azı bir suala cavab verin.'; return; }
+    if (!db || !reyGorus) { el('reyXeta').hidden = false; el('reyXeta').textContent = 'Hazırda göndərmək mümkün olmadı. Bir az sonra yenidən cəhd edin.'; return; }
+    var d = el('reyGonder'); d.disabled = true; d.textContent = 'Göndərilir…';
+    db.rpc('rey_gonder', { ev: reyGorus.id, qiymet: reyQiymet, xos: xos, arzu: arzu, ad: ad }).then(function (r) {
+      d.disabled = false; d.textContent = 'Göndər';
+      if (r.error) { el('reyXeta').hidden = false; el('reyXeta').textContent = 'Göndərilmədi. İnterneti yoxlayıb yenidən cəhd edin.'; return; }
+      try { localStorage.setItem('hs-rey-' + reyGorus.id, '1'); if (ad) localStorage.setItem('hs-ad', ad); } catch (x) {}
+      el('reyForm').hidden = true; el('reySon').hidden = false;
+      el('reyXos').value = el('reyArzu').value = ''; reyQiymet = null;
+    });
+  });
 })();

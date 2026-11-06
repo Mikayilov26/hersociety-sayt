@@ -1,0 +1,17 @@
+-- Qonaq rəyləri (albom səhifəsindəki sorğu). Supabase-də "rey_formasi" adı ilə tətbiq olunub.
+create table if not exists public.feedback (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references public.events(id) on delete cascade,
+  rating smallint check (rating between 1 and 5),
+  liked text check (length(liked) <= 1000),
+  wish text check (length(wish) <= 1000),
+  name text check (length(name) <= 80),
+  created_at timestamptz not null default now()
+);
+alter table public.feedback enable row level security;
+create index if not exists feedback_event_idx on public.feedback(event_id, created_at desc);
+revoke all on public.feedback from anon, authenticated;
+grant select, delete on public.feedback to authenticated;
+create policy "rey oxu" on public.feedback for select to authenticated using (public.is_admin());
+create policy "rey sil" on public.feedback for delete to authenticated using (public.is_admin());
+-- rey_gonder(ev, qiymet, xos, arzu, ad): yalnız dərc olunmuş, görüş günündən 30 gün ərzində olan görüşə; hər görüşə ən çox 500 rəy.

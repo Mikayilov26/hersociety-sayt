@@ -102,6 +102,7 @@
     if (ad === 'albom') albomYukle(); else { secilen.clear(); emeliyyatPaneli(); }
     if (ad === 'hesab') adminler();
     if (ad === 'devetler') dvSiyahi();
+    if (ad === 'statistika' && window.stYukle) window.stYukle();
     try { sessionStorage.setItem('hs-tab', ad); } catch (x) {}
   }
   document.querySelectorAll('[data-tab]').forEach(function (b) { b.addEventListener('click', function () { tab(b.getAttribute('data-tab')); }); });
