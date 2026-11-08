@@ -171,13 +171,11 @@
     var mesaj = ac ? 'Qonaqlar hersociety.az/albom linki ilə bu görüşə şəkil yükləyə biləcək. Başqa açıq albom varsa, o bağlanacaq.' : 'Albom bağlananda qonaqlar daha şəkil yükləyə bilməyəcək. Yüklənmiş şəkillər qalır.';
     tesdiq(ac ? 'Albom açılsın?' : 'Albom bağlansın?', mesaj, ac ? 'Albomu aç' : 'Albomu bağla').then(function (ok) {
       if (!ok) return;
-      var once = ac ? db.from('events').update({ album_open: false }).eq('album_open', true).neq('id', g.id) : Promise.resolve({});
-      once.then(function (r) {
+      // Bir əməliyyat: bazada köhnə açıq albom bağlanır və bu açılır (eyni anda iki açıq albom ola bilməz)
+      db.rpc('albom_ac', { ev: g.id, ac: ac }).then(function (r) {
         if (r.error) throw r.error;
-        return db.from('events').update({ album_open: ac }).eq('id', g.id);
-      }).then(function (r) {
-        if (r.error) throw r.error;
-        bildir(ac ? 'Albom açıldı.' : 'Albom bağlandı.');
+        var m = { acildi: 'Albom açıldı.', baglandi: 'Albom bağlandı.', gizli: 'Gizli görüşün albomu açıla bilməz. Əvvəlcə görüşü saytda göstərin.', silinib: 'Silinmiş görüşün albomu açıla bilməz.', tapilmadi: 'Görüş tapılmadı. Səhifəni yeniləyin.' };
+        bildir(m[r.data] || 'Albom yeniləndi.');
         gorusleriYukle();
       }).catch(xeta);
     });

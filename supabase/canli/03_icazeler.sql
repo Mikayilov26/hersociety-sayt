@@ -31,7 +31,7 @@
 
 -- ========== Funksiyaları kim çağıra bilər ==========
 -- hamı (anon):     albom_qeyd, albom_icaze, album_acikdir, devet_bax, giris_ac, giris_qeyd, giris_geri, rey_gonder, is_admin
--- admin (auth):    admin_*, ehtiyat_data/indi/siyahi, giris_kodu_qoy, giris_sondur, google_ayar_saxla/ayir/veziyyet,
+-- admin (auth):    albom_ac, admin_*, ehtiyat_data/indi/siyahi, giris_kodu_qoy, giris_sondur, google_ayar_saxla/ayir/veziyyet,
 --                  is_super, sifre_deyisdi, veziyyet_hesabati, sekil_veziyyeti
 -- server:          ehtiyat_servis, google_al, google_yaz, google_state_yarat, google_state_yoxla
 -- heç kim (daxili): giris_kodu_duzdur, mvq_sifre, albom_fayl_geldi, albom_fayl_yenilendi

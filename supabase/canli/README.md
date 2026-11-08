@@ -9,6 +9,7 @@ Bu qovluq Supabase-dəki (layihə `bxykddiqsxwnwfrgnutm`) canlı bazanın tam t�
 | `03_icazeler.sql` | Kim nəyi oxuya/yaza bilər (RLS, sütun icazələri, funksiya icazələri) |
 | `04_avtomatik_isler.sql` | Gecə nüsxələri, Drive köçürmə, təmizlik (pg_cron) |
 | `05_veziyyetler.sql` | Şəklin vəziyyəti, görüşün mərhələsi, icazə qeydi, vəziyyət hesabatı |
+| `06_albom_bir_acik.sql` | Eyni anda yalnız bir açıq albom (bazada qayda) və `albom_ac()` |
 
 Köhnə `001_quruluş.sql` və `002_rey_formasi.sql` tarixçə üçün qalır; hazırkı vəziyyət bu qovluqdadır.
 
@@ -18,6 +19,8 @@ Köhnə `001_quruluş.sql` və `002_rey_formasi.sql` tarixçə üçün qalır; h
 - **Görüş** — `merhele(events)`: `gizli` | `silinib` | `gelecek` | `bu_gun` | `kecib` (30 gün) | `arxiv`.
 - **Kart** — gözlənilir / gəlib / ləğv (ləğvdən əvvəl gəlmiş ola bilər — giriş qeydi saxlanır).
 - **Giriş** — `door_active` + kod; giriş qeydi cavabları: `ok`, `artiq`, `legv`, `yoxdur`, `kod`.
+- **Albom** — `albom_ac(ev, ac)`: `acildi` | `baglandi` | `gizli` | `silinib` | `tapilmadi`. Bazada qayda: eyni anda ən çox bir açıq albom (`events_yalniz_bir_acik_albom`).
+- **Giriş telefonu (giris.js)** — internetsiz qeydlər telefonda növbədə qalır; növbədən yalnız serverin qəti cavabı ilə çıxır (ok/artiq/legv/yoxdur). `kod` cavabında qeydlər saxlanır, işçidən yeni kod soruşulur; yeni kodla giriş növbəni saxlayıb göndərir.
 - **Qonağın icazəsi** — `albom_icaze()`: `ok`, `tapilmadi`, `vaxt`, `bagli`.
 
 ## Yoxlama

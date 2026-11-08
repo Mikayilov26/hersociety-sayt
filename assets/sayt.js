@@ -9,7 +9,7 @@
     { id: 'e1', title: 'Çay Süfrəsi', topic: null, guest_name: "Sabina xanım (Papillon's)", guest_title: 'süfrə təqdimatı', starts_at: '2026-10-23T13:00:00+04:00', venue: 'Luciano restoranı, Bakı', album_open: false }
   ];
 
-  var gorusler = [], sekiller = [], acikGorus = null;
+  var gorusler = [], sekiller = [], acikGorus = null, yuklendi = false;
 
   /* ---------- Naviqasiya ---------- */
   var gorunusler = ['ana', 'gorusler', 'haqqimizda', 'albom'];
@@ -177,6 +177,7 @@
       if (r[0].error) throw r[0].error;
       gorusler = r[0].data || [];
       gorusler.forEach(function (g) { g.canli = true; });
+      yuklendi = true;
       sekiller = (r[1].data || []);
       try { localStorage.setItem('hs-gorusler', JSON.stringify(gorusler)); } catch (e) {}
       hamisi();
@@ -184,11 +185,22 @@
       var yaddas = null;
       try { yaddas = JSON.parse(localStorage.getItem('hs-gorusler')); } catch (e) {}
       gorusler = (yaddas && yaddas.length) ? yaddas : EHTIYAT;
-      gorusler.forEach(function (g) { g.album_open = false; });
+      gorusler.forEach(function (g) { g.album_open = false; g.canli = false; });
+      yuklendi = true;
       hamisi();
     });
   }
-  gorusler = EHTIYAT; hamisi(); // dərhal göstər, sonra yenilə
+  // İlk görüntü: 1) bu telefonda saxlanmış son siyahı (dərhal), 2) bazadan təzə siyahı.
+  // Kodda yazılmış EHTIYAT siyahısı yalnız telefonda heç nə yoxdursa və baza 1,5 saniyədə cavab vermirsə göstərilir.
+  // Yaddaşdakı siyahı ilə albom açılmır və rəy göndərilmir (canli=false) — bunlar yalnız bazadan təsdiqlə.
+  var ilk = null;
+  try { ilk = JSON.parse(localStorage.getItem('hs-gorusler')); } catch (e) {}
+  if (ilk && ilk.length) {
+    ilk.forEach(function (g) { g.album_open = false; g.canli = false; });
+    gorusler = ilk; hamisi();
+  } else {
+    setTimeout(function () { if (!yuklendi) { gorusler = EHTIYAT; hamisi(); } }, 1500);
+  }
   yukle();
 
   /* ---------- Lightbox ---------- */

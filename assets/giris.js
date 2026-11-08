@@ -24,8 +24,10 @@
     db.rpc('giris_ac', { ev: EV, kod: kod }).then(function (r) {
       el('daxil').disabled = false;
       if (r.error || !r.data) { el('girisXeta').hidden = false; el('girisXeta').textContent = r.error ? 'İnternet yoxdur. Bağlantını yoxlayın.' : 'Kod səhvdir və ya giriş hələ açılmayıb.'; return; }
-      S = { kod: kod, data: r.data, novbe: [], yerli: {} }; saxla();
+      // Yeni kodla girişdə telefonda gözləyən qeydlər SAXLANIR və dərhal göndərilir
+      S = { kod: kod, data: r.data, novbe: S.novbe || [], yerli: S.yerli || {}, redd: S.redd || [] }; saxla();
       el('giris').hidden = true; goster();
+      if (S.novbe.length) yenile();
     });
   });
   el('kod').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') el('daxil').click(); });
@@ -81,6 +83,7 @@
     var z = el('zolaq');
     if (!navigator.onLine) { z.className = 'zolaq xeb'; z.textContent = 'İnternet yoxdur — oxutmağa davam edin, qeydlər telefonda saxlanır' + (S.novbe.length ? ' (' + S.novbe.length + ' gözləyir)' : '') + '.'; }
     else if (S.novbe.length) { z.className = 'zolaq xeb'; z.textContent = S.novbe.length + ' qeyd göndərilir…'; }
+    else if ((S.redd || []).length) { z.className = 'zolaq xeb'; z.textContent = S.redd.length + ' internetsiz qeyd qəbul olunmadı (kart ləğv olunub və ya tapılmadı). Bütün telefonlar eyni siyahını görür.'; }
     else { z.className = 'zolaq'; z.textContent = 'Bütün telefonlar eyni siyahını görür ✓'; }
   }
   el('axtar').addEventListener('input', ciz);
@@ -90,25 +93,49 @@
   function yenile() {
     if (yenilenir || !navigator.onLine) { ciz(); return Promise.resolve(); }
     yenilenir = true;
-    return gonderNovbe().then(function () { return db.rpc('giris_ac', { ev: EV, kod: S.kod }); }).then(function (r) {
+    return gonderNovbe().then(function (n) {
+      if (n === 'kod') return { kod: true };
+      return db.rpc('giris_ac', { ev: EV, kod: S.kod });
+    }).then(function (r) {
       yenilenir = false;
+      if (r.kod) { kodKecersiz(); return; }
       if (r.error) return;
-      if (!r.data) { // kod dəyişib və ya giriş söndürülüb
-        el('zolaq').className = 'zolaq xeb'; el('zolaq').textContent = 'Giriş söndürülüb və ya kod dəyişib. Təşkilatçıya müraciət edin.'; return;
-      }
+      if (!r.data) { kodKecersiz(); return; } // kod dəyişib və ya giriş söndürülüb
       S.data = r.data;
       siyahi().forEach(function (b) { if (b.in && S.yerli[b.id] && !S.novbe.some(function (n) { return n.id === b.id; })) delete S.yerli[b.id]; });
       saxla(); ciz();
     }, function () { yenilenir = false; ciz(); });
   }
+  // Qayda: qeyd növbədən YALNIZ serverin qəti cavabı ilə çıxır (ok / artiq / legv / yoxdur).
+  // "kod" cavabı (giriş söndürülüb və ya kod dəyişib) qeydi telefonda saxlayır — yeni kod yazılan kimi göndərilir.
   function gonderNovbe() {
-    if (!S.novbe.length) return Promise.resolve();
+    if (!S.novbe.length) return Promise.resolve('bos');
     var n = S.novbe[0];
     return db.rpc('giris_qeyd', { ev: EV, kod: S.kod, acar: n.acar, usul: n.usul, vaxt: n.vaxt }).then(function (r) {
       if (r.error) throw r.error;
-      S.novbe.shift(); saxla();
+      var st = r.data && r.data.status;
+      if (st === 'kod') return 'kod';
+      if (st !== 'ok' && st !== 'artiq' && st !== 'legv' && st !== 'yoxdur') throw new Error('cavab: ' + st);
+      S.novbe.shift();
+      if (st === 'legv' || st === 'yoxdur') { // server qəbul etmədi — siyahıda "gəlib" görünməsin, amma iz qalsın
+        delete S.yerli[n.id];
+        S.redd = (S.redd || []).concat([{ id: n.id, status: st, vaxt: n.vaxt }]);
+      }
+      saxla();
       return gonderNovbe();
     });
+  }
+  function kodKecersiz() {
+    var q = S.novbe.length;
+    el('zolaq').className = 'zolaq xeb';
+    el('zolaq').textContent = 'Giriş kodu dəyişib və ya giriş söndürülüb.' + (q ? ' ' + q + ' qeyd bu telefonda saxlanılıb.' : '');
+    var yeni = el('giris').hidden;
+    el('giris').hidden = false;
+    if (yeni) { el('kod').value = ''; window.scrollTo(0, 0); if (navigator.vibrate) navigator.vibrate([60, 60, 60]); } // ilk dəfə: işçi kod sahəsini görsün
+    el('girisXeta').hidden = false;
+    el('girisXeta').textContent = q
+      ? 'Kod artıq keçərli deyil. ' + q + ' giriş qeydi bu telefonda saxlanılıb — təşkilatçıdan yeni kodu alıb yazın, qeydlər dərhal göndəriləcək.'
+      : 'Kod artıq keçərli deyil. Təşkilatçıdan yeni kodu alıb yazın.';
   }
   setInterval(yenile, 15000);
   window.addEventListener('online', yenile);
@@ -163,6 +190,8 @@
       if (bitdi) return; bitdi = true; clearTimeout(taymer);
       if (r.error || !r.data) { netice(yerliNetice(), usul); ciz(); return; }
       var d = r.data;
+      // Kod bu an dəyişibsə: qonaq qapıdadır — gəlişi telefonda saxla, yeni kod yazılan kimi göndərilir
+      if (d.status === 'kod') { netice(yerliNetice(), usul); ciz(); kodKecersiz(); return; }
       if (b && (d.status === 'ok' || d.status === 'artiq')) b.in = d.in;
       if (b && d.status === 'legv') b.revoked = true;
       saxla(); netice(d, usul); ciz();
