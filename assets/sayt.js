@@ -244,17 +244,25 @@
   el('fayl').addEventListener('change', elaveEt);
   el('faylElave').addEventListener('change', elaveEt);
 
+  // Hər şəklin addımları yadda qalır (s.ad, s.kicikOk, s.yol): "Yenidən cəhd" artıq edilən addımı təkrarlamır.
+  // Şəkil yalnız icazə də yazılandan sonra "göndərildi" sayılır.
   function birini(s) {
-    var ad = HS.id() + '.jpg', ev = acikGorus.id;
-    return HS.orijinal(s.fayl).then(function (boyuk) {
-      return HS.kicilt(s.fayl, 480, 0.75).then(function (kicik) {
-        return db.storage.from('albom').upload(ev + '/kicik/' + ad, kicik, { contentType: 'image/jpeg', upsert: false })
-          .then(function (r) { if (r.error) throw r.error; })
-          .then(function () { return db.storage.from('albom').upload(ev + '/' + ad, boyuk, { contentType: 'image/jpeg', upsert: false }); })
-          .then(function (r) { if (r.error) throw r.error; })
-          .then(function () { return db.rpc('albom_qeyd', { yol: ev + '/' + ad, ad: el('yukleyenAd').value.trim(), razilik: true }); })
-          .then(function (r) { if (r && r.error) console.warn(r.error); });
-      });
+    var ev = acikGorus.id;
+    if (!s.ad) s.ad = HS.id() + '.jpg';
+    var yukle = s.yol ? Promise.resolve() : HS.orijinal(s.fayl).then(function (boyuk) {
+      var kicikAddim = s.kicikOk ? Promise.resolve() : HS.kicilt(s.fayl, 480, 0.75).then(function (kicik) {
+        return db.storage.from('albom').upload(ev + '/kicik/' + s.ad, kicik, { contentType: 'image/jpeg', upsert: false });
+      }).then(function (r) { if (r.error) throw r.error; s.kicikOk = true; });
+      return kicikAddim
+        .then(function () { return db.storage.from('albom').upload(ev + '/' + s.ad, boyuk, { contentType: 'image/jpeg', upsert: false }); })
+        .then(function (r) { if (r.error) throw r.error; s.yol = ev + '/' + s.ad; });
+    });
+    return yukle.then(function () {
+      return db.rpc('albom_icaze', { yol: s.yol, ad: el('yukleyenAd').value.trim(), razilik: true });
+    }).then(function (r) {
+      if (r.error) throw r.error;
+      if (r.data !== 'ok') { s.sebeb = r.data; throw new Error(r.data); }
+      s.sebeb = null;
     });
   }
 
@@ -285,9 +293,13 @@
         el('tekrar').hidden = true;
         secilen.forEach(function (s) { URL.revokeObjectURL(s.onizleme); }); secilen = [];
       } else {
+        // Albom bağlanıb və ya vaxt keçibsə, təkrar cəhd kömək etməz — bunu düz deyirik
+        var bagli = ugursuz.filter(function (s) { return s.sebeb === 'bagli' || s.sebeb === 'vaxt'; }).length;
         el('sonBasliq').textContent = ugurlu ? 'Demək olar ki, hazırdır' : 'Şəkillər göndərilmədi';
-        el('sonYazi').textContent = (ugurlu ? ugurlu + ' şəkil əlavə olundu. ' : '') + ugursuz.length + ' şəkil göndərilmədi. İnternet bağlantısını yoxlayıb yenidən cəhd edin.';
-        el('tekrar').hidden = false;
+        el('sonYazi').textContent = (ugurlu ? ugurlu + ' şəkil əlavə olundu. ' : '') + (bagli === ugursuz.length
+          ? ugursuz.length + ' şəkil qəbul olunmadı: albom artıq bağlanıb. Şəkilləri təşkilatçılara yaza bilərsiniz.'
+          : ugursuz.length + ' şəkil göndərilmədi. İnternet bağlantısını yoxlayıb yenidən cəhd edin.');
+        el('tekrar').hidden = bagli === ugursuz.length;
       }
       addim('addimSon');
     });

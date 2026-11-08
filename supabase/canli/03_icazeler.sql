@@ -1,0 +1,37 @@
+-- HER Society — icazələr və sətir qaydaları (RLS), canlı bazadan köçürülüb (8 noyabr 2026)
+-- SƏNƏD KİMİDİR. Bütün cədvəllərdə RLS açıqdır.
+
+-- ========== Cədvəl icazələri ==========
+-- authenticated: events (insert, update, delete + aşağıdakı sütunlar üzrə select yox, cədvəl üzrə select siyasətlə),
+--                tickets (select, insert, update — DELETE YOXDUR),
+--                photos (select, update, delete), admins (select), feedback (select, delete)
+-- service_role:  events (select, update), photos (select, update) — Drive funksiyası üçün
+-- anon (qonaq): yalnız sütun səviyyəsində oxu:
+--   events: id, title, topic, guest_name, guest_title, starts_at, time_tbd, venue, venue_detail, card_note, map_url,
+--           album_open, published, door_active, deleted_at, created_at   (door_code_hash, drive_qovluq YOX)
+--   photos: id, event_id, site_path, focus_x, focus_y, created_at, on_site
+--   Yeni sütun sayta lazım olsa: grant select (sütun) on public.<cədvəl> to anon;
+
+-- ========== Sətir qaydaları ==========
+-- admins   "adminler oxu"   select  authenticated  using (email = öz email-i or is_super())
+-- events   "gorusler oxu"   select  anon,auth      using ((published and deleted_at is null) or is_admin())
+-- events   "gorusler elave" insert  authenticated  check (is_admin())
+-- events   "gorusler deyis" update  authenticated  using/check (is_admin())
+-- events   "gorusler sil"   delete  authenticated  using (is_admin())
+-- tickets  "kartlar oxu"    select  authenticated  using (is_admin())
+-- tickets  "kartlar elave"  insert  authenticated  check (is_admin())
+-- tickets  "kartlar deyis"  update  authenticated  using/check (is_admin())
+-- photos   "sekiller oxu"   select  anon,auth      using (on_site or is_admin())
+-- photos   "sekiller deyis" update  authenticated  using/check (is_admin())
+-- photos   "sekiller sil"   delete  authenticated  using (is_admin())
+-- feedback "rey oxu"        select  authenticated  using (is_admin())
+-- feedback "rey sil"        delete  authenticated  using (is_admin())
+-- storage  "qonaq yukleyir" insert  anon,auth      check (bucket 'albom' and album_acikdir(qovluq))
+-- storage  "admin albom oxu/yaz/sil", "admin sayt oxu/yaz/deyis/sil" — yalnız is_admin()
+
+-- ========== Funksiyaları kim çağıra bilər ==========
+-- hamı (anon):     albom_qeyd, albom_icaze, album_acikdir, devet_bax, giris_ac, giris_qeyd, giris_geri, rey_gonder, is_admin
+-- admin (auth):    admin_*, ehtiyat_data/indi/siyahi, giris_kodu_qoy, giris_sondur, google_ayar_saxla/ayir/veziyyet,
+--                  is_super, sifre_deyisdi, veziyyet_hesabati, sekil_veziyyeti
+-- server:          ehtiyat_servis, google_al, google_yaz, google_state_yarat, google_state_yoxla
+-- heç kim (daxili): giris_kodu_duzdur, mvq_sifre, albom_fayl_geldi, albom_fayl_yenilendi

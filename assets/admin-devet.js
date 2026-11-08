@@ -60,7 +60,8 @@
       biletler = r.data || [];
       var aktiv = biletler.filter(function (b) { return !b.revoked; });
       var gelen = aktiv.filter(function (b) { return b.checked_in_at; }).length;
-      el('dvStat').textContent = gelen + ' / ' + aktiv.length + ' gəlib' + (biletler.length > aktiv.length ? ' · ' + (biletler.length - aktiv.length) + ' kart ləğv olunub' : '');
+      var legvGelen = biletler.filter(function (b) { return b.revoked && b.checked_in_at; }).length;
+      el('dvStat').textContent = gelen + ' / ' + aktiv.length + ' gəlib' + (biletler.length > aktiv.length ? ' · ' + (biletler.length - aktiv.length) + ' kart ləğv olunub' : '') + (legvGelen ? ' (' + legvGelen + ' nəfər ləğvdən əvvəl daxil olmuşdu)' : '');
       el('kNum').value = biletler.reduce(function (m, b) { return Math.max(m, b.num); }, 0) + 1;
       qonaqlariCiz();
     }).catch(xeta);
@@ -72,7 +73,7 @@
       return !q || b.name.toLocaleLowerCase('az').indexOf(q) >= 0 || b.code.toLowerCase().indexOf(q) >= 0 || String(b.num) === q.replace(/^0+/, '');
     }).sort(function (a, b) { return b.num - a.num; });
     el('dvQonaqlar').innerHTML = list.map(function (b) {
-      var st = b.revoked ? 'ləğv olunub' : b.checked_in_at ? 'gəlib' + (saatsiz(b) ? '' : ' · ' + HS.hisseler(b.checked_in_at).saat) : 'gözlənilir';
+      var st = b.revoked ? 'ləğv olunub' + (b.checked_in_at ? ' · əvvəl daxil olmuşdu' : '') : b.checked_in_at ? 'gəlib' + (saatsiz(b) ? '' : ' · ' + HS.hisseler(b.checked_in_at).saat) : 'gözlənilir';
       return '<div class="qonaq-setir' + (b.revoked ? ' legv' : '') + '"><div><div class="ad">№ ' + HS.pad(b.num) + ' · ' + e(b.name) + '</div>' +
         '<div class="alt">Kod ' + b.code + ' · ' + st + '</div></div><div class="duymeler">' +
         (b.revoked ? '<button class="duyme kicik" type="button" data-berpa="' + b.id + '">Bərpa et</button>' :
@@ -94,11 +95,17 @@
   function legvEt(bl, legv) {
     var m = el('tesdiq');
     el('tBasliq').textContent = legv ? 'Kart ləğv edilsin?' : 'Kart bərpa edilsin?';
-    el('tMetn').textContent = '№ ' + HS.pad(bl.num) + ' · ' + bl.name + (legv ? ' — girişdə bu kart "ləğv olunub" kimi göstəriləcək.' : ' — kart yenidən etibarlı olacaq.');
-    el('tBeli').textContent = legv ? 'Ləğv et' : 'Bərpa et'; m.hidden = false;
-    el('tXeyr').onclick = function () { m.hidden = true; };
+    var gelib = legv && bl.checked_in_at;
+    if (gelib) el('tBasliq').textContent = 'Bu qonaq artıq daxil olub';
+    el('tMetn').textContent = '№ ' + HS.pad(bl.num) + ' · ' + bl.name + (gelib
+      ? (saatsiz(bl) ? '' : ' saat ' + HS.hisseler(bl.checked_in_at).saat + '-də') + ' girişdə qeyd olunub. Kartı yenə də ləğv etsəniz, o, gələnlər sayından çıxacaq (giriş qeydi silinmir). Ləğv edilsin?'
+      : legv ? ' — girişdə bu kart "ləğv olunub" kimi göstəriləcək.' : ' — kart yenidən etibarlı olacaq.');
+    // "Ləğv et" iki düymədə eyni görünməsin: imtina düyməsi burada "Xeyr" yazılır, bağlananda əvvəlki adına qayıdır
+    var xeyrAdi = el('tXeyr').textContent;
+    el('tBeli').textContent = legv ? 'Ləğv et' : 'Bərpa et'; el('tXeyr').textContent = 'Xeyr'; m.hidden = false;
+    el('tXeyr').onclick = function () { m.hidden = true; el('tXeyr').textContent = xeyrAdi; };
     el('tBeli').onclick = function () {
-      m.hidden = true;
+      m.hidden = true; el('tXeyr').textContent = xeyrAdi;
       db.from('tickets').update({ revoked: legv }).eq('id', bl.id).then(function (r) {
         if (r.error) return xeta(r.error);
         bildir(legv ? 'Kart ləğv olundu.' : 'Kart bərpa olundu.'); biletleriYukle();

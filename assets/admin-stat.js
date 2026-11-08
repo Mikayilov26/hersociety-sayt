@@ -11,7 +11,32 @@
   function qiymetYaz(q) { var s = ''; for (var i = 1; i <= 5; i++) s += i <= q ? '♥' : '<span class="bos">♥</span>'; return s; }
   function bildir(m) { var b = el('bildiris'); b.textContent = m; b.hidden = false; clearTimeout(bildir.t); bildir.t = setTimeout(function () { b.hidden = true; }, 3500); }
 
+  // Sistem vəziyyəti: bazadakı veziyyet_hesabati() (yalnız oxuyur) — tədbirdən əvvəl hər şeyi bir baxışda göstərir
+  var MERHELE = { gelecek: 'gələcək', bu_gun: 'bu gün', kecib: 'keçib', arxiv: 'arxiv', gizli: 'gizli' };
+  function veziyyetYukle() {
+    var k = el('stVeziyyet'); if (!k) return;
+    k.innerHTML = '<p class="alt">Yoxlanılır…</p>';
+    db.rpc('veziyyet_hesabati').then(function (r) {
+      if (r.error || !r.data) { k.innerHTML = '<p class="alt">Vəziyyəti yoxlamaq alınmadı. Səhifəni yeniləyin.</p>'; return; }
+      var d = r.data, x = d.xeberdarliqlar || [], html = '';
+      html += x.length
+        ? x.map(function (m) { return '<p class="xeberdarliq">' + e(m) + '</p>'; }).join('')
+        : '<h3>Hər şey qaydasındadır ✓</h3>';
+      (d.gorusler || []).filter(function (g) { return g.merhele === 'gelecek' || g.merhele === 'bu_gun'; }).forEach(function (g) {
+        var kt = g.kartlar || {};
+        html += '<div class="st-setir"><span><b>' + e(g.ad) + '</b> · ' + (MERHELE[g.merhele] || g.merhele) + '</span></div>' +
+          '<div class="st-setir"><span>Kart: ' + (kt.etibarli || 0) + ' · gəlib ' + (kt.gelib || 0) + (kt.legv ? ' · ləğv ' + kt.legv : '') + '</span></div>' +
+          '<div class="st-setir"><span>Saat: ' + (g.saat_belli ? 'bəlli' : 'hələ yazılmayıb') + ' · Albom: ' + (g.albom_acik ? 'açıq' : 'bağlı') + ' · Giriş: ' + (g.giris_acik ? 'açıq' : 'bağlı') + '</span></div>';
+      });
+      var eh = d.ehtiyat || {}, dr = d.drive || {};
+      html += '<div class="st-setir"><span>Son ehtiyat nüsxəsi: ' + (eh.son ? (function (t) { return t.gun + ' ' + t.ay + ', ' + t.saat; })(HS.hisseler(eh.son)) : 'yoxdur') + '</span></div>' +
+        '<div class="st-setir"><span>Google Drive: ' + (dr.qosulub ? (dr.xeta ? 'xəta var' : 'qoşulub ✓') : 'qoşulmayıb') + (dr.gozleyen ? ' · köçməyi gözləyən ' + dr.gozleyen : '') + '</span></div>';
+      k.innerHTML = html;
+    }).catch(function () { k.innerHTML = '<p class="alt">Vəziyyəti yoxlamaq alınmadı. Səhifəni yeniləyin.</p>'; });
+  }
+
   window.stYukle = function () {
+    veziyyetYukle();
     el('stSiyahi').innerHTML = '<p class="bos-qeyd">Yüklənir…</p>';
     Promise.all([
       db.from('events').select('id,title,topic,guest_name,starts_at').is('deleted_at', null).order('starts_at', { ascending: false }),

@@ -381,8 +381,19 @@
     });
   }
 
+  // Şəklin vəziyyəti — bazadakı public.veziyyet(photos) ilə eyni qayda (supabase/canli/05_veziyyetler.sql)
+  // icaze_gozleyir → hazir → drive / endirilib → saytda
+  function veziyyet(s) {
+    if (!s.consent) return 'icaze_gozleyir';
+    if (s.on_site) return 'saytda';
+    if (s.drive_id) return 'drive';
+    if (s.downloaded_at) return 'endirilib';
+    return 'hazir';
+  }
+
   function gorunenler() {
     return sekiller.filter(function (s) {
+      if (filtr === 'icazesiz') return veziyyet(s) === 'icaze_gozleyir';
       if (filtr === 'gizli') return !s.on_site;
       if (filtr === 'saytda') return s.on_site;
       if (filtr === 'endirilmeyib') return !s.downloaded_at;
@@ -427,7 +438,7 @@
       return '<div style="position:relative"><button type="button" class="adm-sekil" data-sec="' + s.id + '" aria-pressed="' + sec + '" aria-label="Şəkil seç">' +
         '<img loading="lazy" src="' + (url[s.thumb_path] || '') + '" alt="">' +
         '<span class="isare" aria-hidden="true">' + (sec ? '✓' : '') + '</span>' +
-        '<span class="etiketler">' + (s.on_site ? '<span>Saytda</span>' : '') + (s.drive_id ? '<span>Drive</span>' : s.downloaded_at ? '<span>↓</span>' : '') + (!s.consent ? '<span>İcazəsiz</span>' : '') + '</span>' +
+        '<span class="etiketler">' + (s.on_site ? '<span>Saytda</span>' : '') + (s.drive_id ? '<span>Drive</span>' : s.downloaded_at ? '<span>↓</span>' : '') + (veziyyet(s) === 'icaze_gozleyir' ? '<span>İcazəsiz</span>' : '') + '</span>' +
         (s.uploader ? '<span class="yukleyen">' + e(s.uploader) + '</span>' : '') +
         '</button><button type="button" class="boyut-dg" data-boyut="' + s.id + '" aria-label="Şəkli böyüt">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5"/></svg></button></div>';
