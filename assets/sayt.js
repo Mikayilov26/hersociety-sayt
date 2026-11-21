@@ -171,7 +171,7 @@
   function yukle() {
     if (!db) { gorusler = EHTIYAT; hamisi(); return; }
     Promise.all([
-      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,time_tbd,venue,venue_detail,album_open').eq('published', true).is('deleted_at', null),
+      db.from('events').select('id,title,topic,guest_name,guest_title,starts_at,time_tbd,venue,venue_detail,album_open,feedback_open').eq('published', true).is('deleted_at', null),
       db.from('photos').select('id,event_id,site_path,created_at,focus_x,focus_y').eq('on_site', true).not('site_path', 'is', null).order('created_at', { ascending: false })
     ]).then(function (r) {
       if (r[0].error) throw r[0].error;
@@ -331,13 +331,9 @@
   var reyGorus = null, reyQiymet = null;
   var URK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg>';
   var URK_DOLU = URK.replace('fill="none"', 'fill="currentColor"');
+  // Rəy yalnız admin "Rəyi aç" basdığı görüşə açıqdır (albom kimi)
   function reyHedef() {
-    if (acikGorus && acikGorus.canli) return acikGorus;
-    var indi = Date.now();
-    return gorusler.filter(function (g) {
-      var t = new Date(g.starts_at).getTime();
-      return g.canli && t <= indi + 12 * 3600e3 && t >= indi - 30 * 864e5;
-    }).sort(function (a, b) { return new Date(b.starts_at) - new Date(a.starts_at); })[0] || null;
+    return gorusler.filter(function (g) { return g.canli && g.feedback_open; })[0] || null;
   }
   function reyVeziyyeti() {
     reyGorus = reyHedef();

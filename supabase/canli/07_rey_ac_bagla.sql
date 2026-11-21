@@ -1,0 +1,5 @@
+-- HER Society — rəy formasını admin açıb-bağlayır, albom kimi (21 noyabr 2026)
+-- YALNIZ ƏLAVƏ: events.feedback_open sütunu (default false), rey_ac() funksiyası.
+-- rey_gonder(): vaxt pəncərəsi yerinə feedback_open yoxlanır. Heç bir sətir silinmir.
+-- Admin → Görüşlər → görüş → "Rəyi aç / Rəyi bağla". Eyni anda bir açıq rəy.
+-- Qonaq tərəfi: sorğu yalnız albom QR-ı ilə gələnlərə (30 gün) VƏ rəyi açıq görüş varsa görünür.

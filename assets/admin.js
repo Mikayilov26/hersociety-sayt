@@ -4,7 +4,7 @@
   var el = function (id) { return document.getElementById(id); };
   var ALBOM_LINK = 'https://hersociety.az/albom';
   var ZIP_HISSE = 60;
-  var EV_SAHELER = 'id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,card_note,map_url,album_open,published,door_active,time_tbd';
+  var EV_SAHELER = 'id,title,topic,guest_name,guest_title,starts_at,venue,venue_detail,card_note,map_url,album_open,feedback_open,published,door_active,time_tbd';
 
   var istifadeci = null, gorusler = [], sekiller = [], url = {}, secilen = new Set(), filtr = 'hamisi', redakte = null;
 
@@ -139,7 +139,7 @@
       return '<details class="ev-acilan' + (gelecek ? '' : ' kecmis') + '" data-id="' + g.id + '"' + (acig[g.id] ? ' open' : '') + '>' +
         '<summary><span class="sol"><span class="tarix-et">' + t.gun + ' ' + t.ay + ' ' + t.il + (gelecek ? '' : ' · keçmiş') + '</span>' +
         '<b>' + e(g.guest_name || g.title) + '</b></span>' +
-        (g.album_open ? '<span class="nisan yasil">Albom açıq</span>' : '') + (!g.published ? '<span class="nisan">Gizli</span>' : '') +
+        (g.album_open ? '<span class="nisan yasil">Albom açıq</span>' : '') + (g.feedback_open ? '<span class="nisan yasil">Rəy açıq</span>' : '') + (!g.published ? '<span class="nisan">Gizli</span>' : '') +
         '</summary><div class="ev-ic">' +
         '<p class="tarix-et">' + t.hefte + ' · ' + (g.time_tbd ? 'saat bəlli deyil' : t.saat) + '</p>' +
         '<h3>' + e(g.title) + (g.topic ? ' — <i>' + e(g.topic) + '</i>' : '') + '</h3>' +
@@ -147,6 +147,7 @@
         e([g.venue, g.venue_detail].filter(Boolean).join(', ') || 'Məkan yazılmayıb') + '</p>' +
         '<div class="duymeler">' +
         '<button class="duyme kicik ' + (g.album_open ? '' : 'dolu') + '" type="button" data-albom="' + g.id + '">' + (g.album_open ? 'Albomu bağla' : 'Albomu aç') + '</button>' +
+        '<button class="duyme kicik ' + (g.feedback_open ? '' : 'dolu') + '" type="button" data-rey="' + g.id + '">' + (g.feedback_open ? 'Rəyi bağla' : 'Rəyi aç') + '</button>' +
         '<button class="duyme kicik" type="button" data-redakte="' + g.id + '">Düzəlt</button>' +
         '<button class="duyme kicik" type="button" data-sekiller="' + g.id + '">Şəkillər</button>' +
         '<button class="duyme kicik" type="button" data-video="' + g.id + '">Anons videosu</button>' +
@@ -157,9 +158,10 @@
 
   el('gorusSiyahi').addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
-    var id = b.getAttribute('data-albom') || b.getAttribute('data-redakte') || b.getAttribute('data-sekiller') || b.getAttribute('data-video') || b.getAttribute('data-sil');
+    var id = b.getAttribute('data-albom') || b.getAttribute('data-rey') || b.getAttribute('data-redakte') || b.getAttribute('data-sekiller') || b.getAttribute('data-video') || b.getAttribute('data-sil');
     var g = gorusler.filter(function (x) { return x.id === id; })[0]; if (!g) return;
     if (b.hasAttribute('data-albom')) albomAcBagla(g);
+    if (b.hasAttribute('data-rey')) reyAcBagla(g);
     if (b.hasAttribute('data-redakte')) formAc(g);
     if (b.hasAttribute('data-sekiller')) { el('aGorus').value = g.id; tab('albom'); }
     if (b.hasAttribute('data-video')) videoAc(g);
@@ -181,12 +183,26 @@
     });
   }
 
+  function reyAcBagla(g) {
+    var ac = !g.feedback_open;
+    var mesaj = ac ? 'Albom QR-ı ilə gələn qonaqlar albom səhifəsində "Görüş necə keçdi?" sorğusunu görəcək və bu görüşə rəy yaza biləcək. Başqa açıq rəy varsa, o bağlanacaq.' : 'Rəy bağlananda qonaqlar daha rəy yaza bilməyəcək. Yazılmış rəylər qalır.';
+    tesdiq(ac ? 'Rəy açılsın?' : 'Rəy bağlansın?', mesaj, ac ? 'Rəyi aç' : 'Rəyi bağla').then(function (ok) {
+      if (!ok) return;
+      db.rpc('rey_ac', { ev: g.id, ac: ac }).then(function (r) {
+        if (r.error) throw r.error;
+        var m = { acildi: 'Rəy açıldı.', baglandi: 'Rəy bağlandı.', gizli: 'Gizli görüşə rəy açıla bilməz. Əvvəlcə görüşü saytda göstərin.', silinib: 'Silinmiş görüşə rəy açıla bilməz.', tapilmadi: 'Görüş tapılmadı. Səhifəni yeniləyin.' };
+        bildir(m[r.data] || 'Rəy yeniləndi.');
+        gorusleriYukle();
+      }).catch(xeta);
+    });
+  }
+
   function gorusSil(g) {
     db.from('photos').select('id', { count: 'exact', head: true }).eq('event_id', g.id).then(function (r) {
       if (r.count > 0) { bildir('Bu görüşün ' + r.count + ' şəkli var. Əvvəlcə Albom bölməsində şəkilləri silin.'); return; }
       tesdiq('Görüş silinsin?', gorusAdi(g) + ' saytdan və siyahıdan götürüləcək. 30 gün ərzində Hesab → Ehtiyat nüsxələri bölməsindən geri qaytarmaq olar.', 'Sil').then(function (ok) {
         if (!ok) return;
-        db.from('events').update({ deleted_at: new Date().toISOString(), album_open: false }).eq('id', g.id).then(function (r2) {
+        db.from('events').update({ deleted_at: new Date().toISOString(), album_open: false, feedback_open: false }).eq('id', g.id).then(function (r2) {
           if (r2.error) return xeta(r2.error);
           bildir('Görüş silindi. 30 gün ərzində geri qaytarmaq olar.'); gorusleriYukle();
         });
