@@ -377,3 +377,7 @@ img,video,canvas,svg,input,select,textarea{max-width:100%}
 .soz.sag blockquote{background:var(--krem-2);color:var(--bordo);border:1px solid var(--xett);border-radius:22px 22px 4px 22px}
 .rey-yayim{align-self:flex-start;margin-top:6px}
 .rey-kart .saytda{font-size:13px;color:var(--qirmizi);letter-spacing:.04em}
+.soz-qrup{display:flex;flex-direction:column;gap:18px}
+.soz-qrup + .soz-qrup{margin-top:28px;padding-top:28px;border-top:1px solid var(--xett)}
+.soz-gorus{text-align:center;font-size:16px;letter-spacing:.03em;line-height:1.5;opacity:.9}
+.soz-gorus b{font-family:var(--f-basliq);font-weight:400;font-size:19px}

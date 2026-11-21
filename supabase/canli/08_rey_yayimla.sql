@@ -6,3 +6,4 @@
 alter table public.feedback add column if not exists published boolean not null default false;
 alter table public.feedback add column if not exists published_at timestamptz;
 -- funksiyaların mətni: Supabase miqrasiyası "08_rey_yayimla"
+-- 09 (21 noyabr): derc_reyler() görüşün adı, qonağı və tarixini də qaytarır; saytda rəylər görüşlərə görə qruplaşır.

@@ -390,11 +390,22 @@
       var l = (r && r.data) || [];
       if (r.error || !l.length) { bolme.hidden = true; return; }
       var esc = HS.esc || function (x) { return String(x).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); };
-      el('sozler').innerHTML = l.map(function (y, i) {
-        var q = '';
-        if (y.rating) { for (var k = 1; k <= 5; k++) q += k <= y.rating ? '♥' : '<span class="bos">♥</span>'; }
-        return '<figure class="soz' + (i % 2 ? ' sag' : '') + '"><blockquote>' + esc(y.liked) + '</blockquote>' +
-          '<figcaption>' + esc(y.name || 'Qonağımız') + (q ? ' <span class="q" aria-label="' + y.rating + ' / 5">' + q + '</span>' : '') + '</figcaption></figure>';
+      // Görüşlərə görə qruplaşdırılır: hər qrupun üstündə görüşün adı, tarixi və qonağı
+      var qruplar = [], xer = {};
+      l.forEach(function (y) {
+        if (!xer[y.event_id]) { xer[y.event_id] = { y: y, l: [] }; qruplar.push(xer[y.event_id]); }
+        xer[y.event_id].l.push(y);
+      });
+      el('sozler').innerHTML = qruplar.map(function (g) {
+        var t = HS.hisseler(g.y.ev_starts);
+        return '<div class="soz-qrup"><p class="soz-gorus"><b>' + esc(g.y.ev_title || 'Görüş') + '</b> · ' + t.gun + ' ' + t.ay + ' ' + t.il +
+          (g.y.ev_guest ? '<br>Qonağımız: ' + esc(g.y.ev_guest) : '') + '</p>' +
+          g.l.map(function (y, i) {
+            var q = '';
+            if (y.rating) { for (var k = 1; k <= 5; k++) q += k <= y.rating ? '♥' : '<span class="bos">♥</span>'; }
+            return '<figure class="soz' + (i % 2 ? ' sag' : '') + '"><blockquote>' + esc(y.liked) + '</blockquote>' +
+              '<figcaption>' + esc(y.name || 'Qonağımız') + (q ? ' <span class="q" aria-label="' + y.rating + ' / 5">' + q + '</span>' : '') + '</figcaption></figure>';
+          }).join('') + '</div>';
       }).join('');
       bolme.hidden = false;
     }).catch(function () { bolme.hidden = true; });
