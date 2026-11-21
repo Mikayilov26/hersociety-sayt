@@ -338,8 +338,8 @@
   function reyVeziyyeti() {
     reyGorus = reyHedef();
     var kutu = el('rey');
-    var qr = 0; try { qr = +localStorage.getItem('hs-qr') || 0; } catch (x) {}
-    if (!reyGorus || Date.now() - qr > 30 * 864e5) { kutu.hidden = true; return; }
+    // 21 noyabr: QR şərti götürüldü — admin "Rəyi aç" basıbsa, albom linkini açan hər kəs görür
+    if (!reyGorus) { kutu.hidden = true; return; }
     kutu.hidden = false;
     var t = HS.hisseler(reyGorus.starts_at);
     el('reyBasliq').textContent = reyGorus.title + ' · ' + t.gun + ' ' + t.ay;
@@ -382,4 +382,22 @@
       el('reyXos').value = el('reyArzu').value = ''; reyQiymet = null;
     });
   });
+
+  /* ---------- Saytda yayımlanan rəylər (admin seçir) — söhbət görünüşü ---------- */
+  function sozlerYukle() {
+    var bolme = el('sozlerBolme'); if (!bolme || !db) return;
+    db.rpc('derc_reyler').then(function (r) {
+      var l = (r && r.data) || [];
+      if (r.error || !l.length) { bolme.hidden = true; return; }
+      var esc = HS.esc || function (x) { return String(x).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); };
+      el('sozler').innerHTML = l.map(function (y, i) {
+        var q = '';
+        if (y.rating) { for (var k = 1; k <= 5; k++) q += k <= y.rating ? '♥' : '<span class="bos">♥</span>'; }
+        return '<figure class="soz' + (i % 2 ? ' sag' : '') + '"><blockquote>' + esc(y.liked) + '</blockquote>' +
+          '<figcaption>' + esc(y.name || 'Qonağımız') + (q ? ' <span class="q" aria-label="' + y.rating + ' / 5">' + q + '</span>' : '') + '</figcaption></figure>';
+      }).join('');
+      bolme.hidden = false;
+    }).catch(function () { bolme.hidden = true; });
+  }
+  sozlerYukle();
 })();

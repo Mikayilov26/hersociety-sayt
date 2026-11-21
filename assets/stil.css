@@ -365,3 +365,15 @@ img,video,canvas,svg,input,select,textarea{max-width:100%}
 .onizle-modal .qutu{margin:auto 0}
 .onizle-modal .devet-ic{padding:32px 16px 28px}
 .onizle-modal .devet h3{font-size:42px}
+
+/* Qonaqların sözləri — söhbət görünüşü */
+.sozler{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.soz{margin:0;max-width:86%;align-self:flex-start;display:flex;flex-direction:column;gap:6px}
+.soz blockquote{margin:0;background:var(--bordo);color:var(--krem);padding:16px 20px;border-radius:22px 22px 22px 4px;font-size:19px;line-height:1.45;font-style:italic}
+.soz figcaption{font-size:15px;padding:0 8px;opacity:.85}
+.soz .q{letter-spacing:.1em;color:var(--qirmizi)}
+.soz .q .bos{opacity:.3}
+.soz.sag{align-self:flex-end;text-align:right}
+.soz.sag blockquote{background:var(--krem-2);color:var(--bordo);border:1px solid var(--xett);border-radius:22px 22px 4px 22px}
+.rey-yayim{align-self:flex-start;margin-top:6px}
+.rey-kart .saytda{font-size:13px;color:var(--qirmizi);letter-spacing:.04em}

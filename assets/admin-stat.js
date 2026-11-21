@@ -42,7 +42,7 @@
       db.from('events').select('id,title,topic,guest_name,starts_at').is('deleted_at', null).order('starts_at', { ascending: false }),
       db.from('tickets').select('event_id,revoked,checked_in_at'),
       db.from('photos').select('event_id,on_site,size_bytes'),
-      db.from('feedback').select('id,event_id,rating,liked,wish,name,created_at').order('created_at', { ascending: false })
+      db.from('feedback').select('id,event_id,rating,liked,wish,name,created_at,published').order('created_at', { ascending: false })
     ]).then(function (r) {
       for (var i = 0; i < r.length; i++) if (r[i].error) throw r[i].error;
       gorusler = r[0].data || []; reyler = r[3].data || [];
@@ -83,7 +83,10 @@
               return '<div class="rey-kart"><div class="ust"><span>' + e(y.name || 'Adsız') + ' · ' + t.gun + ' ' + t.ay + '</span>' +
                 (y.rating ? '<span class="q" aria-label="' + y.rating + ' / 5">' + qiymetYaz(y.rating) + '</span>' : '') + '</div>' +
                 (y.liked ? '<p><b>Xoşa gələn:</b> ' + e(y.liked) + '</p>' : '') +
-                (y.wish ? '<p><b>Növbəti dəfə:</b> ' + e(y.wish) + '</p>' : '') + '</div>';
+                (y.wish ? '<p><b>Növbəti dəfə:</b> ' + e(y.wish) + '</p>' : '') +
+                (y.liked ? (y.published ? '<span class="saytda">✓ Saytda görünür</span>' : '') +
+                  '<button class="duyme kicik rey-yayim" type="button" data-yayim="' + y.id + '" data-v="' + (y.published ? '0' : '1') + '">' + (y.published ? 'Saytdan götür' : 'Saytda göstər') + '</button>' : '') +
+                '</div>';
             }).join('') +
             '<button class="duyme kicik" type="button" data-excel="' + g.id + '" style="margin-top:10px">Rəyləri yüklə (Excel)</button></details>' : '') +
           '</div>';
@@ -92,6 +95,22 @@
   };
 
   el('stSiyahi').addEventListener('click', function (ev) {
+    var yb = ev.target.closest('[data-yayim]');
+    if (yb) {
+      var v = yb.getAttribute('data-v') === '1', id = yb.getAttribute('data-yayim');
+      yb.disabled = true;
+      db.rpc('rey_yayimla', { rid: id, yayim: v }).then(function (r) {
+        yb.disabled = false;
+        if (r.error) { bildir('Alınmadı. Yenidən cəhd edin.'); return; }
+        reyler.forEach(function (y) { if (y.id === id) y.published = v; });
+        yb.setAttribute('data-v', v ? '0' : '1'); yb.textContent = v ? 'Saytdan götür' : 'Saytda göstər';
+        var k = yb.parentNode, s = k.querySelector('.saytda');
+        if (v && !s) { s = document.createElement('span'); s.className = 'saytda'; s.textContent = '✓ Saytda görünür'; k.insertBefore(s, yb); }
+        if (!v && s) s.remove();
+        bildir(v ? 'Rəy saytda göstərilir.' : 'Rəy saytdan götürüldü.');
+      });
+      return;
+    }
     var b = ev.target.closest('[data-excel]'); if (!b || !window.XLSX) return;
     var g = gorusler.filter(function (x) { return x.id === b.getAttribute('data-excel'); })[0];
     var setirler = reyler.filter(function (y) { return y.event_id === g.id; }).map(function (y) {
