@@ -404,7 +404,7 @@
             var q = '';
             if (y.rating) { for (var k = 1; k <= 5; k++) q += k <= y.rating ? '♥' : '<span class="bos">♥</span>'; }
             return '<figure class="soz' + (i % 2 ? ' sag' : '') + '"><blockquote>' + esc(y.liked) + '</blockquote>' +
-              '<figcaption>' + esc(y.name || 'Qonağımız') + (q ? ' <span class="q" aria-label="' + y.rating + ' / 5">' + q + '</span>' : '') + '</figcaption></figure>';
+              '<figcaption>' + esc(y.name || 'Qonaqlarımızdan biri') + (q ? ' <span class="q" aria-label="' + y.rating + ' / 5">' + q + '</span>' : '') + '</figcaption></figure>';
           }).join('') + '</div>';
       }).join('');
       bolme.hidden = false;

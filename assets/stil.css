@@ -381,3 +381,15 @@ img,video,canvas,svg,input,select,textarea{max-width:100%}
 .soz-qrup + .soz-qrup{margin-top:28px;padding-top:28px;border-top:1px solid var(--xett)}
 .soz-gorus{text-align:center;font-size:16px;letter-spacing:.03em;line-height:1.5;opacity:.9}
 .soz-gorus b{font-family:var(--f-basliq);font-weight:400;font-size:19px}
+
+/* 23 noyabr: admin — açılan bölmələri və pəncərələri bağlamaq */
+.st-ev details>summary{display:flex;align-items:center;gap:8px}
+.st-ev details>summary::after,#app details>summary.etiket::after{content:"";flex:0 0 auto;display:inline-block;width:8px;height:8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-4px 0 0 4px;transition:transform .2s}
+.st-ev details[open]>summary::after,#app details[open]>summary.etiket::after{transform:rotate(-135deg);margin-top:4px}
+#app details>summary.etiket{list-style:none}
+#app details>summary.etiket::-webkit-details-marker{display:none}
+.acilan-bagla{display:flex;margin:14px auto 4px;width:auto}
+.acilan-bagla::after{content:"";width:8px;height:8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-135deg);margin:4px 0 0 2px}
+.ev-acilan>.acilan-bagla{margin:0 auto 16px}
+.qutu{position:relative}
+.qutu-x{position:sticky;top:0;align-self:flex-end;z-index:2;width:44px;height:44px;margin:-14px -14px -58px 0;display:flex;align-items:center;justify-content:center;background:var(--krem);color:var(--bordo);border:1px solid var(--bordo);border-radius:50%;cursor:pointer;padding:0}
