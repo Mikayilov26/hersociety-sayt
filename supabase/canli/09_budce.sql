@@ -123,3 +123,7 @@ AS $function$
     'budce_hesablar', coalesce((select jsonb_agg(to_jsonb(h) order by h.created_at) from public.budce_hesablar h), '[]'::jsonb)
   );
 $function$;
+
+-- 25 noyabr düzəliş: bu layihədə yeni cədvəllərə avtomatik icazə verilmir — açıq yazılır (silmə yoxdur)
+grant select, insert, update on public.budce_mekanlar, public.budce_menyular, public.budce_hesablar to authenticated;
+grant select on public.budce_tarixce to authenticated;

@@ -461,6 +461,13 @@ img,video,canvas,svg,input,select,textarea{max-width:100%}
 .bd-cedvel tr.vurgu td,.bd-cedvel tr.vurgu th{border-top:2px solid var(--bordo)}
 #bdModal .qutu textarea{min-height:80px}
 @media (max-width:380px){.bd-qrup{grid-template-columns:minmax(0,1fr) 72px}.bd-qrup span{display:none}}
-/* 6 tab dar ekrana sığsın */
-@media (max-width:480px){.tablar button{font-size:11px;letter-spacing:0;padding:0 2px}}
-@media (max-width:360px){.tablar button{font-size:10px}}
+/* 25 noyabr: telefonda bölmə adları iki sırada, oxunaqlı ölçüdə */
+@media (max-width:640px){
+  .tablar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border-bottom:none;overflow:visible}
+  .tablar button,.tablar button[aria-selected]{min-height:48px;font-size:14px;letter-spacing:.06em;padding:0 4px;border:1px solid var(--xett);background:#fbf5ec}
+  .tablar button[aria-selected="true"]{background:var(--bordo);color:var(--krem);border-color:var(--bordo)}
+}
+@media (max-width:340px){.tablar button,.tablar button[aria-selected]{font-size:12.5px;letter-spacing:.02em}}
+#bdFiltr{display:grid;grid-template-columns:1fr 1fr;gap:0}
+#bdFiltr button{min-height:48px;font-size:18px}
+#bdFiltr button+button{border-left:none}
