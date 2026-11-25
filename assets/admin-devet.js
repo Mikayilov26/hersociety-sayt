@@ -186,7 +186,7 @@
 
   /* ---------- Excel ---------- */
   el('dvExcel').addEventListener('click', function () {
-    if (!window.XLSX) { bildir('Excel aləti yüklənmədi. Səhifəni yeniləyin.'); return; }
+    if (!window.XLSX) { HSalet('xlsx').then(function () { el('dvExcel').click(); }, function () { bildir('Alət yüklənmədi. İnterneti yoxlayıb yenidən basın.'); }); return; }
     var setirler = biletler.slice().sort(function (a, b) { return a.num - b.num; }).map(function (b) {
       var c = b.created_at ? HS.hisseler(b.created_at) : null;
       return {

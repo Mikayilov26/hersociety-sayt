@@ -116,9 +116,11 @@
   document.querySelectorAll('[data-tab]').forEach(function (b) { b.addEventListener('click', function () { tab(b.getAttribute('data-tab')); }); });
 
   function basla() {
+    // Görüşlər və hesab məlumatı eyni anda soruşulur (açılış daha tez olsun)
+    var hesab = menimHesab();
     gorusleriYukle().then(function () {
       var t = 'gorusler'; try { t = sessionStorage.getItem('hs-tab') || 'gorusler'; } catch (x) {}
-      menimHesab().then(function (m) { tab(m && m.must_change ? 'hesab' : t); });
+      hesab.then(function (m) { tab(m && m.must_change ? 'hesab' : t); });
     });
   }
 
@@ -653,7 +655,7 @@
 
   // ZIP kimi endir (çox şəkil olanda bir neçə hissə)
   el('eEndir').addEventListener('click', function () {
-    if (!window.JSZip) { bildir('Endirmə aləti yüklənmədi. Səhifəni yeniləyin.'); return; }
+    if (!window.JSZip) { HSalet('zip').then(function () { el('eEndir').click(); }, function () { bildir('Alət yüklənmədi. İnterneti yoxlayıb yenidən basın.'); }); return; }
     var list = secilenler(); if (!list.length) return;
     var g = gorusler.filter(function (x) { return x.id === el('aGorus').value; })[0];
     var t = g ? HS.hisseler(g.starts_at) : null;

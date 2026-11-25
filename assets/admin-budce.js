@@ -441,7 +441,7 @@
   }
 
   function excel() {
-    if (!window.XLSX) { bildir('Excel aləti yüklənmədi. Səhifəni yeniləyin.'); return; }
+    if (!window.XLSX) { HSalet('xlsx').then(excel, function () { bildir('Alət yüklənmədi. İnterneti yoxlayıb yenidən basın.'); }); return; }
     var d = cari.data, r = hesabla(d), m = mekan(cari.mekan_id), g = gorus(cari.event_id), q = d.qrup, rows = [];
     var s = function (a, b, c) { rows.push([a, b == null ? '' : b, c == null ? '' : c]); };
     s('Hesablama', cari.ad); s('Növ', d.nov === 'fakt' ? 'Fakt' : 'Plan'); s('Məkan', m ? m.ad : ''); s('Görüş', g ? gorusAdi(g) : 'hələ yoxdur'); s('');

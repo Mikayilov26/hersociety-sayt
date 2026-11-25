@@ -111,7 +111,8 @@
       });
       return;
     }
-    var b = ev.target.closest('[data-excel]'); if (!b || !window.XLSX) return;
+    var b = ev.target.closest('[data-excel]'); if (!b) return;
+    if (!window.XLSX) { HSalet('xlsx').then(function () { b.click(); }, function () { bildir('Alət yüklənmədi. İnterneti yoxlayıb yenidən basın.'); }); return; }
     var g = gorusler.filter(function (x) { return x.id === b.getAttribute('data-excel'); })[0];
     var setirler = reyler.filter(function (y) { return y.event_id === g.id; }).map(function (y) {
       var t = HS.hisseler(y.created_at);

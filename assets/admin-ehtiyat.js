@@ -42,7 +42,7 @@
 
   // Excel: hər cədvəl ayrıca vərəqdə
   function excel(d, ad) {
-    if (!window.XLSX) { bildir('Excel hazırlanmadı. Səhifəni yeniləyin.'); return; }
+    if (!window.XLSX) { HSalet('xlsx').then(function () { excel(d, ad); }, function () { bildir('Alət yüklənmədi. İnterneti yoxlayıb yenidən basın.'); }); return; }
     var wb = XLSX.utils.book_new();
     function vereq(adi, list, xerite) {
       var ws = XLSX.utils.json_to_sheet((list || []).map(xerite));
