@@ -13,15 +13,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/stil.css?v=202611251356">
+<link rel="stylesheet" href="../assets/stil.css?v=202611251401">
 </head>
 <body>
 
 <header class="basliq-zolaq">
   <div class="wrap adm-ust">
     <a class="wordmark" href="../" aria-label="Sayta keç"><b>HER</b><span>Society</span><small lang="en">Admin</small></a>
-    <button class="duyme kicik" id="cixis" type="button" hidden>Çıxış</button>
+    <button class="adm-menyu-ac" id="admMenyuAc" type="button" hidden aria-label="Menyu" aria-expanded="false" aria-controls="admMenyu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
   </div>
+  <nav class="adm-menyu" id="admMenyu" hidden aria-label="Əlavə bölmələr">
+    <div class="wrap">
+      <button type="button" data-tab="statistika" aria-selected="false">Statistika</button>
+      <button type="button" data-tab="hesab" aria-selected="false">Hesab və adminlər</button>
+      <button type="button" id="cixis" hidden>Çıxış</button>
+    </div>
+  </nav>
 </header>
 
 <main class="adm-esas">
@@ -54,9 +63,7 @@
       <button type="button" role="tab" data-tab="gorusler" aria-selected="true">Görüşlər</button>
       <button type="button" role="tab" data-tab="devetler" aria-selected="false">Dəvətlər</button>
       <button type="button" role="tab" data-tab="albom" aria-selected="false">Albom</button>
-      <button type="button" role="tab" data-tab="statistika" aria-selected="false">Statistika</button>
       <button type="button" role="tab" data-tab="budce" aria-selected="false">Büdcə</button>
-      <button type="button" role="tab" data-tab="hesab" aria-selected="false">Hesab</button>
     </div>
 
     <!-- Görüşlər -->
@@ -415,16 +422,17 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="../assets/qrcode.js?v=202611251356"></script>
-<script src="../assets/config.js?v=202611251356"></script>
-<script src="../assets/ortaq.js?v=202611251356"></script>
-<script src="../assets/video.js?v=202611251356"></script>
-<script src="../assets/kart.js?v=202611251356"></script>
-<script src="../assets/admin.js?v=202611251356"></script>
-<script src="../assets/admin-ehtiyat.js?v=202611251356"></script>
-<script src="../assets/admin-stat.js?v=202611251356"></script>
-<script src="../assets/admin-devet.js?v=202611251356"></script>
-<script src="../assets/admin-budce.js?v=202611251356"></script>
-<script src="../assets/admin-bagla.js?v=202611251356"></script>
+<script src="../assets/qrcode.js?v=202611251401"></script>
+<script src="../assets/config.js?v=202611251401"></script>
+<script src="../assets/ortaq.js?v=202611251401"></script>
+<script src="../assets/video.js?v=202611251401"></script>
+<script src="../assets/kart.js?v=202611251401"></script>
+<script src="../assets/admin.js?v=202611251401"></script>
+<script src="../assets/admin-ehtiyat.js?v=202611251401"></script>
+<script src="../assets/admin-stat.js?v=202611251401"></script>
+<script src="../assets/admin-devet.js?v=202611251401"></script>
+<script src="../assets/admin-budce.js?v=202611251401"></script>
+<script src="../assets/admin-nav.js?v=202611251401"></script>
+<script src="../assets/admin-bagla.js?v=202611251401"></script>
 </body>
 </html>

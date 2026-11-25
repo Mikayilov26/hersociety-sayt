@@ -461,13 +461,18 @@ img,video,canvas,svg,input,select,textarea{max-width:100%}
 .bd-cedvel tr.vurgu td,.bd-cedvel tr.vurgu th{border-top:2px solid var(--bordo)}
 #bdModal .qutu textarea{min-height:80px}
 @media (max-width:380px){.bd-qrup{grid-template-columns:minmax(0,1fr) 72px}.bd-qrup span{display:none}}
-/* 25 noyabr: telefonda bölmə adları iki sırada, oxunaqlı ölçüdə */
-@media (max-width:640px){
-  .tablar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border-bottom:none;overflow:visible}
-  .tablar button,.tablar button[aria-selected]{min-height:48px;font-size:14px;letter-spacing:.06em;padding:0 4px;border:1px solid var(--xett);background:#fbf5ec}
-  .tablar button[aria-selected="true"]{background:var(--bordo);color:var(--krem);border-color:var(--bordo)}
-}
-@media (max-width:340px){.tablar button,.tablar button[aria-selected]{font-size:12.5px;letter-spacing:.02em}}
+/* 25 noyabr: əsas 4 bölmə bir sırada; Statistika, Hesab, Çıxış ☰ menyuda */
+.admin .tablar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;border-bottom:none;overflow:visible}
+.admin .tablar button,.admin .tablar button[aria-selected]{min-height:50px;padding:0 4px;border:1px solid var(--xett);background:#fbf5ec}
+.admin .tablar button[aria-selected="true"]{background:var(--bordo);color:var(--krem);border-color:var(--bordo)}
+.adm-menyu-ac{flex:0 0 auto;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid var(--xett-krem);color:var(--krem);cursor:pointer}
+.adm-menyu-ac[aria-expanded="true"],.adm-menyu-ac.secili{background:var(--krem);color:var(--bordo);border-color:var(--krem)}
+.adm-menyu{position:absolute;left:0;right:0;top:100%;background:var(--bordo);border-bottom:1px solid var(--xett-krem);box-shadow:0 12px 24px rgba(40,8,6,.25)}
+.adm-menyu .wrap{display:flex;flex-direction:column;padding:4px 16px 12px;max-width:980px;margin:0 auto}
+.adm-menyu button{min-height:56px;background:none;border:none;border-bottom:1px solid var(--xett-krem);color:var(--krem);font-family:var(--f-metn);font-size:20px;font-weight:600;text-align:left;padding:0 4px;cursor:pointer}
+.adm-menyu button:last-child{border-bottom:none}
+.adm-menyu button[aria-selected="true"]{text-decoration:underline;text-underline-offset:6px}
+.adm-menyu #cixis{opacity:.85;font-weight:500}
 #bdFiltr{display:grid;grid-template-columns:1fr 1fr;gap:0}
 #bdFiltr button{min-height:48px;font-size:18px}
 #bdFiltr button+button{border-left:none}
@@ -497,3 +502,17 @@ img,video,canvas,svg,input,select,textarea{max-width:100%}
 .admin .bd-link{font-size:16px}
 .admin .bd-cedvel{font-size:17px}
 #bdYeni,#bdMekanYeni{width:100%}
+
+/* 25 noyabr: rəqəmlər hamısı eyni hündürlükdə (köhnə üslublu rəqəmlər oxunmurdu) */
+.admin,.admin body,.admin input,.admin select,.admin textarea,.admin button{font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1}
+.admin .bd-n{font-size:19px}
+.admin .bd-n b{font-weight:700;font-size:20px}
+.admin .bd-n.cem b{font-size:21px}
+.admin .bd-n.esas b{font-weight:500;font-size:32px}
+.admin .bd-cubuq b{font-size:24px}
+.admin .bd-cubuq div span{font-size:16px}
+.admin #bdCubuqVez{font-size:13px}
+.admin .bd-say input{font-size:21px;font-weight:600}
+.admin .bd-menyu-kat .sag b,.admin .bd-ac .say,.admin .st-cem b{font-weight:500}
+.admin .bd-menyu .sol span{font-weight:500}
+.admin .bd-n.esas span{font-size:18px;letter-spacing:.1em}

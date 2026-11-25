@@ -46,7 +46,7 @@
   if (!db) { el('giris').hidden = false; el('gXeta').hidden = false; el('gXeta').textContent = 'Bağlantı qurulmayıb.'; return; }
 
   /* ---------- Giriş ---------- */
-  function girisEkrani() { el('giris').hidden = false; el('girisForm').hidden = false; el('mfaForm').hidden = true; el('app').hidden = true; el('cixis').hidden = true; el('emeliyyat').hidden = true; }
+  function girisEkrani() { el('giris').hidden = false; el('girisForm').hidden = false; el('mfaForm').hidden = true; el('app').hidden = true; el('cixis').hidden = true; el('admMenyuAc').hidden = true; el('admMenyu').hidden = true; el('emeliyyat').hidden = true; }
   function yoxla(session) {
     if (!session) return girisEkrani();
     // İki addımlı yoxlama qurulubsa, əvvəlcə kodu soruş
@@ -84,7 +84,7 @@
         return;
       }
       istifadeci = session.user;
-      el('giris').hidden = true; el('app').hidden = false; el('cixis').hidden = false;
+      el('giris').hidden = true; el('app').hidden = false; el('cixis').hidden = false; el('admMenyuAc').hidden = false;
       el('hEmail').textContent = istifadeci.email;
       basla();
     });
