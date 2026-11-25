@@ -40,7 +40,8 @@
     var ay = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avqust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'].indexOf(t.ay) + 1;
     return iki(t.gun) + '.' + iki(ay) + '.' + t.il + ' - ' + (g.guest_name || g.title);
   }
-  function mekanMenyulari(id, arxivle) { return menyular.filter(function (m) { return m.mekan_id === id && (arxivle || !m.arxiv); }); }
+  function adSira(a, b) { return String(a.ad).localeCompare(String(b.ad), 'az', { numeric: true }); }
+  function mekanMenyulari(id, arxivle) { return menyular.filter(function (m) { return m.mekan_id === id && (arxivle || !m.arxiv); }).sort(adSira); }
 
   /* ---------- Hesablama ---------- */
   function bosData() {
@@ -87,7 +88,7 @@
     el('bdSiyahi').innerHTML = '<p class="bos-qeyd">Yüklənir…</p>';
     return Promise.all([
       db.from('budce_mekanlar').select('*').order('ad'),
-      db.from('budce_menyular').select('*').order('qiymet'),
+      db.from('budce_menyular').select('*').order('ad'),
       db.from('budce_hesablar').select('*').order('updated_at', { ascending: false }),
       db.from('events').select('id,title,guest_name,starts_at,venue').is('deleted_at', null).order('starts_at', { ascending: false })
     ]).then(function (r) {
@@ -115,6 +116,8 @@
   /* ---------- Hesablamalar siyahısı ---------- */
   function hesabSiyahi() {
     el('bdArxiv').checked = arxivGoster;
+    var an = hesablar.filter(function (h) { return h.arxiv; }).length;
+    el('bdArxivQutu').hidden = !an; el('bdArxivSay').textContent = an;
     var list = hesablar.filter(function (h) { return arxivGoster || !h.arxiv; });
     var k = el('bdSiyahi');
     if (!list.length) { k.innerHTML = '<p class="bos-qeyd">' + (mekanlar.length ? 'Hələ hesablama yoxdur. “+ Yeni hesablama” basın.' : 'Əvvəlcə “Menyular” bölməsində məkan və onun menyularını əlavə edin, sonra hesablama yaradın.') + '</p>'; muqCiz(); return; }
@@ -370,8 +373,9 @@
     if (eded(d.haqq) > 0) s('Zərərsizlik üçün ən azı', r.zSay == null ? '<small>bu haqla mümkün deyil</small>' : r.zSay + ' nəfər tam haqq');
     el('bdNetice').innerHTML = h;
 
-    el('bdCubuqQalan').textContent = (r.qalan >= 0 ? 'Qalan ' : 'Çatışmayan ') + pul(r.qalan);
-    el('bdCubuqQalan').className = r.qalan < 0 ? 'menfi' : '';
+    var bos = !r.menyuSay && !r.adam;
+    el('bdCubuqQalan').textContent = bos ? 'Menyu saylarını yazın' : (r.qalan >= 0 ? 'Qalan ' : 'Çatışmayan ') + pul(r.qalan);
+    el('bdCubuqQalan').className = !bos && r.qalan < 0 ? 'menfi' : '';
     el('bdCubuqAlt').textContent = r.zHaqq != null ? 'Zərərsizlik haqqı: ' + pul(r.zHaqq) : r.adam + ' nəfər';
     el('bdCubuqVez').textContent = deyisib ? 'Saxlanmayıb' : (cari.id ? 'Saxlanıb ✓' : '');
     el('bdCubuqVez').className = deyisib ? 'gozleyir' : '';
@@ -472,6 +476,8 @@
   var acikMekan = {};
   function menyuSiyahi() {
     el('bdArxiv2').checked = arxivGoster;
+    var an = mekanlar.filter(function (m) { return m.arxiv; }).length + menyular.filter(function (m) { return m.arxiv; }).length;
+    el('bdArxivQutu2').hidden = !an; el('bdArxivSay2').textContent = an;
     var list = mekanlar.filter(function (m) { return arxivGoster || !m.arxiv; }), k = el('bdMekanlar');
     if (!list.length) { k.innerHTML = '<p class="bos-qeyd">Hələ məkan yoxdur. “+ Yeni məkan” basın, sonra onun menyularını əlavə edin.</p>'; return; }
     k.innerHTML = list.map(function (m) {
@@ -556,7 +562,7 @@
       s.then(function (r) {
         if (r.error) return modalXeta('Saxlamaq alınmadı. Yenidən cəhd edin.');
         var i = menyular.findIndex(function (y) { return y.id === r.data.id; }); if (i >= 0) menyular[i] = r.data; else menyular.push(r.data);
-        menyular.sort(function (a, b) { return eded(a.qiymet) - eded(b.qiymet); });
+        menyular.sort(adSira);
         acikMekan[r.data.mekan_id] = true; modalBagla(); bildir(id ? 'Saxlanıldı. Köhnə hesablamalardakı qiymət dəyişmir.' : 'Menyu əlavə olundu.'); ciz();
       }, function () { modalXeta('Saxlamaq alınmadı. İnterneti yoxlayın.'); });
     } }];

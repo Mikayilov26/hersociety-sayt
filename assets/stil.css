@@ -471,3 +471,29 @@ img,video,canvas,svg,input,select,textarea{max-width:100%}
 #bdFiltr{display:grid;grid-template-columns:1fr 1fr;gap:0}
 #bdFiltr button{min-height:48px;font-size:18px}
 #bdFiltr button+button{border-left:none}
+/* 25 noyabr: admin panel — hər yerdə oxunaqlı yazılar */
+.admin .tablar button{font-size:17px;text-transform:none;letter-spacing:.02em;font-weight:700}
+@media (max-width:640px){.admin .tablar button,.admin .tablar button[aria-selected]{font-size:17px;letter-spacing:.01em;min-height:50px}}
+@media (max-width:340px){.admin .tablar button,.admin .tablar button[aria-selected]{font-size:15px}}
+.admin .sahe label{font-size:15px;letter-spacing:.08em}
+.admin .duyme{font-size:16px;letter-spacing:.1em}
+.admin .duyme.kicik{font-size:15px;letter-spacing:.08em}
+.admin .etiket{font-size:14px;letter-spacing:.2em}
+.admin .filtrler button{font-size:17px;min-height:44px}
+.admin .bd-ipucu{font-size:17px}
+.admin .yoxla{font-size:18px}
+.admin .bd-ac .sol>span{font-size:16px}
+.admin .bd-ac .nisanlar i{font-size:13px;letter-spacing:.08em}
+.admin .bd-ac .say small{font-size:12px;letter-spacing:.08em}
+.admin .bd-menyu-kat .sol b{font-size:20px}
+.admin .bd-menyu-kat .sol span{font-size:16px}
+.admin .bd-menyu-kat .sag b{font-size:21px}
+.admin .bd-menyu .sol b{font-size:20px}
+.admin .bd-menyu .sol span{font-size:16px}
+.admin .bd-qrup label{font-size:19px}
+.admin .bd-n{font-size:18px}
+.admin .bd-n.esas span{font-size:16px}
+.admin .bd-xerc .yoxla{font-size:17px}
+.admin .bd-link{font-size:16px}
+.admin .bd-cedvel{font-size:17px}
+#bdYeni,#bdMekanYeni{width:100%}
