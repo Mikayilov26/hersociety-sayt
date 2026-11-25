@@ -127,3 +127,27 @@ $function$;
 -- 25 noyabr düzəliş: bu layihədə yeni cədvəllərə avtomatik icazə verilmir — açıq yazılır (silmə yoxdur)
 grant select, insert, update on public.budce_mekanlar, public.budce_menyular, public.budce_hesablar to authenticated;
 grant select on public.budce_tarixce to authenticated;
+
+-- 25 noyabr: sınaq üçün menyu/məkan silmək (istifadəçinin istəyi ilə). Yalnız admin.
+-- Menyu: heç bir hesablamada sayı 0-dan çox deyilsə silinir (hesablamada adı və qiyməti öz nüsxəsində qalır).
+-- Məkan: heç bir hesablamada seçilməyibsə silinir (menyuları ilə birlikdə). Əks halda "istifade" — arxivə atılır.
+-- Hesablamalar silinmir.
+create or replace function public.budce_sil(novu text, hedef uuid) returns text
+language plpgsql security definer set search_path to '' as $$
+begin
+  if not public.is_admin() then raise exception 'icaze'; end if;
+  if novu = 'menyu' then
+    if exists (select 1 from public.budce_hesablar h, jsonb_array_elements(coalesce(h.data->'menyular','[]'::jsonb)) x
+               where x->>'id' = hedef::text and coalesce((x->>'say')::numeric, 0) > 0) then return 'istifade'; end if;
+    delete from public.budce_menyular where id = hedef;
+    return case when found then 'silindi' else 'tapilmadi' end;
+  elsif novu = 'mekan' then
+    if exists (select 1 from public.budce_hesablar h where h.mekan_id = hedef) then return 'istifade'; end if;
+    delete from public.budce_menyular where mekan_id = hedef;
+    delete from public.budce_mekanlar where id = hedef;
+    return case when found then 'silindi' else 'tapilmadi' end;
+  end if;
+  return 'novu';
+end; $$;
+revoke execute on function public.budce_sil(text, uuid) from public, anon;
+grant execute on function public.budce_sil(text, uuid) to authenticated;

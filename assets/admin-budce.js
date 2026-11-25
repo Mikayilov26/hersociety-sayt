@@ -517,6 +517,23 @@
     setTimeout(function () { var i = el('bdmIc').querySelector('input'); if (i && !i.value) i.focus(); }, 80);
   }
   function modalBagla() { el('bdModal').hidden = true; }
+  // Silmək: yalnız heç bir hesablamada işlənməyibsə (bazada yoxlanılır)
+  function sil(novu, id, ad) {
+    var metn = novu === 'mekan'
+      ? '“' + ad + '” və onun bütün menyuları birdəfəlik silinəcək. Bu məkan hər hansı hesablamada seçilibsə, silinməyəcək — onda arxivə atın.'
+      : '“' + ad + '” birdəfəlik silinəcək. Hər hansı hesablamada bu menyudan yeyən varsa, silinməyəcək — onda arxivə atın.';
+    modalBagla();
+    tesdiq('Silək?', metn, 'Sil').then(function (b) {
+      if (!b) return;
+      db.rpc('budce_sil', { novu: novu, hedef: id }).then(function (r) {
+        if (r.error) return xeta(r.error);
+        if (r.data === 'istifade') { bildir(novu === 'mekan' ? 'Bu məkan hesablamada işlənib, silinmədi. Arxivə ata bilərsiniz.' : 'Bu menyu hesablamada işlənib, silinmədi. Arxivə ata bilərsiniz.'); return; }
+        if (novu === 'mekan') { mekanlar = mekanlar.filter(function (x) { return x.id !== id; }); menyular = menyular.filter(function (x) { return x.mekan_id !== id; }); }
+        else menyular = menyular.filter(function (x) { return x.id !== id; });
+        bildir('Silindi.'); ciz();
+      }, xeta);
+    });
+  }
   function modalXeta(m) { var x = el('bdmXeta'); x.hidden = !m; x.textContent = m || ''; }
 
   function mekanForm(id) {
@@ -540,6 +557,7 @@
         modalBagla(); bildir(yeni ? 'Məkan arxivə atıldı. Köhnə hesablamalar olduğu kimi qalır.' : 'Məkan qaytarıldı.'); ciz();
       });
     } });
+    if (id) dyl.push({ ad: 'Sil', cls: 'tehlike', f: function () { sil('mekan', id, m.ad); } });
     dyl.push({ ad: 'Ləğv et', f: modalBagla });
     modal(id ? 'Məkanı düzəlt' : 'Yeni məkan',
       '<div class="sahe"><label for="bmAd">Məkanın adı</label><input id="bmAd" maxlength="120" placeholder="məs. Lalo Bar Lounge" value="' + e(m.ad) + '"></div>' +
@@ -574,6 +592,7 @@
         modalBagla(); bildir(yeni ? 'Menyu arxivə atıldı.' : 'Menyu qaytarıldı.'); ciz();
       });
     } });
+    if (id) dyl.push({ ad: 'Sil', cls: 'tehlike', f: function () { sil('menyu', id, x.ad); } });
     dyl.push({ ad: 'Ləğv et', f: modalBagla });
     modal((id ? 'Menyunu düzəlt' : 'Yeni menyu') + (m ? ' · ' + m.ad : ''),
       '<div class="sahe"><label for="bnAd">Menyunun adı</label><input id="bnAd" maxlength="120" placeholder="məs. Kanape 2 / VIP" value="' + e(x.ad) + '"></div>' +
