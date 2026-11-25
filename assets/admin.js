@@ -109,6 +109,7 @@
     if (ad === 'hesab') adminler();
     if (ad === 'devetler') dvSiyahi();
     if (ad === 'statistika' && window.stYukle) window.stYukle();
+    if (ad === 'budce' && window.bdYukle) window.bdYukle();
     if (ad === 'hesab' && window.ehYukle) window.ehYukle();
     try { sessionStorage.setItem('hs-tab', ad); } catch (x) {}
   }

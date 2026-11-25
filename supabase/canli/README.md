@@ -10,6 +10,7 @@ Bu qovluq Supabase-dəki (layihə `bxykddiqsxwnwfrgnutm`) canlı bazanın tam t�
 | `04_avtomatik_isler.sql` | Gecə nüsxələri, Drive köçürmə, təmizlik (pg_cron) |
 | `05_veziyyetler.sql` | Şəklin vəziyyəti, görüşün mərhələsi, icazə qeydi, vəziyyət hesabatı |
 | `06_albom_bir_acik.sql` | Eyni anda yalnız bir açıq albom (bazada qayda) və `albom_ac()` |
+| `09_budce.sql` | Büdcə: məkanlar, menyular, hesablamalar, hesablamanın tarixçəsi (yalnız adminlər; silmə icazəsi yoxdur) |
 
 Köhnə `001_quruluş.sql` və `002_rey_formasi.sql` tarixçə üçün qalır; hazırkı vəziyyət bu qovluqdadır.
 
